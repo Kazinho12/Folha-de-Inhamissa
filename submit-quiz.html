@@ -823,8 +823,10 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
 
+        // imgbb API configuration
+        const IMGBB_API_KEY = '490019b11f119ad684399138b0226ff5';
+        const IMGBB_API_URL = 'https://api.imgbb.com/1/upload';
 
         const firebaseConfig = {
             apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
@@ -838,7 +840,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const storage = getStorage(app);
 
         const ADMIN_EMAILS = ['killiandesigner@gmail.com', 'jeanabilio72@gmail.com', 'ianomachai@gmail.com'];
 
@@ -936,23 +937,48 @@
                 let imageUrl = '';
                 if (imageFile) {
                     updateProgress(1, 0);
-                    const storageRef = ref(storage, `quizzes/${Date.now()}_${imageFile.name}`);
-                    const uploadTask = uploadBytesResumable(storageRef, imageFile);
+                    
+                    try {
+                        const formData = new FormData();
+                        formData.append('image', imageFile);
+                        formData.append('key', IMGBB_API_KEY);
 
-                    await new Promise((resolve, reject) => {
-                        uploadTask.on('state_changed', 
-                            (snapshot) => {
-                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                                updateProgress(1, progress);
-                            },
-                            (error) => reject(error),
-                            async () => {
-                                imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-                                updateProgress(1, 100);
-                                resolve();
-                            }
-                        );
-                    });
+                        const xhr = new XMLHttpRequest();
+                        
+                        await new Promise((resolve, reject) => {
+                            xhr.upload.addEventListener('progress', (e) => {
+                                if (e.lengthComputable) {
+                                    const progress = (e.loaded / e.total) * 100;
+                                    updateProgress(1, progress);
+                                }
+                            });
+
+                            xhr.addEventListener('load', () => {
+                                if (xhr.status === 200) {
+                                    const response = JSON.parse(xhr.responseText);
+                                    if (response.success) {
+                                        imageUrl = response.data.url;
+                                        updateProgress(1, 100);
+                                        resolve();
+                                    } else {
+                                        reject(new Error('Erro ao fazer upload da imagem'));
+                                    }
+                                } else {
+                                    reject(new Error('Erro na requisição: ' + xhr.status));
+                                }
+                            });
+
+                            xhr.addEventListener('error', () => {
+                                reject(new Error('Erro de conexão ao fazer upload'));
+                            });
+
+                            xhr.open('POST', IMGBB_API_URL);
+                            xhr.send(formData);
+                        });
+                    } catch (error) {
+                        console.error('Erro no upload da imagem:', error);
+                        throw new Error('Falha ao enviar imagem: ' + error.message);
+                    }
                 } else {
                     updateProgress(1, 100);
                 }
