@@ -612,10 +612,65 @@
         </div>
     </div>
 
+    <script>
+        let questionCount = 0;
+
+        window.addQuestion = function() {
+            questionCount++;
+            const container = document.getElementById('questions-container');
+            const questionDiv = document.createElement('div');
+            questionDiv.className = 'question-block';
+            questionDiv.innerHTML = `
+                <div class="question-header">
+                    <h4>Pergunta ${questionCount}</h4>
+                    <button type="button" class="btn-remove" onclick="removeQuestion(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <input type="text" class="form-control question-text" placeholder="Digite a pergunta..." required>
+                <div class="options-container">
+                    <div class="option-group">
+                        <input type="radio" name="correct-${questionCount}" value="0" required>
+                        <input type="text" class="form-control option-input" placeholder="Opção A" required>
+                    </div>
+                    <div class="option-group">
+                        <input type="radio" name="correct-${questionCount}" value="1" required>
+                        <input type="text" class="form-control option-input" placeholder="Opção B" required>
+                    </div>
+                    <div class="option-group">
+                        <input type="radio" name="correct-${questionCount}" value="2" required>
+                        <input type="text" class="form-control option-input" placeholder="Opção C" required>
+                    </div>
+                    <div class="option-group">
+                        <input type="radio" name="correct-${questionCount}" value="3" required>
+                        <input type="text" class="form-control option-input" placeholder="Opção D" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-lightbulb"></i>
+                        Justificativa da Resposta Correta
+                    </label>
+                    <textarea class="form-control justification-text" rows="3" placeholder="Explique por que esta é a resposta correta..." required></textarea>
+                </div>
+            `;
+            container.appendChild(questionDiv);
+        };
+
+        window.removeQuestion = function(btn) {
+            btn.closest('.question-block').remove();
+        };
+
+        // Adicionar primeira pergunta ao carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            addQuestion();
+        });
+    </script>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
         import { jsPDF } from "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
 
@@ -635,7 +690,6 @@
         const storage = getStorage(app);
 
         const ADMIN_EMAILS = ['killiandesigner@gmail.com', 'jeanabilio72@gmail.com', 'ianomachai@gmail.com'];
-        let questionCount = 0;
 
         const imageInput = document.getElementById('quiz-image');
         const imagePreview = document.getElementById('image-preview');
@@ -652,51 +706,6 @@
                 reader.readAsDataURL(file);
             }
         });
-
-        window.addQuestion = function() {
-            questionCount++;
-            const container = document.getElementById('questions-container');
-            const questionBlock = document.createElement('div');
-            questionBlock.className = 'question-block';
-            questionBlock.id = `question-${questionCount}`;
-            questionBlock.innerHTML = `
-                <div class="question-header">
-                    <strong>Pergunta ${questionCount}</strong>
-                    <button type="button" class="remove-question" onclick="removeQuestion(${questionCount})">
-                        <i class="fas fa-trash"></i> Remover
-                    </button>
-                </div>
-                <input type="text" class="form-control" name="question-text-${questionCount}" placeholder="Digite a pergunta..." required style="margin-bottom: 16px;">
-                <div class="option-input">
-                    <input type="radio" name="correct-${questionCount}" value="0" required>
-                    <input type="text" class="form-control" name="option-${questionCount}-0" placeholder="Opção A" required>
-                </div>
-                <div class="option-input">
-                    <input type="radio" name="correct-${questionCount}" value="1">
-                    <input type="text" class="form-control" name="option-${questionCount}-1" placeholder="Opção B" required>
-                </div>
-                <div class="option-input">
-                    <input type="radio" name="correct-${questionCount}" value="2">
-                    <input type="text" class="form-control" name="option-${questionCount}-2" placeholder="Opção C" required>
-                </div>
-                <div class="option-input">
-                    <input type="radio" name="correct-${questionCount}" value="3">
-                    <input type="text" class="form-control" name="option-${questionCount}-3" placeholder="Opção D" required>
-                </div>
-                <div class="form-group" style="margin-top: 16px;">
-                    <label class="form-label">
-                        <i class="fas fa-lightbulb"></i>
-                        Justificativa da resposta correta
-                    </label>
-                    <textarea class="form-control" name="justification-${questionCount}" rows="3" placeholder="Explique porque a resposta correta está correta..." required></textarea>
-                </div>
-            `;
-            container.appendChild(questionBlock);
-        };
-
-        window.removeQuestion = function(id) {
-            document.getElementById(`question-${id}`).remove();
-        };
 
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
@@ -720,24 +729,19 @@
             const category = document.getElementById('quiz-category').value;
             const imageFile = imageInput.files[0];
 
-            const questions = [];
             const questionBlocks = document.querySelectorAll('.question-block');
+            const questions = [];
 
             questionBlocks.forEach((block, index) => {
-                const questionText = block.querySelector(`input[name^="question-text"]`).value.trim();
-                const options = [];
-                for (let i = 0; i < 4; i++) {
-                    const option = block.querySelector(`input[name$="-${i}"]`).value.trim();
-                    options.push(option);
-                }
-                const correctIndex = parseInt(block.querySelector(`input[name^="correct"]:checked`)?.value || 0);
-                const justification = block.querySelector(`textarea[name^="justification-${index + 1}"]`).value.trim();
-
+                const questionText = block.querySelector('.question-text').value.trim();
+                const options = Array.from(block.querySelectorAll('.option-input')).map(input => input.value.trim());
+                const correctAnswer = parseInt(block.querySelector(`input[name="correct-${index + 1}"]:checked`).value);
+                const justification = block.querySelector('.justification-text').value.trim();
 
                 questions.push({
                     question: questionText,
                     options,
-                    correctIndex,
+                    correctAnswer,
                     justification
                 });
             });
@@ -800,8 +804,6 @@
                 window.location.href = 'admin.html';
             }
         });
-
-        addQuestion();
     </script>
 </body>
 </html>
