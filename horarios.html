@@ -3,27 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Horários | Portal 04 de Outubro</title>
+    <title>Horários | Folha de Inhamissa</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --accent: #f59e0b;
-            --text: #1f2937;
-            --text-light: #6b7280;
-            --light: #f3f4f6;
-            --white: #ffffff;
-            --gray: #e5e7eb;
-            --dark-gray: #374151;
+            --primary: #FFD700;
+            --primary-dark: #FFC107;
+            --accent: #FFD700;
+            --text: #FFFFFF;
+            --text-light: #b0b0b0;
+            --light: #1a1a1a;
+            --white: #000000;
+            --gray: #333333;
+            --dark-gray: #d0d0d0;
             --error: #e74c3c;
             --success: #2ecc71;
             --warning: #f39c12;
             --info: #3498db;
-            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
         }
 
         * {
@@ -389,24 +389,39 @@
         }
 
         .day-header {
-            background-color: var(--primary);
-            color: white;
-            padding: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            padding: 12px;
             text-align: center;
             font-weight: 600;
-            border-radius: 6px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .day-header:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
         }
 
         .schedule-item {
-            background-color: var(--white);
-            padding: 10px;
-            border-radius: 6px;
-            box-shadow: var(--card-shadow);
+            background: var(--white);
+            padding: 12px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-sm);
             min-height: 80px;
             position: relative;
             overflow: hidden;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .schedule-item:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(255, 215, 0, 0.3);
         }
 
         .schedule-item.empty:hover {
@@ -775,9 +790,9 @@
 <body>
     <!-- App Bar -->
     <header class="app-bar">
-        <a href="index.html" class="logo">
+        <a href="home.html" class="logo">
             <i class="fas fa-graduation-cap logo-icon"></i>
-            <span>Portal 04 de Outubro</span>
+            <span>Folha de Inhamissa</span>
         </a>
         <h1 class="app-bar-title">Horários</h1>
         <div class="app-bar-actions">
@@ -1090,7 +1105,7 @@
 
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
-        <a href="index.html" class="nav-item">
+        <a href="home.html" class="nav-item">
             <i class="fas fa-home nav-icon"></i>
             <span>Início</span>
         </a>
@@ -1136,6 +1151,27 @@
         const closeSearchBtn = document.getElementById('close-search');
         const userAvatar = document.getElementById('user-avatar');
         const avatarInitials = document.getElementById('avatar-initials');
+        
+        // Carregar dados do usuário
+        async function loadUserAvatar(userId) {
+            try {
+                const userDoc = await db.collection('users').doc(userId).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    const initials = userData.name ? 
+                        userData.name.split(' ').map(n => n[0]).join('').toUpperCase() : 
+                        auth.currentUser.email[0].toUpperCase();
+                    
+                    if (userData.photoURL) {
+                        userAvatar.innerHTML = `<img src="${userData.photoURL}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                    } else {
+                        avatarInitials.textContent = initials;
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar avatar:', error);
+            }
+        }
         const profileModal = document.getElementById('profile-modal');
         const profileInitials = document.getElementById('profile-initials');
         const profileName = document.getElementById('profile-name');
@@ -1192,10 +1228,10 @@
                 searchModal.style.display = 'none';
             });
 
-            // Profile modal
+            // Profile modal - desabilitado, redireciona para index
             userAvatar.addEventListener('click', (e) => {
                 e.stopPropagation();
-                profileModal.style.display = profileModal.style.display === 'block' ? 'none' : 'block';
+                window.location.href = 'index.html';
             });
 
             logoutBtn.addEventListener('click', () => {
@@ -1524,31 +1560,39 @@
         async function loadTasks(filter = 'all') {
             if (!currentUser) return;
             
-            let query = db.collection('tasks')
-                .where('userId', '==', currentUser.uid)
-                .orderBy('dueDate', 'asc');
-            
-            // Aplicar filtros
-            if (filter === 'pending') {
-                query = query.where('completed', '==', false);
-            } else if (filter === 'completed') {
-                query = query.where('completed', '==', true);
-            }
-            
             try {
-                const querySnapshot = await query.get();
-                const tasks = [];
+                const querySnapshot = await db.collection('tasks')
+                    .where('userId', '==', currentUser.uid)
+                    .get();
+                
+                let tasks = [];
                 
                 querySnapshot.forEach(doc => {
+                    const taskData = doc.data();
                     tasks.push({
                         id: doc.id,
-                        ...doc.data()
+                        ...taskData
                     });
                 });
+                
+                // Ordenar por data manualmente
+                tasks.sort((a, b) => {
+                    const dateA = a.dueDate?.toDate ? a.dueDate.toDate() : new Date(a.dueDate);
+                    const dateB = b.dueDate?.toDate ? b.dueDate.toDate() : new Date(b.dueDate);
+                    return dateA - dateB;
+                });
+                
+                // Aplicar filtros
+                if (filter === 'pending') {
+                    tasks = tasks.filter(task => !task.completed);
+                } else if (filter === 'completed') {
+                    tasks = tasks.filter(task => task.completed);
+                }
                 
                 renderTasks(tasks);
             } catch (error) {
                 console.error('Erro ao carregar tarefas:', error);
+                taskList.innerHTML = '<p class="no-tasks">Erro ao carregar tarefas</p>';
             }
         }
 
@@ -1761,6 +1805,7 @@
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = user;
+                loadUserAvatar(user.uid);
                 updateProfileData();
                 loadSchedule();
                 init();

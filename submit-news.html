@@ -1,0 +1,602 @@
+
+<!DOCTYPE html>
+<html lang="pt-MZ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enviar Notícia | Folha de Inhamissa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FFD700;
+            --primary-dark: #FFC107;
+            --text: #FFFFFF;
+            --bg: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --border: #333333;
+            --error: #ef4444;
+            --success: #10b981;
+        }
+
+        [data-theme="light"] {
+            --primary: #FFD700;
+            --primary-dark: #FFC107;
+            --text: #1a1a1a;
+            --bg: #f8f9fa;
+            --card-bg: #FFFFFF;
+            --border: #e5e7eb;
+            --error: #ef4444;
+            --success: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        .app-bar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--card-bg);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 16px 24px;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.2rem;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .form-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .form-label i {
+            color: var(--primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .editor-container {
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            min-height: 300px;
+        }
+
+        .ql-toolbar {
+            border-radius: 8px 8px 0 0;
+            background: #f9fafb;
+        }
+
+        .ql-container {
+            border-radius: 0 0 8px 8px;
+            min-height: 250px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .upload-info {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .image-preview {
+            margin-top: 16px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .image-preview img {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 32px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--card-bg);
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 10000;
+        }
+
+        .toast.show {
+            display: flex;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--error);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-card {
+                padding: 24px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="app-bar">
+        <a href="home.html" class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            Folha de Inhamissa
+        </a>
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <div class="theme-toggle" id="theme-toggle" style="width: 40px; height: 40px; border-radius: 50%; background: var(--border); color: var(--primary); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s;">
+                <i class="fas fa-sun" id="theme-icon"></i>
+            </div>
+            <a href="noticias.html" style="text-decoration: none; color: var(--text);">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="header">
+            <h1>📰 Enviar Nova Notícia</h1>
+            <p>Compartilhe descobertas científicas incríveis com a comunidade!</p>
+        </div>
+
+        <div class="form-card">
+            <form id="news-form">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-heading"></i>
+                        Título da Notícia
+                    </label>
+                    <input type="text" class="form-control" id="news-title" placeholder="Digite um título impactante..." required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-folder"></i>
+                        Categoria
+                    </label>
+                    <select class="form-control" id="news-category" required>
+                        <option value="">Selecione uma categoria</option>
+                        <option value="Educação">Educação</option>
+                        <option value="Eventos">Eventos</option>
+                        <option value="Esportes">Esportes</option>
+                        <option value="Cultura">Cultura</option>
+                        <option value="Tecnologia">Tecnologia</option>
+                        <option value="Comunidade">Comunidade</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-file-alt"></i>
+                        Resumo
+                    </label>
+                    <textarea class="form-control" id="news-excerpt" rows="3" placeholder="Escreva um resumo atrativo da notícia..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-paragraph"></i>
+                        Conteúdo Completo
+                    </label>
+                    <div id="editor" class="editor-container"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-link"></i>
+                        Fonte (Opcional)
+                    </label>
+                    <input type="url" class="form-control" id="news-source" placeholder="https://exemplo.com/fonte-da-noticia">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-image"></i>
+                        Imagem da Notícia
+                    </label>
+                    <input type="file" id="news-image" accept="image/*" style="display: none;">
+                    <div class="upload-area" onclick="document.getElementById('news-image').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <div><strong>Clique para selecionar uma imagem</strong></div>
+                        <div class="upload-info">JPG, PNG ou GIF (máx. 32MB)</div>
+                    </div>
+                    <div class="image-preview" id="image-preview">
+                        <img id="preview-img" alt="Preview">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-tags"></i>
+                        Tags (separadas por vírgula)
+                    </label>
+                    <input type="text" class="form-control" id="news-tags" placeholder="descoberta, ciência, inovação, pesquisa">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='noticias.html'">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        Publicar Notícia
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message"></span>
+    </div>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
+            authDomain: "luna-bot-70962.firebaseapp.com",
+            projectId: "luna-bot-70962",
+            storageBucket: "luna-bot-70962.appspot.com",
+            messagingSenderId: "247837414432",
+            appId: "1:247837414432:web:f7f9df049b8cfdbd909845"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        const ADMIN_EMAILS = ['killiandesigner@gmail.com', 'jeanabilio72@gmail.com', 'ianomachai@gmail.com'];
+
+        // Tema
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeIcon.className = 'fas fa-moon';
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                themeIcon.className = 'fas fa-sun';
+            }
+        }
+
+        async function loadThemePreference(userId) {
+            try {
+                const userDoc = await getDoc(doc(db, 'users', userId));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    const theme = userData.theme || 'dark';
+                    applyTheme(theme);
+                    return theme;
+                }
+            } catch (error) {
+                console.warn('Erro ao carregar tema:', error);
+            }
+            applyTheme('dark');
+            return 'dark';
+        }
+
+        async function saveThemePreference(userId, theme) {
+            try {
+                await setDoc(doc(db, 'users', userId), { theme }, { merge: true });
+            } catch (error) {
+                console.warn('Erro ao salvar tema:', error);
+            }
+        }
+
+        themeToggle.addEventListener('click', async () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(newTheme);
+            
+            if (auth.currentUser) {
+                await saveThemePreference(auth.currentUser.uid, newTheme);
+            }
+        });
+
+        const quill = new Quill('#editor', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline', 'strike'],
+                    ['link'],
+                    [{ 'header': 1 }, { 'header': 2 }],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['clean']
+                ]
+            },
+            placeholder: 'Desenvolva o conteúdo completo da notícia com detalhes científicos...'
+        });
+
+        const imageInput = document.getElementById('news-image');
+        const imagePreview = document.getElementById('image-preview');
+        const previewImg = document.getElementById('preview-img');
+
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    previewImg.src = event.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const icon = toast.querySelector('i');
+
+            toastMessage.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            if (type === 'success') {
+                icon.className = 'fas fa-check-circle';
+            } else {
+                icon.className = 'fas fa-exclamation-circle';
+            }
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        document.getElementById('news-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const user = auth.currentUser;
+            if (!user) {
+                showToast('Faça login para publicar notícias', 'error');
+                setTimeout(() => window.location.href = 'login.html', 1500);
+                return;
+            }
+
+            if (!ADMIN_EMAILS.includes(user.email)) {
+                showToast('Apenas administradores podem publicar notícias', 'error');
+                return;
+            }
+
+            const title = document.getElementById('news-title').value.trim();
+            const category = document.getElementById('news-category').value;
+            const excerpt = document.getElementById('news-excerpt').value.trim();
+            const content = quill.getText().trim();
+            const htmlContent = quill.root.innerHTML;
+            const source = document.getElementById('news-source').value.trim();
+            const tags = document.getElementById('news-tags').value.split(',').map(t => t.trim()).filter(t => t);
+            const imageFile = imageInput.files[0];
+
+            if (!title || !category || !excerpt || !content) {
+                showToast('Preencha todos os campos obrigatórios', 'error');
+                return;
+            }
+
+            try {
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
+
+                let imageUrl = '';
+                if (imageFile) {
+                    const storageRef = ref(storage, `news/${Date.now()}_${imageFile.name}`);
+                    const uploadTask = uploadBytesResumable(storageRef, imageFile);
+
+                    await new Promise((resolve, reject) => {
+                        uploadTask.on('state_changed', null,
+                            (error) => reject(error),
+                            async () => {
+                                imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                                resolve();
+                            }
+                        );
+                    });
+                }
+
+                await addDoc(collection(db, 'news'), {
+                    title,
+                    category,
+                    excerpt,
+                    content,
+                    htmlContent,
+                    source,
+                    tags,
+                    imageUrl,
+                    author: user.displayName || user.email.split('@')[0],
+                    authorId: user.uid,
+                    createdAt: serverTimestamp(),
+                    views: 0
+                });
+
+                showToast('Notícia publicada com sucesso!', 'success');
+                setTimeout(() => window.location.href = 'noticias.html', 1500);
+
+            } catch (error) {
+                console.error('Erro ao publicar:', error);
+                showToast('Erro ao publicar notícia', 'error');
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Publicar Notícia';
+            }
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else if (!ADMIN_EMAILS.includes(user.email)) {
+                alert('Acesso restrito a administradores');
+                window.location.href = 'admin.html';
+            } else {
+                await loadThemePreference(user.uid);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -3,31 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aprenda | Escola Primária 1º e 2º Graus 04 de Outubro</title>
+    <title>Aprenda | Folha de Inhamissa</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-    --primary: #2563eb;
-    --primary-dark: #1e40af;
-    --primary-light: #93c5fd;
-    --accent: #f59e0b;
-    --accent-dark: #d97706;
-    --text: #1f2937;
-    --text-light: #6b7280;
-    --text-lighter: #9ca3af;
-    --light: #f3f4f6;
-    --lighter: #f9fafb;
-    --white: #ffffff;
-    --gray: #e5e7eb;
-    --dark-gray: #374151;
+    --primary: #FFD700;
+    --primary-dark: #FFC107;
+    --primary-light: #FFE55C;
+    --accent: #FFD700;
+    --accent-dark: #FFC107;
+    --text: #FFFFFF;
+    --text-light: #b0b0b0;
+    --text-lighter: #808080;
+    --light: #1a1a1a;
+    --lighter: #0a0a0a;
+    --white: #000000;
+    --gray: #333333;
+    --dark-gray: #d0d0d0;
     --error: #e74c3c;
     --error-light: #fadbd8;
     --success: #2ecc71;
     --success-light: #d5f5e3;
     --warning: #f39c12;
     --info: #3498db;
-    
+
     /* Cores das matérias */
     --math-color: #e74c3c;
     --math-light: #fadbd8;
@@ -49,15 +49,15 @@
     --civics-light: #fadbd8;
     --english-color: #2980b9;
     --english-light: #d6eaf8;
-    
+
     --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     --modal-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    
+
     --border-radius-sm: 6px;
     --border-radius-md: 12px;
     --border-radius-lg: 16px;
-    
+
     --transition: all 0.3s ease;
 }
 
@@ -69,12 +69,13 @@
 }
 
 body {
-    background-color: var(--light);
+    background-color: #000000;
     color: var(--text);
     display: flex;
     flex-direction: column;
     min-height: 100vh;
     line-height: 1.6;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 /* Typography */
@@ -293,20 +294,51 @@ a:hover {
 }
 
 .module-card {
-    background-color: var(--white);
-    border-radius: var(--border-radius-md);
+    background: var(--white);
+    border-radius: 20px;
     overflow: hidden;
     box-shadow: var(--card-shadow);
-    transition: var(--transition);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     display: flex;
     flex-direction: column;
     height: 100%;
+    border: 1px solid rgba(255, 215, 0, 0.1);
+    position: relative;
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.module-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.module-card:hover::before {
+    transform: scaleX(1);
 }
 
 .module-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--card-shadow-hover);
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 215, 0, 0.3);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .module-image {
@@ -900,11 +932,11 @@ a:hover {
     .bottom-nav {
         display: none;
     }
-    
+
     .learning-modules {
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     }
-    
+
     .learning-container {
         max-width: 900px;
     }
@@ -914,11 +946,11 @@ a:hover {
     .learning-modules {
         grid-template-columns: 1fr;
     }
-    
+
     .module-card {
         max-width: 100%;
     }
-    
+
     .quiz-options {
         grid-template-columns: 1fr;
     }
@@ -942,14 +974,17 @@ a:hover {
 <body>
     <!-- App Bar -->
     <header class="app-bar">
-        <a href="index.html" class="logo">
+        <a href="home.html" class="logo">
             <i class="fas fa-graduation-cap logo-icon"></i>
-            <span>Portal 04 de Outubro</span>
+            <span>Folha de Inhamissa</span>
         </a>
         <h1 class="app-bar-title">Aprenda</h1>
         <div class="app-bar-actions">
             <div class="search-btn" id="search-btn">
                 <i class="fas fa-search"></i>
+            </div>
+            <div class="user-avatar" id="user-avatar" style="width: 40px; height: 40px; border-radius: 50%; background-color: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer; margin-left: 10px;">
+                <span id="avatar-initials">U</span>
             </div>
         </div>
     </header>
@@ -977,313 +1012,26 @@ a:hover {
             <p class="page-subtitle">Conhecimento para todas as idades e níveis</p>
         </div>
 
-        <div class="learning-modules">
-            <!-- História da Escola -->
-            <div class="module-card school-history-module" id="historia-module">
-                <div class="module-image">
-                    <i class="fas fa-landmark"></i>
-                </div>
-                <div class="module-content">
-                    <h3 class="module-title">História da Escola</h3>
-                    <p class="module-description">Conheça a trajetória da nossa escola desde sua fundação</p>
-                    <div class="module-progress">
-                        <div class="progress-bar" id="historia-progress"></div>
-                    </div>
-                    <div class="module-meta">
-                        <span>5 seções</span>
-                        <span>Quiz incluído</span>
-                    </div>
-                </div>
-            </div>
+        <!-- Botão para adicionar quiz -->
+        <div style="text-align: center; margin-bottom: 30px;">
+            <a href="submit-quiz.html" style="display: inline-block; padding: 14px 28px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: var(--transition); text-decoration: none;">
+                <i class="fas fa-plus"></i> Adicionar Novo Quiz
+            </a>
+        </div>
 
-            <!-- Matemática -->
-            <div class="module-card math-module" id="matematica-module">
-                <div class="module-image">
-                    <i class="fas fa-square-root-alt"></i>
-                </div>
-                <div class="module-content">
-                    <h3 class="module-title">Matemática</h3>
-                    <p class="module-description">Desafios matemáticos para todas as idades</p>
-                    <div class="module-progress">
-                        <div class="progress-bar" id="matematica-progress"></div>
-                    </div>
-                    <div class="module-meta">
-                        <span>3 níveis</span>
-                        <span>20 questões</span>
-                    </div>
-                </div>
-            </div>
+        <!-- Quizzes da Comunidade -->
+        <div id="community-quizzes" style="margin-bottom: 40px;"></div>
 
-            <!-- Português -->
-            <div class="module-card portuguese-module" id="portugues-module">
-                <div class="module-image">
-                    <i class="fas fa-book-open"></i>
-                </div>
-                <div class="module-content">
-                    <h3 class="module-title">Língua Portuguesa</h3>
-                    <p class="module-description">Gramática, ortografia e interpretação de texto</p>
-                    <div class="module-progress">
-                        <div class="progress-bar" id="portugues-progress"></div>
-                    </div>
-                    <div class="module-meta">
-                        <span>4 categorias</span>
-                        <span>15 exercícios</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- História de Moçambique -->
-            <div class="module-card history-module" id="historia-mocambique-module">
-                <div class="module-image">
-                    <i class="fas fa-globe-africa"></i>
-                </div>
-                <div class="module-content">
-                    <h3 class="module-title">História de Moçambique</h3>
-                    <p class="module-description">A jornada do nosso país desde a pré-independência</p>
-                    <div class="module-progress">
-                        <div class="progress-bar" id="historia-mocambique-progress"></div>
-                    </div>
-                    <div class="module-meta">
-                        <span>3 períodos</span>
-                        <span>Quiz cronológico</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Geografia -->
-            <div class="module-card geography-module" id="geografia-module">
-                <div class="module-image">
-                    <i class="fas fa-map-marked-alt"></i>
-                </div>
-                <div class="module-content">
-                    <h3 class="module-title">Geografia</h3>
-                    <p class="module-description">Moçambique e o mundo</p>
-                    <div class="module-progress">
-                        <div class="progress-bar" id="geografia-progress"></div>
-                    </div>
-                    <div class="module-meta">
-                        <span>4 temas</span>
-                        <span>12 questões</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Biologia -->
-            <div class="module-card biology-module" id="biologia-module">
-                <div class="module-image">
-                    <i class="fas fa-dna"></i>
-                </div>
-                <div class="module-content">
-                    <h3 class="module-title">Biologia</h3>
-                    <p class="module-description">O estudo da vida</p>
-                    <div class="module-progress">
-                        <div class="progress-bar" id="biologia-progress"></div>
-                    </div>
-                    <div class="module-meta">
-                        <span>5 áreas</span>
-                        <span>18 questões</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Física -->
-            <div class="module-card physics-module" id="fisica-module">
-                <div class="module-image">
-                    <i class="fas fa-atom"></i>
-                </div>
-                <div class="module-content">
-                    <h3 class="module-title">Física</h3>
-                    <p class="module-description">Leis do universo</p>
-                    <div class="module-progress">
-                        <div class="progress-bar" id="fisica-progress"></div>
-                    </div>
-                    <div class="module-meta">
-                        <span>3 níveis</span>
-                        <span>15 questões</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Química -->
-            <div class="module-card chemistry-module" id="quimica-module">
-                <div class="module-image">
-                    <i class="fas fa-flask"></i>
-                </div>
-                <div class="module-content">
-                    <h3 class="module-title">Química</h3>
-                    <p class="module-description">Ciência da matéria</p>
-                    <div class="module-progress">
-                        <div class="progress-bar" id="quimica-progress"></div>
-                    </div>
-                    <div class="module-meta">
-                        <span>4 áreas</span>
-                        <span>16 questões</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Educação Cívica -->
-            <div class="module-card civics-module" id="educacao-civica-module">
-                <div class="module-image">
-                    <i class="fas fa-university"></i>
-                </div>
-                <div class="module-content">
-                    <h3 class="module-title">Educação Cívica</h3>
-                    <p class="module-description">Cidadania e deveres</p>
-                    <div class="module-progress">
-                        <div class="progress-bar" id="educacao-civica-progress"></div>
-                    </div>
-                    <div class="module-meta">
-                        <span>5 temas</span>
-                        <span>12 questões</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Inglês -->
-            <div class="module-card english-module" id="ingles-module">
-                <div class="module-image">
-                    <i class="fas fa-language"></i>
-                </div>
-                <div class="module-content">
-                    <h3 class="module-title">Inglês</h3>
-                    <p class="module-description">Língua internacional</p>
-                    <div class="module-progress">
-                        <div class="progress-bar" id="ingles-progress"></div>
-                    </div>
-                    <div class="module-meta">
-                        <span>4 habilidades</span>
-                        <span>14 questões</span>
-                    </div>
-                </div>
-            </div>
+        <div class="learning-modules" id="quiz-grid">
+            <!-- Quizzes da comunidade serão carregados aqui -->
         </div>
     </main>
 
-    <!-- Learning Modals -->
-    <div class="learning-modal school-history-modal" id="learning-modal">
-        <div class="learning-container">
-            <div class="learning-header">
-                <h2 class="learning-title">História da Escola 04 de Outubro</h2>
-                <div class="close-learning" id="close-learning">&times;</div>
-            </div>
-            <div class="learning-body" id="learning-body">
-                <!-- Content will be loaded dynamically -->
-            </div>
-        </div>
-    </div>
-
-    <div class="learning-modal math-modal" id="matematica-modal">
-        <div class="learning-container">
-            <div class="learning-header">
-                <h2 class="learning-title">Desafios de Matemática</h2>
-                <div class="close-learning" id="close-matematica">&times;</div>
-            </div>
-            <div class="learning-body" id="matematica-body">
-                <!-- Content will be loaded dynamically -->
-            </div>
-        </div>
-    </div>
-
-    <div class="learning-modal portuguese-modal" id="portugues-modal">
-        <div class="learning-container">
-            <div class="learning-header">
-                <h2 class="learning-title">Língua Portuguesa</h2>
-                <div class="close-learning" id="close-portugues">&times;</div>
-            </div>
-            <div class="learning-body" id="portugues-body">
-                <!-- Content will be loaded dynamically -->
-            </div>
-        </div>
-    </div>
-
-    <div class="learning-modal history-modal" id="historia-mocambique-modal">
-        <div class="learning-container">
-            <div class="learning-header">
-                <h2 class="learning-title">História de Moçambique</h2>
-                <div class="close-learning" id="close-historia-mocambique">&times;</div>
-            </div>
-            <div class="learning-body" id="historia-mocambique-body">
-                <!-- Content will be loaded dynamically -->
-            </div>
-        </div>
-    </div>
-
-    <div class="learning-modal geography-modal" id="geografia-modal">
-        <div class="learning-container">
-            <div class="learning-header">
-                <h2 class="learning-title">Geografia</h2>
-                <div class="close-learning" id="close-geografia">&times;</div>
-            </div>
-            <div class="learning-body" id="geografia-body">
-                <!-- Content will be loaded dynamically -->
-            </div>
-        </div>
-    </div>
-
-    <div class="learning-modal biology-modal" id="biologia-modal">
-        <div class="learning-container">
-            <div class="learning-header">
-                <h2 class="learning-title">Biologia</h2>
-                <div class="close-learning" id="close-biologia">&times;</div>
-            </div>
-            <div class="learning-body" id="biologia-body">
-                <!-- Content will be loaded dynamically -->
-            </div>
-        </div>
-    </div>
-
-    <div class="learning-modal physics-modal" id="fisica-modal">
-        <div class="learning-container">
-            <div class="learning-header">
-                <h2 class="learning-title">Física</h2>
-                <div class="close-learning" id="close-fisica">&times;</div>
-            </div>
-            <div class="learning-body" id="fisica-body">
-                <!-- Content will be loaded dynamically -->
-            </div>
-        </div>
-    </div>
-
-    <div class="learning-modal chemistry-modal" id="quimica-modal">
-        <div class="learning-container">
-            <div class="learning-header">
-                <h2 class="learning-title">Química</h2>
-                <div class="close-learning" id="close-quimica">&times;</div>
-            </div>
-            <div class="learning-body" id="quimica-body">
-                <!-- Content will be loaded dynamically -->
-            </div>
-        </div>
-    </div>
-
-    <div class="learning-modal civics-modal" id="educacao-civica-modal">
-        <div class="learning-container">
-            <div class="learning-header">
-                <h2 class="learning-title">Educação Cívica</h2>
-                <div class="close-learning" id="close-educacao-civica">&times;</div>
-            </div>
-            <div class="learning-body" id="educacao-civica-body">
-                <!-- Content will be loaded dynamically -->
-            </div>
-        </div>
-    </div>
-
-    <div class="learning-modal english-modal" id="ingles-modal">
-        <div class="learning-container">
-            <div class="learning-header">
-                <h2 class="learning-title">Inglês</h2>
-                <div class="close-learning" id="close-ingles">&times;</div>
-            </div>
-            <div class="learning-body" id="ingles-body">
-                <!-- Content will be loaded dynamically -->
-            </div>
-        </div>
-    </div>
+    
 
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
-        <a href="index.html" class="nav-item">
+        <a href="home.html" class="nav-item">
             <i class="fas fa-home nav-icon"></i>
             <span>Início</span>
         </a>
@@ -1301,189 +1049,187 @@ a:hover {
         </a>
     </nav>
 
+    <script type="module">
+        // Import Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+        import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
+            authDomain: "luna-bot-70962.firebaseapp.com",
+            projectId: "luna-bot-70962",
+            storageBucket: "luna-bot-70962.appspot.com",
+            messagingSenderId: "247837414432",
+            appId: "1:247837414432:web:f7f9df049b8cfdbd909845"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Carregar quizzes da comunidade
+        async function loadCommunityQuizzes() {
+            try {
+                const quizzesQuery = query(collection(db, 'quizzes'), orderBy('createdAt', 'desc'), limit(20));
+                const quizzesSnapshot = await getDocs(quizzesQuery);
+                
+                const container = document.getElementById('community-quizzes');
+                
+                if (!quizzesSnapshot.empty) {
+                    container.innerHTML = '<h2 style="margin-bottom: 20px; color: var(--primary);">Quizzes da Comunidade</h2><div class="learning-modules" id="quiz-grid"></div>';
+                    const quizGrid = document.getElementById('quiz-grid');
+                    
+                    quizzesSnapshot.forEach((doc) => {
+                        const quiz = doc.data();
+                        const quizCard = document.createElement('div');
+                        quizCard.className = 'module-card';
+                        quizCard.innerHTML = `
+                            <div class="module-image" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); position: relative;">
+                                ${quiz.imageUrl ? `<img src="${quiz.imageUrl}" style="width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;">` : `<i class="fas fa-question-circle"></i>`}
+                            </div>
+                            <div class="module-content">
+                                <h3 class="module-title">${quiz.title}</h3>
+                                <p class="module-description">${quiz.description}</p>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 0.85rem; color: var(--text-light);">
+                                    <span><i class="fas fa-user"></i> ${quiz.authorName}</span>
+                                    <span><i class="fas fa-calendar"></i> ${quiz.createdAt ? new Date(quiz.createdAt.toDate()).toLocaleDateString('pt-MZ') : 'Hoje'}</span>
+                                </div>
+                                <div style="margin-top: 8px; font-size: 0.85rem; color: var(--text-light);">
+                                    <i class="fas fa-question"></i> ${quiz.questions.length} perguntas
+                                </div>
+                            </div>
+                        `;
+                        
+                        quizCard.addEventListener('click', () => {
+                            openQuizModal(quiz, doc.id);
+                        });
+                        
+                        quizGrid.appendChild(quizCard);
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao carregar quizzes:', error);
+            }
+        }
+
+        function openQuizModal(quiz, quizId) {
+            const modal = document.createElement('div');
+            modal.className = 'learning-modal';
+            modal.style.display = 'block';
+            
+            let questionsHTML = '';
+            quiz.questions.forEach((q, index) => {
+                questionsHTML += `
+                    <div class="quiz-question" style="${index === 0 ? '' : 'display:none'}">${index + 1}. ${q.question}</div>
+                    <div class="quiz-options" style="${index === 0 ? '' : 'display:none'}">
+                        ${q.options.map((opt, optIndex) => `
+                            <div class="quiz-option" data-correct="${optIndex === q.correctIndex}">${opt}</div>
+                        `).join('')}
+                    </div>
+                    <div class="quiz-feedback" style="display:none"></div>
+                `;
+            });
+            
+            modal.innerHTML = `
+                <div class="learning-container">
+                    <div class="learning-header" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #000;">
+                        <h2 class="learning-title">${quiz.title}</h2>
+                        <div class="close-learning" style="color: #000;">&times;</div>
+                    </div>
+                    <div class="learning-body">
+                        <p style="margin-bottom: 20px;">${quiz.description}</p>
+                        <div class="quiz-container">
+                            ${questionsHTML}
+                            <div class="quiz-actions">
+                                <button class="quiz-next">Próxima</button>
+                                <button class="quiz-finish" style="display:none">Finalizar</button>
+                            </div>
+                            <div class="quiz-results" style="display:none"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            modal.querySelector('.close-learning').addEventListener('click', () => {
+                modal.remove();
+            });
+            
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+            
+            initQuizzes();
+        }
+
+        loadCommunityQuizzes();
+        
+        // Carregar avatar do usuário
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+        import { getDoc, doc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+        
+        const authAprenda = getAuth(app);
+        
+        onAuthStateChanged(authAprenda, async (user) => {
+            if (user) {
+                try {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        const initials = userData.name ? 
+                            userData.name.split(' ').map(n => n[0]).join('').toUpperCase() : 
+                            user.email[0].toUpperCase();
+                        
+                        const userAvatar = document.getElementById('user-avatar');
+                        const avatarInitials = document.getElementById('avatar-initials');
+                        
+                        if (userData.photoURL) {
+                            userAvatar.innerHTML = `<img src="${userData.photoURL}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                        } else {
+                            if (avatarInitials) {
+                                avatarInitials.textContent = initials;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar usuário:', error);
+                }
+            }
+        });
+    </script>
     <script>
 // DOM Elements
 const searchBtn = document.getElementById('search-btn');
 const searchModal = document.getElementById('search-modal');
 const closeSearchBtn = document.getElementById('close-search');
-        
-// Module elements
-const historiaModule = document.getElementById('historia-module');
-const matematicaModule = document.getElementById('matematica-module');
-const portuguesModule = document.getElementById('portugues-module');
-const historiaMocambiqueModule = document.getElementById('historia-mocambique-module');
-const geografiaModule = document.getElementById('geografia-module');
-const biologiaModule = document.getElementById('biologia-module');
-const fisicaModule = document.getElementById('fisica-module');
-const quimicaModule = document.getElementById('quimica-module');
-const educacaoCivicaModule = document.getElementById('educacao-civica-module');
-const inglesModule = document.getElementById('ingles-module');
-        
-// Modal elements
-const learningModal = document.getElementById('learning-modal');
-const matematicaModal = document.getElementById('matematica-modal');
-const portuguesModal = document.getElementById('portugues-modal');
-const historiaMocambiqueModal = document.getElementById('historia-mocambique-modal');
-const geografiaModal = document.getElementById('geografia-modal');
-const biologiaModal = document.getElementById('biologia-modal');
-const fisicaModal = document.getElementById('fisica-modal');
-const quimicaModal = document.getElementById('quimica-modal');
-const educacaoCivicaModal = document.getElementById('educacao-civica-modal');
-const inglesModal = document.getElementById('ingles-modal');
-        
-const closeLearningBtn = document.getElementById('close-learning');
-const closeMatematicaBtn = document.getElementById('close-matematica');
-const closePortuguesBtn = document.getElementById('close-portugues');
-const closeHistoriaMocambiqueBtn = document.getElementById('close-historia-mocambique');
-const closeGeografiaBtn = document.getElementById('close-geografia');
-const closeBiologiaBtn = document.getElementById('close-biologia');
-const closeFisicaBtn = document.getElementById('close-fisica');
-const closeQuimicaBtn = document.getElementById('close-quimica');
-const closeEducacaoCivicaBtn = document.getElementById('close-educacao-civica');
-const closeInglesBtn = document.getElementById('close-ingles');
-        
-const learningTitle = document.getElementById('learning-title');
-const learningBody = document.getElementById('learning-body');
-const matematicaBody = document.getElementById('matematica-body');
-const portuguesBody = document.getElementById('portugues-body');
-const historiaMocambiqueBody = document.getElementById('historia-mocambique-body');
-const geografiaBody = document.getElementById('geografia-body');
-const biologiaBody = document.getElementById('biologia-body');
-const fisicaBody = document.getElementById('fisica-body');
-const quimicaBody = document.getElementById('quimica-body');
-const educacaoCivicaBody = document.getElementById('educacao-civica-body');
-const inglesBody = document.getElementById('ingles-body');
+searchBtn.addEventListener('click', () => {
+    searchModal.style.display = 'block';
+});
 
-// Learning content data - Expanded with more questions and content
-const historiaContent = [
-    {
-        title: "Introdução",
-        content: `
-            <p>Tudo o que existe no mundo tem uma história do seu surgimento, desenvolvimento e da sua projecção futura ou se seu fim. Com isso queremos dizer que a escola não surgiu de como ela se apresenta hoje. Há muitos acontecimentos que determinaram o actual estágio de desenvolvimento da escola.</p>
-            <p>Esta resenha tem como objectivo arrolar todos acontecimentos que estiveram na origem do surgimento e desenvolvimento da Escola Primária do 1º e 2º graus 04 de Outubro desde a sua fundação até ao actual estágio de desenvolvimento para permitir que as gerações vindouras conheçam a trajetória que a escola conheceu até aos nossos dias.</p>
-            <p>A informação que sustenta esta resenha é colectada de fontes orais com idoneidade suficiente para serem acreditadas e de documentos produzidos a quando da fixação da escola neste local.</p>
-        `
-    },
-    {
-        title: "Fundação e Primeiros Anos (2000-2006)",
-        content: `
-            <p>A Escola Primária do 1º e 2º graus 04 de Outubro foi fundada e fixada neste local no ano de 2000. Ela emigrou da cidade baixa no mesmo ano devido às cheias que assolaram a Cidade naquele ano.</p>
-            <p>Mário José Bila, um dos professores que acompanhou o processo de emigração da escola, da Cidade baixa para o actual local onde se encontra, contou que a escola teria emigrado da EP1 de Matsengane tendo-se acomodado durante as cheias nas tendas de centro de acomodação de Mau-Tse-Tung onde aguardara a identificação do local para sua fixação.</p>
-            <p>O primeiro espaço identificado para a fixação da escola, foi o local onde hoje funciona a EP1 Sanção Mutemba, onde funcionara alguns meses dentro das tendas ainda ostentando o nome de EP1 de Matsengane.</p>
-            <p>Como o espaço não era suficiente para se construir salas porque as tendas tinham ocupado quase todo espaço, foi identificado o actual espaço onde o Município constitui 3 salas convencionais, num só pavilhão.</p>
-            <p>Finda a construção, a escola deslocou da zona de Sanção Mutemba e passou para o actual local onde se encontra a funcionar. Tinha 6 turmas assistidas por 6 professores com 360 alunos e leccionava da 1ª a 3ª classe.</p>
-            <p>A escola foi baptizada com nome de EP1-04 de Outubro como forma de reconhecer que naquele local a escola tinha encontrado paz, depois de muito sofrimento com cheias.</p>
-            <p>Para responder à maior procura, dada a situação de se localizar num bairro em expansão, foram construídas mais salas com material local e ainda ocupou se o terreno do Centro do Bairro localizado na zona alta (Relatório do ano 2006).</p>
-            <p>Segundo Percina Chalque, a Directora da escola, no ano de 2007, a escola introduziu a 6ª classe e no ano seguinte a 7ª. Tinha atingido efectivos estimados em 1900 alunos e 35 professores.</p>
-        `
-    },
-    {
-        title: "Expansão e Desenvolvimento (2010-2013)",
-        content: `
-            <p>Foram construídas mais dez salas convencionais, duas cisternas, um bloco administrativo e 12 casas de banho e assim estavam criadas condições para a escola acolher todo o efectivo na zona baixa no ano de 2010.</p>
-            <p>No ano de 2013 a escola passou a funcionar no regime de dois turnos o que obrigou a construção de mais duas salas de aula com material local.</p>
-            <p>Assim a escola passou a contar com 13 salas de aula construídas com material convencional, mais duas construídas com material local totalizando 15 salas de aula, um bloco administrativo 1712 alunos distribuídos em 30 turmas assistidas por 34 professores e 8 funcionários afectos na secretaria.</p>
-        `
-    },
-    {
-        title: "Desafios Atuais",
-        content: `
-            <p>Neste momento a escola tem como desafios a instalação da energia eléctrica nas salas de aula para permitir a introdução do curso nocturno como forma de aproximar cada vez mais o ensino à população circunvizinha que por vários motivos não pode frequentar o ensino no curso diurno.</p>
-            <p>A construção de um ginásio para as aulas de educação física para reduzir a distância que os alunos percorrem para realizarem aulas de educação física.</p>
-        `
-    },
-    {
-        title: "Quiz sobre a História da Escola",
-        content: `
-            <div class="quiz-container" id="historia-quiz">
-                <div class="quiz-question">1. Em que ano a escola foi fundada e fixada no local atual?</div>
-                <div class="quiz-options">
-                    <div class="quiz-option" data-correct="true">2000</div>
-                    <div class="quiz-option" data-correct="false">1998</div>
-                    <div class="quiz-option" data-correct="false">2005</div>
-                    <div class="quiz-option" data-correct="false">2010</div>
-                </div>
-                <div class="quiz-feedback"></div>
-                
-                <div class="quiz-question" style="display:none">2. Qual foi o motivo principal da mudança da escola para o local atual?</div>
-                <div class="quiz-options" style="display:none">
-                    <div class="quiz-option" data-correct="false">Falta de espaço para expansão</div>
-                    <div class="quiz-option" data-correct="true">Cheias que assolaram a cidade</div>
-                    <div class="quiz-option" data-correct="false">Decisão administrativa</div>
-                    <div class="quiz-option" data-correct="false">Requerimento dos pais</div>
-                </div>
-                <div class="quiz-feedback" style="display:none"></div>
-                
-                <div class="quiz-question" style="display:none">3. Qual era o nome original da escola antes da mudança?</div>
-                <div class="quiz-options" style="display:none">
-                    <div class="quiz-option" data-correct="true">EP1 de Matsengane</div>
-                    <div class="quiz-option" data-correct="false">EP1 Sanção Mutemba</div>
-                    <div class="quiz-option" data-correct="false">EP1 Mau-Tse-Tung</div>
-                    <div class="quiz-option" data-correct="false">EP1 04 de Outubro</div>
-                </div>
-                <div class="quiz-feedback" style="display:none"></div>
-                
-                <div class="quiz-question" style="display:none">4. Quantos professores a escola tinha quando iniciou no local atual?</div>
-                <div class="quiz-options" style="display:none">
-                    <div class="quiz-option" data-correct="false">4</div>
-                    <div class="quiz-option" data-correct="true">6</div>
-                    <div class="quiz-option" data-correct="false">8</div>
-                    <div class="quiz-option" data-correct="false">10</div>
-                </div>
-                <div class="quiz-feedback" style="display:none"></div>
-                
-                <div class="quiz-question" style="display:none">5. Em que ano a escola introduziu a 6ª classe?</div>
-                <div class="quiz-options" style="display:none">
-                    <div class="quiz-option" data-correct="false">2005</div>
-                    <div class="quiz-option" data-correct="true">2007</div>
-                    <div class="quiz-option" data-correct="false">2010</div>
-                    <div class="quiz-option" data-correct="false">2013</div>
-                </div>
-                <div class="quiz-feedback" style="display:none"></div>
-                
-                <div class="quiz-question" style="display:none">6. Quantas salas de aula a escola tinha em 2013?</div>
-                <div class="quiz-options" style="display:none">
-                    <div class="quiz-option" data-correct="false">10</div>
-                    <div class="quiz-option" data-correct="false">12</div>
-                    <div class="quiz-option" data-correct="true">15</div>
-                    <div class="quiz-option" data-correct="false">20</div>
-                </div>
-                <div class="quiz-feedback" style="display:none"></div>
-                
-                <div class="quiz-question" style="display:none">7. Qual é um dos desafios atuais da escola?</div>
-                <div class="quiz-options" style="display:none">
-                    <div class="quiz-option" data-correct="false">Construir mais salas de aula</div>
-                    <div class="quiz-option" data-correct="true">Instalar energia elétrica nas salas</div>
-                    <div class="quiz-option" data-correct="false">Contratar mais professores</div>
-                    <div class="quiz-option" data-correct="false">Expandir o refeitório</div>
-                </div>
-                <div class="quiz-feedback" style="display:none"></div>
-                
-                <div class="quiz-actions">
-                    <button class="quiz-next">Próxima</button>
-                    <button class="quiz-finish" style="display:none">Finalizar</button>
-                </div>
-                <div class="quiz-results" style="display:none"></div>
-            </div>
-        `
-    }
-];
+closeSearchBtn.addEventListener('click', () => {
+    searchModal.style.display = 'none';
+});
 
-// Conteúdo e quizzes para Matemática - Expanded
-const matematicaContent = [
+window.addEventListener('click', (event) => {
+    if (event.target === searchModal) searchModal.style.display = 'none';
+});
+
+// Initialize quizzes
     {
         title: "Números e Operações Básicas",
         content: `
             <h4>Conceitos Fundamentais</h4>
             <p>As operações básicas da matemática incluem adição, subtração, multiplicação e divisão. Estas operações são a base para todos os cálculos matemáticos mais complexos.</p>
-            
+
             <h4>Propriedades das Operações</h4>
             <ul>
                 <li><strong>Comutativa:</strong> A ordem dos números não altera o resultado (a + b = b + a)</li>
                 <li><strong>Associativa:</strong> A forma como agrupamos os números não altera o resultado (a + (b + c) = (a + b) + c)</li>
                 <li><strong>Distributiva:</strong> A multiplicação distribui-se sobre a adição (a × (b + c) = a × b + a × c)</li>
             </ul>
-            
+
             <div class="quiz-container" id="matematica-quiz">
                 <div class="quiz-question">1. Qual é o resultado de 45 + 37?</div>
                 <div class="quiz-options">
@@ -1493,7 +1239,7 @@ const matematicaContent = [
                     <div class="quiz-option" data-correct="false">92</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-question" style="display:none">2. Se um pacote tem 12 lápis e compramos 5 pacotes, quantos lápis temos no total?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">50</div>
@@ -1502,7 +1248,7 @@ const matematicaContent = [
                     <div class="quiz-option" data-correct="false">72</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">3. Qual propriedade é representada por: 5 + 3 = 3 + 5?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Associativa</div>
@@ -1511,7 +1257,7 @@ const matematicaContent = [
                     <div class="quiz-option" data-correct="false">Identidade</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">4. Qual é o resultado de 144 ÷ 12?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">10</div>
@@ -1520,7 +1266,7 @@ const matematicaContent = [
                     <div class="quiz-option" data-correct="false">13</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">5. Qual destes números é primo?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">15</div>
@@ -1529,7 +1275,7 @@ const matematicaContent = [
                     <div class="quiz-option" data-correct="true">17</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -1549,10 +1295,10 @@ const matematicaContent = [
                 <li><strong>Retângulo:</strong> 4 lados com ângulos retos, lados opostos iguais</li>
                 <li><strong>Círculo:</strong> Todos os pontos equidistantes do centro</li>
             </ul>
-            
+
             <h4>Áreas e Perímetros</h4>
             <p>Área é a medida da superfície de uma forma. Perímetro é a soma dos comprimentos dos lados.</p>
-            
+
             <div class="quiz-container" id="geometria-quiz">
                 <div class="quiz-question">1. Quantos lados tem um pentágono?</div>
                 <div class="quiz-options">
@@ -1562,7 +1308,7 @@ const matematicaContent = [
                     <div class="quiz-option" data-correct="false">6</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-question" style="display:none">2. Qual é a fórmula para calcular a área de um retângulo?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">lado × lado</div>
@@ -1571,7 +1317,7 @@ const matematicaContent = [
                     <div class="quiz-option" data-correct="false">π × raio²</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">3. Qual destes ângulos é agudo?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">180°</div>
@@ -1580,7 +1326,7 @@ const matematicaContent = [
                     <div class="quiz-option" data-correct="false">270°</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">4. Qual é o perímetro de um quadrado com lado de 5 cm?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">10 cm</div>
@@ -1589,7 +1335,7 @@ const matematicaContent = [
                     <div class="quiz-option" data-correct="false">25 cm</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -1603,14 +1349,14 @@ const matematicaContent = [
         content: `
             <h4>Entendendo Frações</h4>
             <p>Uma fração representa partes de um todo. O número de cima é o numerador (partes consideradas) e o de baixo é o denominador (total de partes).</p>
-            
+
             <h4>Operações com Frações</h4>
             <ul>
                 <li><strong>Adição/Subtração:</strong> Mesmo denominador, somamos os numeradores</li>
                 <li><strong>Multiplicação:</strong> Numerador × numerador, denominador × denominador</li>
                 <li><strong>Divisão:</strong> Invertemos a segunda fração e multiplicamos</li>
             </ul>
-            
+
             <div class="quiz-container" id="fracoes-quiz">
                 <div class="quiz-question">1. Qual fração é equivalente a 0,5?</div>
                 <div class="quiz-options">
@@ -1620,7 +1366,7 @@ const matematicaContent = [
                     <div class="quiz-option" data-correct="false">2/1</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-question" style="display:none">2. Qual é o resultado de 3/4 + 1/4?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">1/4</div>
@@ -1629,7 +1375,7 @@ const matematicaContent = [
                     <div class="quiz-option" data-correct="false">4/4</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">3. Qual é a forma decimal de 3/8?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">0,125</div>
@@ -1638,7 +1384,7 @@ const matematicaContent = [
                     <div class="quiz-option" data-correct="false">0,5</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -1668,7 +1414,7 @@ const portuguesContent = [
                 <li>Interjeição - Expressa emoções</li>
                 <li>Numeral - Indica quantidade ou posição</li>
             </ol>
-            
+
             <div class="quiz-container" id="gramatica-quiz">
                 <div class="quiz-question">1. Qual das palavras abaixo é um substantivo?</div>
                 <div class="quiz-options">
@@ -1678,7 +1424,7 @@ const portuguesContent = [
                     <div class="quiz-option" data-correct="false">Rapidamente</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-question" style="display:none">2. Qual destas palavras é um verbo?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="true">Amar</div>
@@ -1687,7 +1433,7 @@ const portuguesContent = [
                     <div class="quiz-option" data-correct="false">Amorosamente</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">3. Qual destas palavras é um advérbio?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Felicidade</div>
@@ -1696,7 +1442,7 @@ const portuguesContent = [
                     <div class="quiz-option" data-correct="false">Felicitar</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">4. Qual destas palavras é uma preposição?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">E</div>
@@ -1705,7 +1451,7 @@ const portuguesContent = [
                     <div class="quiz-option" data-correct="false">Ou</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -1725,7 +1471,7 @@ const portuguesContent = [
                 <li>Usa-se "ss" para som de "s" entre vogais (exemplo: passeio, massa)</li>
                 <li>Usa-se "ç" antes de "a", "o", "u" para som de "s" (exemplo: caça, poço, açúcar)</li>
             </ul>
-            
+
             <div class="quiz-container" id="ortografia-quiz">
                 <div class="quiz-question">1. Qual destas palavras está escrita corretamente?</div>
                 <div class="quiz-options">
@@ -1735,7 +1481,7 @@ const portuguesContent = [
                     <div class="quiz-option" data-correct="false">Cassa</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-question" style="display:none">2. Qual destas palavras está escrita incorretamente?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Tambor</div>
@@ -1744,7 +1490,7 @@ const portuguesContent = [
                     <div class="quiz-option" data-correct="false">Comboio</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -1768,7 +1514,7 @@ const historiaMocambiqueContent = [
                 <li><strong>Povos Bantus:</strong> Responsáveis pela introdução da metalurgia e agricultura</li>
                 <li><strong>Povos Swahili:</strong> Desenvolveram cidades-estado ao longo da costa</li>
             </ul>
-            
+
             <h4>Economia e Comércio</h4>
             <p>As sociedades pré-coloniais praticavam:</p>
             <ul>
@@ -1777,7 +1523,7 @@ const historiaMocambiqueContent = [
                 <li>Comércio com árabes e persas (ouro, marfim, escravos)</li>
                 <li>Mineração (ouro, cobre, ferro)</li>
             </ul>
-            
+
             <div class="quiz-container" id="historia-mocambique-quiz">
                 <div class="quiz-question">1. Qual era o principal reino na região norte de Moçambique antes da colonização?</div>
                 <div class="quiz-options">
@@ -1787,7 +1533,7 @@ const historiaMocambiqueContent = [
                     <div class="quiz-option" data-correct="false">Reino de Gaza</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-question" style="display:none">2. Qual destes produtos NÃO era comercializado no período pré-colonial?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Ouro</div>
@@ -1796,7 +1542,7 @@ const historiaMocambiqueContent = [
                     <div class="quiz-option" data-correct="false">Escravos</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">3. Que povo desenvolveu cidades-estado ao longo da costa moçambicana?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Bantus</div>
@@ -1805,7 +1551,7 @@ const historiaMocambiqueContent = [
                     <div class="quiz-option" data-correct="false">Portugueses</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">4. Qual destas atividades NÃO era praticada no período pré-colonial?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Agricultura</div>
@@ -1814,7 +1560,7 @@ const historiaMocambiqueContent = [
                     <div class="quiz-option" data-correct="true">Indústria automobilística</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -1828,7 +1574,7 @@ const historiaMocambiqueContent = [
         content: `
             <h4>A Chegada dos Portugueses</h4>
             <p>Vasco da Gama chegou a Moçambique em 1498, iniciando o processo de colonização que duraria quase 500 anos.</p>
-            
+
             <h4>Sistema Colonial</h4>
             <ul>
                 <li><strong>Prazos:</strong> Sistema de concessão de terras a colonos</li>
@@ -1836,7 +1582,7 @@ const historiaMocambiqueContent = [
                 <li><strong>Economia colonial:</strong> Baseada na exportação de matérias-primas</li>
                 <li><strong>Administração:</strong> Dividida em colônias, distritos e postos administrativos</li>
             </ul>
-            
+
             <div class="quiz-container" id="colonial-quiz">
                 <div class="quiz-question">1. Em que ano Vasco da Gama chegou a Moçambique?</div>
                 <div class="quiz-options">
@@ -1846,7 +1592,7 @@ const historiaMocambiqueContent = [
                     <div class="quiz-option" data-correct="false">1518</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-question" style="display:none">2. Como se chamava o sistema de trabalho forçado imposto pelos portugueses?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Prazos</div>
@@ -1855,7 +1601,7 @@ const historiaMocambiqueContent = [
                     <div class="quiz-option" data-correct="false">Escravidão</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -1880,7 +1626,7 @@ const geografiaContent = [
                 <li><strong>Rios principais:</strong> Zambeze, Limpopo, Save, Rovuma</li>
                 <li><strong>Vegetação:</strong> Savanas, florestas, mangais</li>
             </ul>
-            
+
             <h4>Divisão Administrativa</h4>
             <p>Moçambique está dividido em:</p>
             <ol>
@@ -1889,7 +1635,7 @@ const geografiaContent = [
                 <li>Postos administrativos</li>
                 <li>Localidades</li>
             </ol>
-            
+
             <div class="quiz-container" id="geografia-quiz">
                 <div class="quiz-question">1. Moçambique faz fronteira com quantos países?</div>
                 <div class="quiz-options">
@@ -1899,7 +1645,7 @@ const geografiaContent = [
                     <div class="quiz-option" data-correct="false">7</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-question" style="display:none">2. Qual é o rio mais importante de Moçambique?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Limpopo</div>
@@ -1908,7 +1654,7 @@ const geografiaContent = [
                     <div class="quiz-option" data-correct="false">Rovuma</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">3. Qual destes NÃO é um país vizinho de Moçambique?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Tanzânia</div>
@@ -1917,7 +1663,7 @@ const geografiaContent = [
                     <div class="quiz-option" data-correct="false">África do Sul</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">4. Quantas províncias tem Moçambique?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">9</div>
@@ -1926,7 +1672,7 @@ const geografiaContent = [
                     <div class="quiz-option" data-correct="false">12</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -1945,7 +1691,7 @@ const geografiaContent = [
                 <li><strong>Tropical seco:</strong> Interior e sul (menos precipitação)</li>
                 <li><strong>Subtropical:</strong> Regiões altas (temperaturas mais amenas)</li>
             </ul>
-            
+
             <h4>Tipos de Vegetação</h4>
             <ul>
                 <li><strong>Florestas:</strong> Norte e zonas montanhosas</li>
@@ -1953,7 +1699,7 @@ const geografiaContent = [
                 <li><strong>Mangais:</strong> Ao longo da costa</li>
                 <li><strong>Estepe:</strong> Sul e zonas mais secas</li>
             </ul>
-            
+
             <div class="quiz-container" id="clima-quiz">
                 <div class="quiz-question">1. Qual destas regiões tem clima tropical húmido?</div>
                 <div class="quiz-options">
@@ -1963,7 +1709,7 @@ const geografiaContent = [
                     <div class="quiz-option" data-correct="false">Extremo sul</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -1990,7 +1736,7 @@ const biologiaContent = [
                 <li><strong>Resposta a estímulos:</strong> Reação a mudanças no ambiente</li>
                 <li><strong>Adaptação:</strong> Mudanças para sobreviver no ambiente</li>
             </ol>
-            
+
             <h4>Classificação dos Seres Vivos</h4>
             <p>Os seres vivos são classificados em cinco reinos:</p>
             <ul>
@@ -2000,7 +1746,7 @@ const biologiaContent = [
                 <li><strong>Plantae:</strong> Plantas</li>
                 <li><strong>Animalia:</strong> Animais</li>
             </ul>
-            
+
             <div class="quiz-container" id="biologia-quiz">
                 <div class="quiz-question">1. Qual destes não é um ser vivo?</div>
                 <div class="quiz-options">
@@ -2010,7 +1756,7 @@ const biologiaContent = [
                     <div class="quiz-option" data-correct="false">Fungo</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-question" style="display:none">2. Qual destas é uma característica dos seres vivos?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Ser feito de metal</div>
@@ -2019,7 +1765,7 @@ const biologiaContent = [
                     <div class="quiz-option" data-correct="false">Não precisar de energia</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">3. A que reino pertencem as bactérias?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="true">Monera</div>
@@ -2028,7 +1774,7 @@ const biologiaContent = [
                     <div class="quiz-option" data-correct="false">Plantae</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">4. Qual destes processos permite aos seres vivos manter o equilíbrio interno?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Reprodução</div>
@@ -2037,7 +1783,7 @@ const biologiaContent = [
                     <div class="quiz-option" data-correct="false">Fotossíntese</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -2055,7 +1801,7 @@ const biologiaContent = [
                 <li><strong>Procarióticas:</strong> Sem núcleo definido (bactérias)</li>
                 <li><strong>Eucarióticas:</strong> Com núcleo definido (animais, plantas, fungos)</li>
             </ul>
-            
+
             <h4>Organelas Celulares</h4>
             <p>Principais organelas das células eucarióticas:</p>
             <ul>
@@ -2066,7 +1812,7 @@ const biologiaContent = [
                 <li><strong>Lisossomos:</strong> Digestão intracelular</li>
                 <li><strong>Cloroplastos:</strong> Fotossíntese (apenas em plantas)</li>
             </ul>
-            
+
             <div class="quiz-container" id="celula-quiz">
                 <div class="quiz-question">1. Qual destas organelas é encontrada apenas em células vegetais?</div>
                 <div class="quiz-options">
@@ -2076,7 +1822,7 @@ const biologiaContent = [
                     <div class="quiz-option" data-correct="false">Lisossomo</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -2099,7 +1845,7 @@ const fisicaContent = [
                 <li><strong>Segunda Lei (F=ma):</strong> A força resultante sobre um objeto é igual à sua massa vezes sua aceleração.</li>
                 <li><strong>Terceira Lei (Ação e Reação):</strong> Para toda ação há uma reação igual e oposta.</li>
             </ol>
-            
+
             <h4>Tipos de Forças</h4>
             <ul>
                 <li><strong>Gravitacional:</strong> Atração entre massas</li>
@@ -2108,7 +1854,7 @@ const fisicaContent = [
                 <li><strong>Normal:</strong> Reação de superfícies em contato</li>
                 <li><strong>Atrito:</strong> Oposição ao movimento</li>
             </ul>
-            
+
             <div class="quiz-container" id="fisica-quiz">
                 <div class="quiz-question">1. Qual destes é um exemplo de força?</div>
                 <div class="quiz-options">
@@ -2118,7 +1864,7 @@ const fisicaContent = [
                     <div class="quiz-option" data-correct="false">Densidade</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-question" style="display:none">2. Qual lei de Newton explica por que nos machucamos quando batemos em algo?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Primeira Lei</div>
@@ -2127,7 +1873,7 @@ const fisicaContent = [
                     <div class="quiz-option" data-correct="false">Lei da Gravitação</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">3. Qual destas forças é responsável por manter os planetas em órbita?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="true">Gravitacional</div>
@@ -2136,7 +1882,7 @@ const fisicaContent = [
                     <div class="quiz-option" data-correct="false">Atrito</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -2159,7 +1905,7 @@ const fisicaContent = [
                 <li><strong>Química:</strong> Energia armazenada em ligações químicas</li>
                 <li><strong>Nuclear:</strong> Energia do núcleo atômico</li>
             </ul>
-            
+
             <h4>Transformações de Energia</h4>
             <p>A energia não pode ser criada nem destruída, apenas transformada (Lei da Conservação da Energia). Exemplos:</p>
             <ul>
@@ -2167,7 +1913,7 @@ const fisicaContent = [
                 <li>Motor: Química (combustível) → Cinética</li>
                 <li>Fotossíntese: Luminosa → Química</li>
             </ul>
-            
+
             <div class="quiz-container" id="energia-quiz">
                 <div class="quiz-question">1. Qual destas é uma forma de energia?</div>
                 <div class="quiz-options">
@@ -2177,7 +1923,7 @@ const fisicaContent = [
                     <div class="quiz-option" data-correct="false">Terra</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -2200,7 +1946,7 @@ const quimicaContent = [
                 <li><strong>Líquido:</strong> Volume definido, forma variável</li>
                 <li><strong>Gasoso:</strong> Forma e volume variáveis</li>
             </ul>
-            
+
             <h4>Mudanças de Estado</h4>
             <ul>
                 <li><strong>Fusão:</strong> Sólido → Líquido</li>
@@ -2210,7 +1956,7 @@ const quimicaContent = [
                 <li><strong>Sublimação:</strong> Sólido → Gasoso</li>
                 <li><strong>Deposição:</strong> Gasoso → Sólido</li>
             </ul>
-            
+
             <div class="quiz-container" id="quimica-quiz">
                 <div class="quiz-question">1. Qual destes é um exemplo de mudança física?</div>
                 <div class="quiz-options">
@@ -2220,7 +1966,7 @@ const quimicaContent = [
                     <div class="quiz-option" data-correct="false">Cozinhar um ovo</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-question" style="display:none">2. Qual é o nome da mudança de estado de líquido para gasoso?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Fusão</div>
@@ -2229,7 +1975,7 @@ const quimicaContent = [
                     <div class="quiz-option" data-correct="false">Sublimação</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">3. Qual destas é uma propriedade física da matéria?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Inflamabilidade</div>
@@ -2238,7 +1984,7 @@ const quimicaContent = [
                     <div class="quiz-option" data-correct="false">Toxicidade</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -2252,7 +1998,7 @@ const quimicaContent = [
         content: `
             <h4>Elementos Químicos</h4>
             <p>Um elemento químico é uma substância pura composta por átomos com o mesmo número atômico (número de prótons).</p>
-            
+
             <h4>Tabela Periódica</h4>
             <p>A tabela periódica organiza os elementos por:</p>
             <ul>
@@ -2260,7 +2006,7 @@ const quimicaContent = [
                 <li><strong>Famílias (grupos):</strong> Colunas verticais com propriedades similares</li>
                 <li><strong>Períodos:</strong> Linhas horizontais</li>
             </ul>
-            
+
             <div class="quiz-container" id="elementos-quiz">
                 <div class="quiz-question">1. Qual é o símbolo químico do oxigênio?</div>
                 <div class="quiz-options">
@@ -2270,7 +2016,7 @@ const quimicaContent = [
                     <div class="quiz-option" data-correct="false">Og</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -2296,7 +2042,7 @@ const civicaContent = [
                 <li>Educação, saúde e habitação</li>
                 <li>Trabalho e justa remuneração</li>
             </ul>
-            
+
             <h4>Deveres dos Cidadãos</h4>
             <ul>
                 <li>Respeitar a Constituição e as leis</li>
@@ -2306,7 +2052,7 @@ const civicaContent = [
                 <li>Respeitar os direitos dos outros</li>
                 <li>Pagar impostos</li>
             </ul>
-            
+
             <div class="quiz-container" id="civica-quiz">
                 <div class="quiz-question">1. Qual destes é um direito garantido pela Constituição de Moçambique?</div>
                 <div class="quiz-options">
@@ -2316,7 +2062,7 @@ const civicaContent = [
                     <div class="quiz-option" data-correct="false">Não participar nas eleições</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-question" style="display:none">2. Qual destes é um dever do cidadão moçambicano?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Receber benefícios do governo</div>
@@ -2325,7 +2071,7 @@ const civicaContent = [
                     <div class="quiz-option" data-correct="false">Exigir direitos sem cumprir deveres</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">3. Qual destes NÃO é um direito fundamental?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Educação</div>
@@ -2334,7 +2080,7 @@ const civicaContent = [
                     <div class="quiz-option" data-correct="false">Liberdade de expressão</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -2353,14 +2099,14 @@ const civicaContent = [
                 <li><strong>Poder Executivo:</strong> Presidente e Governo (executa as leis)</li>
                 <li><strong>Poder Judicial:</strong> Tribunais (interpreta e aplica as leis)</li>
             </ul>
-            
+
             <h4>Símbolos Nacionais</h4>
             <ul>
                 <li><strong>Bandeira:</strong> Verde, preto, amarelo e vermelho com estrela branca</li>
                 <li><strong>Hino Nacional:</strong> "Pátria Amada"</li>
                 <li><strong>Lema:</strong> "Unidade, Trabalho, Vigilância"</li>
             </ul>
-            
+
             <div class="quiz-container" id="estado-quiz">
                 <div class="quiz-question">1. Qual destes é um dos poderes do Estado moçambicano?</div>
                 <div class="quiz-options">
@@ -2370,7 +2116,7 @@ const civicaContent = [
                     <div class="quiz-option" data-correct="false">Poder Social</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -2426,7 +2172,7 @@ const inglesContent = [
                     <td>Please</td>
                 </tr>
             </table>
-            
+
             <h4>Frases Úteis</h4>
             <ul>
                 <li><strong>What's your name?</strong> - Qual é o seu nome?</li>
@@ -2436,7 +2182,7 @@ const inglesContent = [
                 <li><strong>Where are you from?</strong> - De onde você é?</li>
                 <li><strong>I'm from Mozambique.</strong> - Eu sou de Moçambique.</li>
             </ul>
-            
+
             <div class="quiz-container" id="ingles-quiz">
                 <div class="quiz-question">1. Como se diz "casa" em inglês?</div>
                 <div class="quiz-options">
@@ -2446,7 +2192,7 @@ const inglesContent = [
                     <div class="quiz-option" data-correct="false">Tree</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-question" style="display:none">2. Como se diz "obrigado" em inglês?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Please</div>
@@ -2455,7 +2201,7 @@ const inglesContent = [
                     <div class="quiz-option" data-correct="false">Goodbye</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">3. Qual é a tradução de "What's your name?"?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">Como você está?</div>
@@ -2464,7 +2210,7 @@ const inglesContent = [
                     <div class="quiz-option" data-correct="false">Que horas são?</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-question" style="display:none">4. Como se diz "eu sou de Moçambique" em inglês?</div>
                 <div class="quiz-options" style="display:none">
                     <div class="quiz-option" data-correct="false">I am Mozambique</div>
@@ -2473,7 +2219,7 @@ const inglesContent = [
                     <div class="quiz-option" data-correct="false">I like Mozambique</div>
                 </div>
                 <div class="quiz-feedback" style="display:none"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -2517,14 +2263,14 @@ const inglesContent = [
                     <td>are</td>
                 </tr>
             </table>
-            
+
             <h4>Exemplos</h4>
             <ul>
                 <li>I am a student. (Eu sou um estudante.)</li>
                 <li>You are my friend. (Você é meu amigo.)</li>
                 <li>She is from Maputo. (Ela é de Maputo.)</li>
             </ul>
-            
+
             <div class="quiz-container" id="gramatica-ingles-quiz">
                 <div class="quiz-question">1. Qual é a forma correta do verbo "to be" para "he"?</div>
                 <div class="quiz-options">
@@ -2534,7 +2280,7 @@ const inglesContent = [
                     <div class="quiz-option" data-correct="false">be</div>
                 </div>
                 <div class="quiz-feedback"></div>
-                
+
                 <div class="quiz-actions">
                     <button class="quiz-next">Próxima</button>
                     <button class="quiz-finish" style="display:none">Finalizar</button>
@@ -2674,7 +2420,7 @@ function loadLearningContent(content, container) {
         `;
     });
     container.innerHTML = html;
-    
+
     // Initialize quizzes
     initQuizzes();
 }
@@ -2682,7 +2428,7 @@ function loadLearningContent(content, container) {
 // Improved Quiz functionality
 function initQuizzes() {
     const quizzes = document.querySelectorAll('.quiz-container');
-    
+
     quizzes.forEach(quiz => {
         const questions = quiz.querySelectorAll('.quiz-question');
         const nextBtn = quiz.querySelector('.quiz-next');
@@ -2691,18 +2437,18 @@ function initQuizzes() {
         let currentQuestion = 0;
         let score = 0;
         let answered = false;
-        
+
         // Show first question
         showQuestion(currentQuestion);
-        
+
         // Option click handler
         quiz.querySelectorAll('.quiz-option').forEach(option => {
             option.addEventListener('click', function() {
                 if (answered) return;
-                
+
                 const isCorrect = this.getAttribute('data-correct') === 'true';
                 const feedback = this.closest('.quiz-options').nextElementSibling;
-                
+
                 if (isCorrect) {
                     this.classList.add('correct');
                     feedback.textContent = 'Resposta correta!';
@@ -2712,15 +2458,15 @@ function initQuizzes() {
                     this.classList.add('incorrect');
                     feedback.textContent = 'Resposta incorreta.';
                     feedback.classList.add('incorrect');
-                    
+
                     // Show correct answer
                     const correctOption = this.parentElement.querySelector('[data-correct="true"]');
                     correctOption.classList.add('correct');
                 }
-                
+
                 answered = true;
                 nextBtn.style.display = 'inline-block';
-                
+
                 // Disable all options after answer
                 const options = this.parentElement.querySelectorAll('.quiz-option');
                 options.forEach(opt => {
@@ -2728,27 +2474,27 @@ function initQuizzes() {
                 });
             });
         });
-        
+
         // Next question handler
         nextBtn.addEventListener('click', function() {
             currentQuestion++;
             answered = false;
-            
+
             if (currentQuestion < questions.length) {
                 showQuestion(currentQuestion);
                 this.style.display = 'none';
-                
+
                 if (currentQuestion === questions.length - 1) {
                     finishBtn.style.display = 'inline-block';
                 }
             }
         });
-        
+
         // Finish quiz handler
         finishBtn.addEventListener('click', function() {
             const percentage = Math.round((score / questions.length) * 100);
             let message = '';
-            
+
             if (percentage >= 80) {
                 message = `Excelente! Você acertou ${score} de ${questions.length} perguntas (${percentage}%).`;
             } else if (percentage >= 60) {
@@ -2758,16 +2504,16 @@ function initQuizzes() {
             } else {
                 message = `Você acertou ${score} de ${questions.length} perguntas (${percentage}%). Recomendamos revisar o material.`;
             }
-            
+
             resultsDiv.innerHTML = `<div class="quiz-final-result">${message}</div>`;
             resultsDiv.style.display = 'block';
             this.style.display = 'none';
             nextBtn.style.display = 'none';
-            
+
             // Update progress in local storage
             updateProgress(quiz.id.replace('-quiz', ''), percentage);
         });
-        
+
         function showQuestion(index) {
             // Hide all questions
             questions.forEach((q, i) => {
@@ -2775,18 +2521,18 @@ function initQuizzes() {
                 q.nextElementSibling.style.display = 'none'; // options
                 q.nextElementSibling.nextElementSibling.style.display = 'none'; // feedback
             });
-            
+
             // Show current question
             questions[index].style.display = 'block';
             questions[index].nextElementSibling.style.display = 'block';
-            
+
             // Enable options for current question
             const options = questions[index].nextElementSibling.querySelectorAll('.quiz-option');
             options.forEach(opt => {
                 opt.style.pointerEvents = 'auto';
                 opt.classList.remove('correct', 'incorrect');
             });
-            
+
             // Show feedback for current question
             questions[index].nextElementSibling.nextElementSibling.style.display = 'block';
             questions[index].nextElementSibling.nextElementSibling.textContent = '';
@@ -2800,7 +2546,7 @@ function updateProgress(subject, percentage) {
     let progress = JSON.parse(localStorage.getItem('learningProgress')) || {};
     progress[subject] = percentage;
     localStorage.setItem('learningProgress', JSON.stringify(progress));
-    
+
     // Update progress bar
     const progressBar = document.getElementById(`${subject}-progress`);
     if (progressBar) {
@@ -2812,13 +2558,13 @@ function updateProgress(subject, percentage) {
 // Initialize progress bars from local storage
 function initProgressBars() {
     const progress = JSON.parse(localStorage.getItem('learningProgress')) || {};
-    
+
     // Set progress for each subject
     const subjects = [
         'historia', 'matematica', 'portugues', 'historia-mocambique',
         'geografia', 'biologia', 'fisica', 'quimica', 'educacao-civica', 'ingles'
     ];
-    
+
     subjects.forEach(subject => {
         const progressBar = document.getElementById(`${subject}-progress`);
         if (progressBar) {
@@ -2829,9 +2575,248 @@ function initProgressBars() {
     });
 }
 
+// Function to render dynamic quizzes
+function renderDynamicQuizzes() {
+    const container = document.getElementById('dynamic-quiz-container');
+    if (!container) return;
+
+    let html = '';
+    
+    dynamicQuizzes.forEach((quiz, quizIndex) => {
+        html += `
+            <div class="quiz-container" id="${quiz.id}-quiz" data-quiz-index="${quizIndex}">
+                <h4 style="color: var(--primary); margin-bottom: 20px;">${quiz.title}</h4>
+        `;
+
+        quiz.questions.forEach((q, qIndex) => {
+            const displayStyle = qIndex === 0 ? 'block' : 'none';
+            html += `
+                <div class="quiz-question" style="display:${displayStyle}">${qIndex + 1}. ${q.question}</div>
+                <div class="quiz-options" style="display:${displayStyle}">
+            `;
+
+            q.options.forEach((option, optIndex) => {
+                const isCorrect = optIndex === q.correctIndex;
+                html += `<div class="quiz-option" data-correct="${isCorrect}">${option}</div>`;
+            });
+
+            html += `
+                </div>
+                <div class="quiz-feedback" style="display:${displayStyle}"></div>
+            `;
+        });
+
+        html += `
+                <div class="quiz-actions">
+                    <button class="quiz-next">Próxima</button>
+                    <button class="quiz-finish" style="display:none">Finalizar</button>
+                </div>
+                <div class="quiz-results" style="display:none"></div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+    initQuizzes();
+}
+
+// Function to add new quiz
+function showAddQuizModal() {
+    const modal = document.createElement('div');
+    modal.className = 'learning-modal';
+    modal.style.display = 'block';
+    modal.innerHTML = `
+        <div class="learning-container" style="max-width: 600px;">
+            <div class="learning-header" style="background-color: var(--primary);">
+                <h2 class="learning-title">Adicionar Novo Quiz</h2>
+                <div class="close-learning" id="close-add-quiz">&times;</div>
+            </div>
+            <div class="learning-body">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Título do Quiz:</label>
+                    <input type="text" id="quiz-title-input" style="width: 100%; padding: 12px; border: 1px solid var(--gray); border-radius: 8px; font-size: 1rem;" placeholder="Digite o título do quiz">
+                </div>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Categoria:</label>
+                    <select id="quiz-category-input" style="width: 100%; padding: 12px; border: 1px solid var(--gray); border-radius: 8px; font-size: 1rem;">
+                        <option value="math">Matemática</option>
+                        <option value="portuguese">Português</option>
+                        <option value="history">História</option>
+                        <option value="geography">Geografia</option>
+                        <option value="biology">Biologia</option>
+                        <option value="physics">Física</option>
+                        <option value="chemistry">Química</option>
+                        <option value="civics">Educação Cívica</option>
+                        <option value="english">Inglês</option>
+                        <option value="school-history">História da Escola</option>
+                    </select>
+                </div>
+
+                <div id="questions-container">
+                    <h4 style="margin-bottom: 15px;">Perguntas:</h4>
+                    <div class="question-item" data-question-index="0">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Pergunta 1:</label>
+                        <input type="text" class="question-text" style="width: 100%; padding: 10px; border: 1px solid var(--gray); border-radius: 8px; margin-bottom: 10px;" placeholder="Digite a pergunta">
+                        
+                        <label style="display: block; margin-bottom: 8px;">Opções (marque a correta):</label>
+                        <div style="margin-bottom: 10px;">
+                            <input type="radio" name="correct-0" value="0" checked>
+                            <input type="text" class="option-text" style="width: 85%; padding: 8px; border: 1px solid var(--gray); border-radius: 8px; margin-left: 8px;" placeholder="Opção 1">
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <input type="radio" name="correct-0" value="1">
+                            <input type="text" class="option-text" style="width: 85%; padding: 8px; border: 1px solid var(--gray); border-radius: 8px; margin-left: 8px;" placeholder="Opção 2">
+                        </div>
+                        <div style="margin-bottom: 10px;">
+                            <input type="radio" name="correct-0" value="2">
+                            <input type="text" class="option-text" style="width: 85%; padding: 8px; border: 1px solid var(--gray); border-radius: 8px; margin-left: 8px;" placeholder="Opção 3">
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <input type="radio" name="correct-0" value="3">
+                            <input type="text" class="option-text" style="width: 85%; padding: 8px; border: 1px solid var(--gray); border-radius: 8px; margin-left: 8px;" placeholder="Opção 4">
+                        </div>
+                    </div>
+                </div>
+
+                <button id="add-question-btn" style="padding: 10px 20px; background-color: var(--info); color: white; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 20px;">
+                    <i class="fas fa-plus"></i> Adicionar Pergunta
+                </button>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="save-quiz-btn" style="padding: 14px 28px; background-color: var(--success); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
+                        <i class="fas fa-save"></i> Salvar Quiz
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+
+    let questionCount = 1;
+
+    // Close modal
+    document.getElementById('close-add-quiz').addEventListener('click', () => {
+        modal.remove();
+    });
+
+    // Add question
+    document.getElementById('add-question-btn').addEventListener('click', () => {
+        const questionsContainer = document.getElementById('questions-container');
+        const newQuestion = document.createElement('div');
+        newQuestion.className = 'question-item';
+        newQuestion.setAttribute('data-question-index', questionCount);
+        newQuestion.innerHTML = `
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--gray);">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Pergunta ${questionCount + 1}:</label>
+            <input type="text" class="question-text" style="width: 100%; padding: 10px; border: 1px solid var(--gray); border-radius: 8px; margin-bottom: 10px;" placeholder="Digite a pergunta">
+            
+            <label style="display: block; margin-bottom: 8px;">Opções (marque a correta):</label>
+            <div style="margin-bottom: 10px;">
+                <input type="radio" name="correct-${questionCount}" value="0" checked>
+                <input type="text" class="option-text" style="width: 85%; padding: 8px; border: 1px solid var(--gray); border-radius: 8px; margin-left: 8px;" placeholder="Opção 1">
+            </div>
+            <div style="margin-bottom: 10px;">
+                <input type="radio" name="correct-${questionCount}" value="1">
+                <input type="text" class="option-text" style="width: 85%; padding: 8px; border: 1px solid var(--gray); border-radius: 8px; margin-left: 8px;" placeholder="Opção 2">
+            </div>
+            <div style="margin-bottom: 10px;">
+                <input type="radio" name="correct-${questionCount}" value="2">
+                <input type="text" class="option-text" style="width: 85%; padding: 8px; border: 1px solid var(--gray); border-radius: 8px; margin-left: 8px;" placeholder="Opção 3">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <input type="radio" name="correct-${questionCount}" value="3">
+                <input type="text" class="option-text" style="width: 85%; padding: 8px; border: 1px solid var(--gray); border-radius: 8px; margin-left: 8px;" placeholder="Opção 4">
+            </div>
+        `;
+        questionsContainer.appendChild(newQuestion);
+        questionCount++;
+    });
+
+    // Save quiz
+    document.getElementById('save-quiz-btn').addEventListener('click', () => {
+        const title = document.getElementById('quiz-title-input').value.trim();
+        const category = document.getElementById('quiz-category-input').value;
+        
+        if (!title) {
+            alert('Por favor, digite o título do quiz.');
+            return;
+        }
+
+        const questionItems = document.querySelectorAll('.question-item');
+        const questions = [];
+
+        questionItems.forEach((item, index) => {
+            const questionText = item.querySelector('.question-text').value.trim();
+            const optionTexts = Array.from(item.querySelectorAll('.option-text')).map(input => input.value.trim());
+            const correctIndex = parseInt(item.querySelector(`input[name="correct-${index}"]:checked`).value);
+
+            if (!questionText || optionTexts.some(opt => !opt)) {
+                return;
+            }
+
+            questions.push({
+                question: questionText,
+                options: optionTexts,
+                correctIndex: correctIndex
+            });
+        });
+
+        if (questions.length === 0) {
+            alert('Por favor, adicione pelo menos uma pergunta completa.');
+            return;
+        }
+
+        const newQuiz = {
+            id: 'quiz-' + Date.now(),
+            title: title,
+            category: category,
+            questions: questions
+        };
+
+        dynamicQuizzes.push(newQuiz);
+        localStorage.setItem('customQuizzes', JSON.stringify(dynamicQuizzes));
+        
+        renderDynamicQuizzes();
+        modal.remove();
+        
+        alert('Quiz adicionado com sucesso!');
+    });
+
+    // Close on outside click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.remove();
+        }
+    });
+}
+
+// Load custom quizzes from localStorage
+function loadCustomQuizzes() {
+    const saved = localStorage.getItem('customQuizzes');
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) {
+                dynamicQuizzes = parsed;
+            }
+        } catch (e) {
+            console.error('Erro ao carregar quizzes:', e);
+        }
+    }
+}
+
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
     initProgressBars();
+    loadCustomQuizzes();
+    renderDynamicQuizzes();
+    
+    const addQuizBtn = document.getElementById('add-quiz-btn');
+    if (addQuizBtn) {
+        addQuizBtn.addEventListener('click', showAddQuizModal);
+    }
 });
 </script>
 </body>

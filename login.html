@@ -1,25 +1,30 @@
+
 <!DOCTYPE html>
 <html lang="pt-MZ">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Folha de Inhamissa</title>
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CSS Personalizado -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --cor-fundo: #000000;      /* Preto */
-            --cor-texto: #FFFFFF;      /* Branco */
-            --cor-destaque: #FFD700;   /* Amarelo */
+            --cor-fundo: #000000;
+            --cor-texto: #FFFFFF;
+            --cor-destaque: #FFD700;
+            --cor-destaque-hover: #FFC107;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: var(--cor-fundo);
             color: var(--cor-texto);
-            margin: 0;
-            padding: 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -31,20 +36,11 @@
             padding: 40px;
             background: var(--cor-fundo);
             border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.1);
             flex-grow: 1;
             position: relative;
             overflow: hidden;
-        }
-        
-        .login-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 8px;
-            background: var(--cor-destaque);
+            border: 2px solid var(--cor-destaque);
         }
         
         .logo-icon {
@@ -52,6 +48,12 @@
             margin-bottom: 25px;
             font-size: 3.5rem;
             color: var(--cor-destaque);
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         h1 {
@@ -88,13 +90,17 @@
         input {
             width: 100%;
             padding: 14px 14px 14px 45px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #333;
             border-radius: 8px;
             font-size: 16px;
             box-sizing: border-box;
-            transition: all 0.3s;
+            transition: all 0.2s;
             background: var(--cor-fundo);
             color: var(--cor-texto);
+        }
+        
+        input::placeholder {
+            color: #6B7280;
         }
         
         input:focus {
@@ -119,7 +125,8 @@
             border-radius: 4px;
             background: var(--cor-fundo);
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.2s;
+            padding: 0;
         }
         
         .checkbox-container input[type="checkbox"]:checked {
@@ -129,7 +136,7 @@
         }
         
         .checkbox-container input[type="checkbox"]:checked::after {
-            content: '\f00c'; /* Ícone de check do Font Awesome */
+            content: '\f00c';
             font-family: 'Font Awesome 6 Free';
             font-weight: 900;
             color: #000000;
@@ -156,7 +163,7 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             margin-top: 10px;
             display: flex;
             align-items: center;
@@ -165,13 +172,13 @@
         }
         
         button:hover {
-            background: #FFC107;
+            background: var(--cor-destaque-hover);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
         }
         
         .btn-google {
-            background: var(--cor-texto);
+            background: #FFFFFF;
             color: #4285F4;
             border: 1px solid #e0e0e0;
         }
@@ -192,11 +199,11 @@
             color: var(--cor-destaque);
             text-decoration: none;
             font-weight: 500;
-            transition: color 0.3s;
+            transition: color 0.2s;
         }
         
         .links a:hover {
-            color: #FFC107;
+            color: var(--cor-destaque-hover);
             text-decoration: underline;
         }
         
@@ -218,7 +225,7 @@
             top: 50%;
             width: 30%;
             height: 1px;
-            background: #e0e0e0;
+            background: #333;
         }
         
         .social-login p::before {
@@ -235,6 +242,7 @@
             text-align: center;
             padding: 20px;
             margin-top: auto;
+            font-size: 0.8rem;
         }
         
         .error-message {
@@ -245,6 +253,7 @@
             background: rgba(231, 76, 60, 0.1);
             border-radius: 6px;
             font-weight: 500;
+            display: none;
         }
         
         @media (max-width: 600px) {
@@ -301,19 +310,16 @@
         <p>© 2025 Escola Secundária de Inhamissa - Xai-Xai, Gaza, Moçambique</p>
     </footer>
 
-    <!-- Firebase SDK -->
     <script type="module">
-        // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
         import { 
             getAuth, 
             signInWithEmailAndPassword,
-            sendPasswordResetEmail,
             GoogleAuthProvider,
-            signInWithPopup
+            signInWithPopup,
+            onAuthStateChanged
         } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
         
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
             authDomain: "luna-bot-70962.firebaseapp.com",
@@ -324,12 +330,17 @@
             measurementId: "G-8Q1L3CS37J"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // Login com email/senha
+        // Verificar se usuário já está logado e redirecionar
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.href = 'home.html';
+            }
+        });</old_str>
+        
         document.getElementById('login-form').addEventListener('submit', (e) => {
             e.preventDefault();
             
@@ -339,8 +350,7 @@
             
             signInWithEmailAndPassword(auth, email, password)
                 .then((userCredential) => {
-                    localStorage.setItem('loggedInUser', email);
-                    window.location.href = "index.html";
+                    window.location.href = "home.html";
                 })
                 .catch((error) => {
                     const errorCode = error.code;
@@ -362,39 +372,26 @@
                     }
                     
                     errorMessage.textContent = message;
+                    errorMessage.style.display = 'block';
                 });
         });
 
-        // Login com Google
         document.getElementById('google-login').addEventListener('click', (e) => {
             e.preventDefault();
             
             signInWithPopup(auth, provider)
                 .then((result) => {
-                    localStorage.setItem('loggedInUser', result.user.email);
                     window.location.href = "index.html";
                 }).catch((error) => {
-                    const errorMessage = error.message;
-                    document.getElementById('error-message').textContent = 
-                        "Erro ao entrar com Google: " + errorMessage;
+                    const errorMessage = document.getElementById('error-message');
+                    errorMessage.textContent = "Erro ao entrar com Google: " + error.message;
+                    errorMessage.style.display = 'block';
                 });
         });
 
-        // Sistema de recuperação de senha
-        function resetPassword(email) {
-            sendPasswordResetEmail(auth, email)
-                .then(() => {
-                    alert("Email de recuperação enviado! Verifique sua caixa de entrada.");
-                })
-                .catch((error) => {
-                    console.error("Erro ao enviar email de recuperação:", error);
-                });
-        }
-
-        // Mostrar/Esconder senha
-        document.getElementById('show-password').addEventListener('change', () => {
+        document.getElementById('show-password').addEventListener('change', (e) => {
             const passwordInput = document.getElementById('password');
-            passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = e.target.checked ? 'text' : 'password';
         });
     </script>
 </body>

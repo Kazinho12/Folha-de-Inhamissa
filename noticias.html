@@ -3,33 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notícias | Portal 04 de Outubro</title>
+    <title>Notícias | Folha de Inhamissa</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
     :root {
-        --primary: #2563eb;
-        --primary-dark: #1e40af;
-        --primary-light: #93c5fd;
-        --accent: #f59e0b;
-        --accent-dark: #d97706;
-        --text: #1f2937;
-        --text-light: #6b7280;
-        --text-lighter: #9ca3af;
-        --light: #f3f4f6;
-        --light-gray: #e5e7eb;
-        --medium-gray: #d1d5db;
-        --dark-gray: #374151;
-        --white: #ffffff;
+        --primary: #FFD700;
+        --primary-dark: #FFC107;
+        --primary-light: #FFE55C;
+        --accent: #FFD700;
+        --accent-dark: #FFC107;
+        --text: #FFFFFF;
+        --text-light: #b0b0b0;
+        --text-lighter: #808080;
+        --light: #1a1a1a;
+        --light-gray: #333333;
+        --medium-gray: #4a4a4a;
+        --dark-gray: #d0d0d0;
+        --white: #000000;
         --black: #000000;
         --error: #e74c3c;
         --error-light: #fde8e8;
         --success: #2ecc71;
         --success-light: #ecfdf5;
-        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
         --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -204,17 +204,49 @@
     }
 
     .news-card {
-        background-color: var(--white);
-        border-radius: 12px;
+        background: var(--white);
+        border-radius: 20px;
         overflow: hidden;
         box-shadow: var(--card-shadow);
-        transition: var(--transition);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         position: relative;
+        border: 1px solid rgba(255, 215, 0, 0.1);
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    .news-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 20px;
+        background: linear-gradient(135deg, 
+            rgba(255, 215, 0, 0.1) 0%, 
+            transparent 50%, 
+            rgba(255, 165, 0, 0.1) 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    .news-card:hover::after {
+        opacity: 1;
     }
 
     .news-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--card-shadow-hover);
+        transform: translateY(-12px) scale(1.02);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+        border-color: rgba(255, 215, 0, 0.3);
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .news-image {
@@ -611,9 +643,9 @@
 <body>
     <!-- App Bar -->
     <header class="app-bar">
-        <a href="index.html" class="logo">
+        <a href="home.html" class="logo">
             <i class="fas fa-graduation-cap logo-icon"></i>
-            <span>Portal 04 de Outubro</span>
+            <span>Folha de Inhamissa</span>
         </a>
         <h1 class="app-bar-title">Notícias</h1>
         <div class="app-bar-actions">
@@ -650,7 +682,25 @@
         <!-- Load More Button -->
         <button class="load-more" id="load-more">Carregar Mais Notícias</button>
     </main>
-
+ <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <i class="fas fa-home nav-icon"></i>
+            <span>Início</span>
+        </a>
+        <a href="aprenda.html" class="nav-item">
+            <i class="fas fa-book nav-icon"></i>
+            <span>Aprenda</span>
+        </a>
+        <a href="horarios.html" class="nav-item">
+            <i class="fas fa-calendar-alt nav-icon"></i>
+            <span>Horários</span>
+        </a>
+        <a href="noticias.html" class="nav-item active">
+            <i class="fas fa-newspaper nav-icon"></i>
+            <span>Notícias</span>
+        </a>
+    </nav>
     <!-- News Modal -->
     <div class="news-modal" id="news-modal">
         <div class="modal-content">
@@ -718,6 +768,32 @@
         const addNewsBtn = document.getElementById('add-news-btn');
         const userAvatar = document.getElementById('user-avatar');
         const avatarInitials = document.getElementById('avatar-initials');
+        
+        // Carregar dados do usuário
+        async function loadUserData(userId) {
+            try {
+                const userDoc = await getDoc(doc(db, 'users', userId));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    const initials = userData.name ? 
+                        userData.name.split(' ').map(n => n[0]).join('').toUpperCase() : 
+                        auth.currentUser.email[0].toUpperCase();
+                    
+                    const userAvatar = document.getElementById('user-avatar');
+                    const avatarInitials = document.getElementById('avatar-initials');
+                    
+                    if (userData.photoURL) {
+                        userAvatar.innerHTML = `<img src="${userData.photoURL}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                    } else {
+                        if (avatarInitials) {
+                            avatarInitials.textContent = initials;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados do usuário:', error);
+            }
+        }
         const categories = document.querySelectorAll('.category');
         const newsGrid = document.getElementById('news-grid');
         const loadMoreBtn = document.getElementById('load-more');
@@ -932,10 +1008,8 @@
         }
 
         // Event Listeners
-// Event Listeners
-        // Event Listeners
         addNewsBtn.addEventListener('click', () => {
-            window.location.href = '/publicarnews.html';
+            window.location.href = 'submit-news.html';
         });
 
         closeModalBtn.addEventListener('click', () => {
@@ -949,11 +1023,72 @@
         });
         // Category Selection
         categories.forEach(category => {
-            category.addEventListener('click', () => {
+            category.addEventListener('click', async () => {
                 categories.forEach(c => c.classList.remove('active'));
                 category.classList.add('active');
                 currentCategory = category.textContent;
-                loadNews(true);
+                
+                newsGrid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+                
+                try {
+                    let newsQuery;
+                    if (currentCategory === 'Todas') {
+                        newsQuery = query(
+                            collection(db, 'news'),
+                            limit(12)
+                        );
+                    } else {
+                        newsQuery = query(
+                            collection(db, 'news'),
+                            where('category', '==', currentCategory),
+                            limit(12)
+                        );
+                    }
+
+                    const querySnapshot = await getDocs(newsQuery);
+                    newsGrid.innerHTML = '';
+
+                    // Ordenar manualmente por data
+                    const newsList = [];
+                    querySnapshot.forEach(doc => {
+                        newsList.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    newsList.sort((a, b) => {
+                        if (!a.createdAt || !b.createdAt) return 0;
+                        return b.createdAt.toMillis() - a.createdAt.toMillis();
+                    });
+
+                    newsList.forEach(news => {
+                        const newsCard = document.createElement('div');
+                        newsCard.className = 'news-card';
+                        newsCard.innerHTML = `
+                            <img src="${news.imageUrl || 'https://via.placeholder.com/400x300?text=Sem+Imagem'}" 
+                                 alt="${news.title}" 
+                                 class="news-image"
+                                 loading="lazy">
+                            <div class="news-content">
+                                <span class="news-category">${news.category || 'Geral'}</span>
+                                <h3 class="news-title">${news.title}</h3>
+                                <p class="news-excerpt">${news.excerpt || ''}</p>
+                                <div class="news-meta">
+                                    <span>${formatDate(news.createdAt)}</span>
+                                    <span><i class="far fa-eye"></i> ${news.views || 0}</span>
+                                </div>
+                            </div>
+                        `;
+                        newsCard.addEventListener('click', () => openNewsModal(news, news.id));
+                        newsGrid.appendChild(newsCard);
+                    });
+
+                    if (newsList.length === 0) {
+                        newsGrid.innerHTML = '<p style="text-align: center; color: var(--gray); padding: 40px;">Nenhuma notícia encontrada nesta categoria</p>';
+                    }
+
+                } catch (error) {
+                    console.error('Error filtering news:', error);
+                    newsGrid.innerHTML = '<p style="text-align: center; color: var(--error); padding: 40px;">Erro ao filtrar notícias</p>';
+                }
             });
         });
 
@@ -971,10 +1106,7 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 currentUser = user;
-                const initials = user.displayName ? 
-                    user.displayName.split(' ').map(n => n[0]).join('').toUpperCase() : 
-                    user.email[0].toUpperCase();
-                avatarInitials.textContent = initials;
+                loadUserData(user.uid);
                 init();
             } else {
                 window.location.href = 'login.html';

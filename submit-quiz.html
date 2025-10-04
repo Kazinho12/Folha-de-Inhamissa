@@ -1,0 +1,544 @@
+
+<!DOCTYPE html>
+<html lang="pt-MZ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enviar Quiz | Folha de Inhamissa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FFD700;
+            --primary-dark: #FFC107;
+            --text: #FFFFFF;
+            --bg: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --border: #333333;
+            --error: #ef4444;
+            --success: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        .app-bar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(26, 26, 26, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            padding: 16px 24px;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.2rem;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .form-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .form-label i {
+            color: var(--primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .image-preview {
+            margin-top: 16px;
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: auto;
+        }
+
+        .question-block {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .remove-question {
+            background: var(--error);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+        .option-input {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .btn-add {
+            background: var(--success);
+            color: white;
+            width: 100%;
+            margin: 16px 0;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 32px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--card-bg);
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 10000;
+        }
+
+        .toast.show {
+            display: flex;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .form-card {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="app-bar">
+        <a href="home.html" class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            Folha de Inhamissa
+        </a>
+        <a href="aprenda.html" style="text-decoration: none; color: var(--text);">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
+    </header>
+
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Criar Novo Quiz</h1>
+            <p style="color: #888;">Compartilhe conhecimento através de quizzes interativos!</p>
+        </div>
+
+        <div class="form-card">
+            <form id="quiz-form">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-heading"></i>
+                        Título do Quiz
+                    </label>
+                    <input type="text" class="form-control" id="quiz-title" placeholder="Ex: Matemática - Equações do 2º Grau" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-align-left"></i>
+                        Descrição
+                    </label>
+                    <textarea class="form-control" id="quiz-description" rows="3" placeholder="Descreva brevemente o quiz..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-folder"></i>
+                        Categoria
+                    </label>
+                    <select class="form-control" id="quiz-category" required>
+                        <option value="">Selecione uma categoria</option>
+                        <option value="Matemática">Matemática</option>
+                        <option value="Português">Português</option>
+                        <option value="História">História</option>
+                        <option value="Geografia">Geografia</option>
+                        <option value="Biologia">Biologia</option>
+                        <option value="Física">Física</option>
+                        <option value="Química">Química</option>
+                        <option value="Inglês">Inglês</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-image"></i>
+                        Imagem do Quiz
+                    </label>
+                    <input type="file" id="quiz-image" accept="image/*" style="display: none;">
+                    <div class="upload-area" onclick="document.getElementById('quiz-image').click()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <div><strong>Clique para selecionar uma imagem</strong></div>
+                    </div>
+                    <div class="image-preview" id="image-preview">
+                        <img id="preview-img" alt="Preview">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-question-circle"></i>
+                        Perguntas
+                    </label>
+                    <div id="questions-container"></div>
+                    <button type="button" class="btn btn-add" onclick="addQuestion()">
+                        <i class="fas fa-plus"></i>
+                        Adicionar Pergunta
+                    </button>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="window.location.href='aprenda.html'">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i>
+                        Criar Quiz
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message"></span>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
+            authDomain: "luna-bot-70962.firebaseapp.com",
+            projectId: "luna-bot-70962",
+            storageBucket: "luna-bot-70962.appspot.com",
+            messagingSenderId: "247837414432",
+            appId: "1:247837414432:web:f7f9df049b8cfdbd909845"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        const ADMIN_EMAILS = ['killiandesigner@gmail.com', 'jeanabilio72@gmail.com', 'ianomachai@gmail.com'];
+        let questionCount = 0;
+
+        const imageInput = document.getElementById('quiz-image');
+        const imagePreview = document.getElementById('image-preview');
+        const previewImg = document.getElementById('preview-img');
+
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    previewImg.src = event.target.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        window.addQuestion = function() {
+            questionCount++;
+            const container = document.getElementById('questions-container');
+            const questionBlock = document.createElement('div');
+            questionBlock.className = 'question-block';
+            questionBlock.id = `question-${questionCount}`;
+            questionBlock.innerHTML = `
+                <div class="question-header">
+                    <strong>Pergunta ${questionCount}</strong>
+                    <button type="button" class="remove-question" onclick="removeQuestion(${questionCount})">
+                        <i class="fas fa-trash"></i> Remover
+                    </button>
+                </div>
+                <input type="text" class="form-control" name="question-text-${questionCount}" placeholder="Digite a pergunta..." required style="margin-bottom: 16px;">
+                <div class="option-input">
+                    <input type="radio" name="correct-${questionCount}" value="0" required>
+                    <input type="text" class="form-control" name="option-${questionCount}-0" placeholder="Opção A" required>
+                </div>
+                <div class="option-input">
+                    <input type="radio" name="correct-${questionCount}" value="1">
+                    <input type="text" class="form-control" name="option-${questionCount}-1" placeholder="Opção B" required>
+                </div>
+                <div class="option-input">
+                    <input type="radio" name="correct-${questionCount}" value="2">
+                    <input type="text" class="form-control" name="option-${questionCount}-2" placeholder="Opção C" required>
+                </div>
+                <div class="option-input">
+                    <input type="radio" name="correct-${questionCount}" value="3">
+                    <input type="text" class="form-control" name="option-${questionCount}-3" placeholder="Opção D" required>
+                </div>
+            `;
+            container.appendChild(questionBlock);
+        };
+
+        window.removeQuestion = function(id) {
+            document.getElementById(`question-${id}`).remove();
+        };
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            toast.className = `toast ${type} show`;
+            toastMessage.textContent = message;
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        document.getElementById('quiz-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const user = auth.currentUser;
+            if (!user) {
+                showToast('Faça login para criar quiz', 'error');
+                return;
+            }
+
+            const title = document.getElementById('quiz-title').value.trim();
+            const description = document.getElementById('quiz-description').value.trim();
+            const category = document.getElementById('quiz-category').value;
+            const imageFile = imageInput.files[0];
+
+            const questions = [];
+            const questionBlocks = document.querySelectorAll('.question-block');
+            
+            questionBlocks.forEach((block, index) => {
+                const questionText = block.querySelector(`input[name^="question-text"]`).value.trim();
+                const options = [];
+                for (let i = 0; i < 4; i++) {
+                    const option = block.querySelector(`input[name$="-${i}"]`).value.trim();
+                    options.push(option);
+                }
+                const correctIndex = parseInt(block.querySelector(`input[name^="correct"]:checked`)?.value || 0);
+
+                questions.push({
+                    question: questionText,
+                    options,
+                    correctIndex
+                });
+            });
+
+            if (questions.length === 0) {
+                showToast('Adicione pelo menos uma pergunta', 'error');
+                return;
+            }
+
+            try {
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando...';
+
+                let imageUrl = '';
+                if (imageFile) {
+                    const storageRef = ref(storage, `quizzes/${Date.now()}_${imageFile.name}`);
+                    const uploadTask = uploadBytesResumable(storageRef, imageFile);
+
+                    await new Promise((resolve, reject) => {
+                        uploadTask.on('state_changed', null,
+                            (error) => reject(error),
+                            async () => {
+                                imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                                resolve();
+                            }
+                        );
+                    });
+                }
+
+                await addDoc(collection(db, 'quizzes'), {
+                    title,
+                    description,
+                    category,
+                    imageUrl,
+                    questions,
+                    authorName: user.displayName || user.email.split('@')[0],
+                    authorId: user.uid,
+                    createdAt: serverTimestamp(),
+                    attempts: 0
+                });
+
+                showToast('Quiz criado com sucesso!', 'success');
+                setTimeout(() => window.location.href = 'aprenda.html', 1500);
+
+            } catch (error) {
+                console.error('Erro ao criar quiz:', error);
+                showToast('Erro ao criar quiz', 'error');
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> Criar Quiz';
+            }
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+            } else if (!ADMIN_EMAILS.includes(user.email)) {
+                alert('Acesso restrito a administradores');
+                window.location.href = 'admin.html';
+            }
+        });
+
+        addQuestion();
+    </script>
+</body>
+</html>

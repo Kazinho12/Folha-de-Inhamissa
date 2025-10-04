@@ -6,6 +6,8 @@
     <title>Registro - Folha de Inhamissa</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- CSS Personalizado -->
     <style>
         :root {
@@ -15,7 +17,7 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: var(--cor-fundo);
             color: var(--cor-texto);
             margin: 0;
@@ -206,6 +208,7 @@
             text-align: center;
             padding: 20px;
             margin-top: auto;
+            font-size: 0.8rem;
         }
         
         .error-message {
@@ -276,18 +279,18 @@
                     <i class="fas fa-users"></i>
                     <select id="class" required>
                         <option value="" disabled selected>Selecione a classe</option>
-                        <option value="1a">1ª Classe</option>
-                        <option value="2a">2ª Classe</option>
-                        <option value="3a">3ª Classe</option>
-                        <option value="4a">4ª Classe</option>
-                        <option value="5a">5ª Classe</option>
-                        <option value="6a">6ª Classe</option>
-                        <option value="7a">7ª Classe</option>
-                        <option value="8a">8ª Classe</option>
-                        <option value="9a">9ª Classe</option>
-                        <option value="10a">10ª Classe</option>
-                        <option value="11a">11ª Classe</option>
-                        <option value="12a">12ª Classe</option>
+                        <option value="1">1ª Classe</option>
+                        <option value="2">2ª Classe</option>
+                        <option value="3">3ª Classe</option>
+                        <option value="4">4ª Classe</option>
+                        <option value="5">5ª Classe</option>
+                        <option value="6">6ª Classe</option>
+                        <option value="7">7ª Classe</option>
+                        <option value="8">8ª Classe</option>
+                        <option value="9">9ª Classe</option>
+                        <option value="10">10ª Classe</option>
+                        <option value="11">11ª Classe</option>
+                        <option value="12">12ª Classe</option>
                     </select>
                 </div>
                 
@@ -295,18 +298,6 @@
                     <i class="fas fa-door-open"></i>
                     <select id="turma" required>
                         <option value="" disabled selected>Selecione a turma</option>
-                        <option value="A">Turma A</option>
-                        <option value="B">Turma B</option>
-                        <option value="C">Turma C</option>
-                        <option value="D">Turma D</option>
-                        <option value="E">Turma E</option>
-                        <option value="F">Turma F</option>
-                        <option value="G">Turma G</option>
-                        <option value="H">Turma H</option>
-                        <option value="I">Turma I</option>
-                        <option value="J">Turma J</option>
-                        <option value="K">Turma K</option>
-                        <option value="L">Turma L</option>
                     </select>
                 </div>
             </div>
@@ -400,7 +391,7 @@
             const selectedClass = classSelect.value;
             turmaSelect.innerHTML = '<option value="" disabled selected>Selecione a turma</option>';
 
-            if (selectedClass === '11a' || selectedClass === '12a') {
+            if (selectedClass === '11' || selectedClass === '12') {
                 // Turmas para 11ª e 12ª classes (A01-A06, B01-B09, C01-C05)
                 const turmas = [
                     'A01', 'A02', 'A03', 'A04', 'A05', 'A06',
@@ -428,8 +419,8 @@
         // Atualizar turmas quando a classe for alterada
         classSelect.addEventListener('change', updateTurmaOptions);
 
-        // Inicializar as opções de turma ao carregar a página
-        document.addEventListener('DOMContentLoaded', updateTurmaOptions);
+        // Inicializar as opções de turma imediatamente
+        updateTurmaOptions();
 
         // Função para mostrar mensagens de erro
         function showError(message) {

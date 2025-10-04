@@ -1,34 +1,36 @@
+
 <!DOCTYPE html>
 <html lang="pt-MZ">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página Não Encontrada - Portal 4 de Outubro</title>
-    <!-- Font Awesome -->
+    <title>Página Não Encontrada - Folha de Inhamissa</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- CSS Personalizado -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --cor-primaria: #2E5A88;     /* Azul principal */
-            --cor-secundaria: #E67E22;   /* Laranja */
-            --cor-terciaria: #27AE60;    /* Verde */
-            --cor-destaque: #9B59B6;    /* Roxo */
-            --cor-texto: #2C3E50;        /* Azul escuro */
-            --cor-fundo: #f8f9fa;        /* Cinza claro */
-            --cor-branco: #ffffff;
-            --gradiente-primario: linear-gradient(135deg, var(--cor-primaria) 0%, var(--cor-destaque) 100%);
+            --primary: #FFD700;
+            --secondary: #FFC107;
+            --text: #1a1a1a;
+            --bg: #f8f9fa;
+            --card-bg: #FFFFFF;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--cor-fundo);
+            background: linear-gradient(135deg, var(--bg) 0%, #e8e9ea 100%);
+            color: var(--text);
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            color: var(--cor-texto);
-            text-align: center;
         }
         
         .error-container {
@@ -40,17 +42,18 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            text-align: center;
         }
         
         .error-icon {
             font-size: 8rem;
-            color: var(--cor-secundaria);
+            color: var(--primary);
             margin-bottom: 20px;
             animation: bounce 2s infinite;
         }
         
         h1 {
-            color: var(--cor-primaria);
+            color: var(--text);
             font-size: 2.5rem;
             margin-bottom: 20px;
         }
@@ -59,13 +62,14 @@
             font-size: 1.2rem;
             margin-bottom: 30px;
             max-width: 500px;
+            color: #666;
         }
         
         .btn {
             display: inline-block;
             padding: 14px 30px;
-            background: var(--gradiente-primario);
-            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #000;
             border-radius: 8px;
             text-decoration: none;
             font-weight: 600;
@@ -76,7 +80,7 @@
         
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 20px rgba(255, 215, 0, 0.3);
         }
         
         .btn i {
@@ -84,8 +88,8 @@
         }
         
         footer {
-            background: var(--cor-texto);
-            color: var(--cor-branco);
+            background: var(--text);
+            color: white;
             text-align: center;
             padding: 20px;
         }
@@ -126,14 +130,14 @@
             <a href="index.html" class="btn">
                 <i class="fas fa-home"></i> Voltar à Página Inicial
             </a>
-            <a href="javascript:history.back()" class="btn" style="background: var(--cor-terciaria);">
+            <a href="javascript:history.back()" class="btn">
                 <i class="fas fa-arrow-left"></i> Voltar à Página Anterior
             </a>
         </div>
     </div>
     
     <footer>
-        <p>© 2025 Escola Básica 04 de Outubro - Xai-Xai, Gaza, Moçambique</p>
+        <p>© 2025 Escola Secundária de Inhamissa - Xai-Xai, Gaza, Moçambique</p>
     </footer>
 </body>
 </html>
