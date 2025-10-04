@@ -741,7 +741,9 @@
             limit, 
             getDocs,
             doc,
-            getDoc
+            getDoc,
+            updateDoc,
+            increment
         } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
         // Firebase configuration
@@ -918,12 +920,24 @@
         }
 
         // Open news in modal
-        async function openNewsModal(news) {
+        async function openNewsModal(news, newsId = null) {
             modalImage.src = news.imageUrl || 'https://via.placeholder.com/800x400?text=Sem+Imagem';
             modalCategory.textContent = news.category || 'Geral';
             modalTitle.textContent = news.title;
             modalAuthor.textContent = `Por ${news.author || 'Administrador'}`;
             modalDate.textContent = formatDate(news.createdAt);
+            
+            // Increment view count if newsId is provided
+            if (newsId) {
+                try {
+                    const newsRef = doc(db, 'news', newsId);
+                    await updateDoc(newsRef, {
+                        views: increment(1)
+                    });
+                } catch (error) {
+                    console.error('Erro ao incrementar visualizações:', error);
+                }
+            }
             
             // Process content with formatting
             let content = processContent(news.content);
@@ -991,7 +1005,7 @@
                             </div>
                         </div>
                     `;
-                    newsCard.addEventListener('click', () => openNewsModal(news));
+                    newsCard.addEventListener('click', () => openNewsModal(news, doc.id));
                     newsGrid.appendChild(newsCard);
                 });
 
