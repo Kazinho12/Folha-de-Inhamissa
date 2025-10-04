@@ -452,6 +452,100 @@
             box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
         }
 
+        .progress-container {
+            margin: 20px 0;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .progress-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #888;
+            transition: all 0.3s;
+        }
+
+        .progress-icon.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #000;
+            animation: pulse 1.5s infinite;
+        }
+
+        .progress-icon.completed {
+            background: var(--success);
+            color: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .progress-info {
+            flex: 1;
+        }
+
+        .progress-label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .progress-percentage {
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: #888;
+            font-weight: 600;
+        }
+
+        .overall-progress {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border);
+        }
+
+        .overall-label {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+        }
+
         @media (max-width: 768px) {
             .form-card {
                 padding: 24px;
@@ -468,6 +562,10 @@
             }
             .certificate-body p {
                 font-size: 1.1rem;
+            }
+            .progress-step {
+                flex-direction: column;
+                text-align: center;
             }
         }
     </style>
@@ -575,6 +673,47 @@
     <div class="toast" id="toast">
         <i class="fas fa-check-circle"></i>
         <span id="toast-message"></span>
+    </div>
+
+    <div id="upload-progress-modal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <h2 style="text-align: center; margin-bottom: 20px; color: var(--primary);">
+                <i class="fas fa-upload"></i> Enviando Quiz
+            </h2>
+            <div class="progress-container">
+                <div class="progress-step">
+                    <div class="progress-icon" id="step1-icon">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <div class="progress-info">
+                        <div class="progress-label">Upload da Imagem</div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="image-progress-bar"></div>
+                        </div>
+                        <div class="progress-percentage" id="image-progress-text">0%</div>
+                    </div>
+                </div>
+                <div class="progress-step">
+                    <div class="progress-icon" id="step2-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <div class="progress-info">
+                        <div class="progress-label">Salvando Quiz</div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="quiz-progress-bar"></div>
+                        </div>
+                        <div class="progress-percentage" id="quiz-progress-text">0%</div>
+                    </div>
+                </div>
+            </div>
+            <div class="overall-progress">
+                <div class="overall-label">Progresso Geral</div>
+                <div class="progress-bar-container" style="height: 20px; margin-top: 10px;">
+                    <div class="progress-bar" id="overall-progress-bar" style="height: 100%;"></div>
+                </div>
+                <div class="progress-percentage" id="overall-progress-text" style="font-size: 1.2rem; margin-top: 8px;">0%</div>
+            </div>
+        </div>
     </div>
 
     <div id="quiz-completion-modal" class="modal">
@@ -727,6 +866,28 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
+        function updateProgress(step, percentage) {
+            const stepIcon = document.getElementById(`step${step}-icon`);
+            const progressBar = document.getElementById(step === 1 ? 'image-progress-bar' : 'quiz-progress-bar');
+            const progressText = document.getElementById(step === 1 ? 'image-progress-text' : 'quiz-progress-text');
+            
+            if (percentage > 0 && percentage < 100) {
+                stepIcon.classList.add('active');
+                stepIcon.classList.remove('completed');
+            } else if (percentage === 100) {
+                stepIcon.classList.remove('active');
+                stepIcon.classList.add('completed');
+            }
+            
+            progressBar.style.width = percentage + '%';
+            progressText.textContent = Math.round(percentage) + '%';
+            
+            // Atualizar progresso geral
+            const overallProgress = (step === 1 ? percentage / 2 : 50 + percentage / 2);
+            document.getElementById('overall-progress-bar').style.width = overallProgress + '%';
+            document.getElementById('overall-progress-text').textContent = Math.round(overallProgress) + '%';
+        }
+
         document.getElementById('quiz-form').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -766,23 +927,40 @@
             try {
                 const submitBtn = e.target.querySelector('button[type="submit"]');
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando...';
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+                // Mostrar modal de progresso
+                const progressModal = document.getElementById('upload-progress-modal');
+                progressModal.style.display = 'flex';
 
                 let imageUrl = '';
                 if (imageFile) {
+                    updateProgress(1, 0);
                     const storageRef = ref(storage, `quizzes/${Date.now()}_${imageFile.name}`);
                     const uploadTask = uploadBytesResumable(storageRef, imageFile);
 
                     await new Promise((resolve, reject) => {
-                        uploadTask.on('state_changed', null,
+                        uploadTask.on('state_changed', 
+                            (snapshot) => {
+                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                updateProgress(1, progress);
+                            },
                             (error) => reject(error),
                             async () => {
                                 imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                                updateProgress(1, 100);
                                 resolve();
                             }
                         );
                     });
+                } else {
+                    updateProgress(1, 100);
                 }
+
+                // Simular progresso ao salvar quiz
+                updateProgress(2, 0);
+                await new Promise(resolve => setTimeout(resolve, 300));
+                updateProgress(2, 30);
 
                 await addDoc(collection(db, 'quizzes'), {
                     title,
@@ -796,12 +974,17 @@
                     attempts: 0
                 });
 
+                updateProgress(2, 100);
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                progressModal.style.display = 'none';
                 showToast('Quiz criado com sucesso!', 'success');
                 setTimeout(() => window.location.href = 'aprenda.html', 1500);
 
             } catch (error) {
                 console.error('Erro ao criar quiz:', error);
-                showToast('Erro ao criar quiz', 'error');
+                document.getElementById('upload-progress-modal').style.display = 'none';
+                showToast('Erro ao criar quiz: ' + error.message, 'error');
                 const submitBtn = e.target.querySelector('button[type="submit"]');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-check"></i> Criar Quiz';
