@@ -582,6 +582,224 @@ a:hover {
     overflow-y: auto;
 }
 
+.quiz-justification {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: var(--border-radius-sm);
+    background-color: var(--light);
+    border-left: 4px solid var(--primary);
+    display: none;
+}
+
+.quiz-justification.show {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.quiz-justification-title {
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.certificate-btn {
+    background-color: var(--primary);
+    color: #000;
+    padding: 10px 20px;
+    border-radius: var(--border-radius-sm);
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: var(--transition);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.certificate-btn:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.certificate-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.certificate-modal.show {
+    display: flex;
+}
+
+.certificate-container {
+    background: linear-gradient(135deg, #fff 0%, #f8f8f8 100%);
+    max-width: 800px;
+    width: 100%;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    position: relative;
+    border: 8px solid var(--primary);
+}
+
+.certificate-watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    color: rgba(255, 215, 0, 0.1);
+    font-weight: 700;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.certificate-header {
+    text-align: center;
+    margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
+}
+
+.certificate-logo {
+    font-size: 3rem;
+    color: var(--primary);
+    margin-bottom: 10px;
+}
+
+.certificate-title {
+    font-size: 2.5rem;
+    color: var(--primary-dark);
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.certificate-subtitle {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.certificate-body {
+    text-align: center;
+    margin: 40px 0;
+    position: relative;
+    z-index: 1;
+}
+
+.certificate-recipient {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.certificate-name {
+    font-size: 2.5rem;
+    color: var(--primary-dark);
+    font-weight: 700;
+    margin: 20px 0;
+    text-transform: uppercase;
+}
+
+.certificate-text {
+    font-size: 1.1rem;
+    color: #555;
+    line-height: 1.8;
+    margin: 20px 0;
+}
+
+.certificate-score {
+    font-size: 1.5rem;
+    color: var(--primary);
+    font-weight: 600;
+    margin: 20px 0;
+}
+
+.certificate-footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 2px solid var(--primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.certificate-signature {
+    text-align: center;
+}
+
+.certificate-signature-line {
+    width: 200px;
+    height: 2px;
+    background-color: #333;
+    margin-bottom: 8px;
+}
+
+.certificate-signature-text {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.certificate-date {
+    color: #666;
+}
+
+.certificate-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 30px;
+    position: relative;
+    z-index: 1;
+}
+
+.close-certificate {
+    background-color: #888;
+    color: white;
+    padding: 10px 20px;
+    border-radius: var(--border-radius-sm);
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.close-certificate:hover {
+    background-color: #666;
+}
+
+@media (max-width: 768px) {
+    .certificate-container {
+        padding: 20px;
+    }
+
+    .certificate-title {
+        font-size: 1.8rem;
+    }
+
+    .certificate-name {
+        font-size: 1.8rem;
+    }
+
+    .certificate-footer {
+        flex-direction: column;
+        gap: 20px;
+    }
+}
+
 .learning-content {
     margin-bottom: 20px;
 }
@@ -1027,7 +1245,7 @@ a:hover {
         </div>
     </main>
 
-    
+
 
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
@@ -1049,10 +1267,44 @@ a:hover {
         </a>
     </nav>
 
+    <!-- Certificate Modal -->
+    <div class="certificate-modal" id="certificate-modal">
+        <div class="certificate-container">
+            <div class="certificate-header">
+                <i class="fas fa-award certificate-logo"></i>
+                <h2 class="certificate-title">Certificado de Conclusão</h2>
+                <p class="certificate-subtitle">Folha de Inhamissa</p>
+            </div>
+            <div class="certificate-body">
+                <p class="certificate-recipient">Este certificado é concedido a</p>
+                <h3 class="certificate-name" id="certificate-name"></h3>
+                <p class="certificate-text">pela conclusão bem-sucedida do quiz:</p>
+                <h4 class="certificate-title" id="certificate-quiz-title"></h4>
+                <p class="certificate-score">Pontuação: <span id="certificate-score"></span>%</p>
+                <p class="certificate-text" id="certificate-reason"></p>
+            </div>
+            <div class="certificate-footer">
+                <div class="certificate-signature">
+                    <div class="certificate-signature-line"></div>
+                    <div class="certificate-signature-text">Assinatura</div>
+                </div>
+                <div class="certificate-date" id="certificate-date"></div>
+            </div>
+            <div class="certificate-watermark">Folha de Inhamissa</div>
+            <div class="certificate-actions">
+                <button class="certificate-btn" id="download-certificate-btn">
+                    <i class="fas fa-download"></i> Baixar Certificado
+                </button>
+                <button class="close-certificate" id="close-certificate-modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         // Import Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-        import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+        import { getFirestore, collection, query, orderBy, limit, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
@@ -1065,19 +1317,94 @@ a:hover {
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const authAprenda = getAuth(app);
+
+        // --- Certificate Generation ---
+        function generateCertificate(userName, quizTitle, score, quizId) {
+            const certificateModal = document.getElementById('certificate-modal');
+            certificateModal.classList.add('show');
+
+            document.getElementById('certificate-name').textContent = userName;
+            document.getElementById('certificate-quiz-title').textContent = quizTitle;
+            document.getElementById('certificate-score').textContent = score;
+            document.getElementById('certificate-date').textContent = new Date().toLocaleDateString('pt-MZ');
+
+            const reasonText = `Pela dedicação e sucesso na demonstração de conhecimento sobre ${quizTitle}.`;
+            document.getElementById('certificate-reason').textContent = reasonText;
+
+            const downloadBtn = document.getElementById('download-certificate-btn');
+            downloadBtn.onclick = () => downloadCertificate(userName, quizTitle, score);
+
+            document.getElementById('close-certificate-modal').addEventListener('click', () => {
+                certificateModal.classList.remove('show');
+            });
+
+            window.addEventListener('click', (e) => {
+                if (e.target === certificateModal) {
+                    certificateModal.classList.remove('show');
+                }
+            });
+        }
+
+        async function downloadCertificate(userName, quizTitle, score) {
+            const certificateContainer = document.querySelector('.certificate-container');
+            const originalBoxShadow = certificateContainer.style.boxShadow;
+            certificateContainer.style.boxShadow = 'none'; // Remove shadow for cleaner download
+
+            const element = document.getElementById('certificate-modal');
+            html2canvas(element, {
+                scale: 2, // Higher scale for better resolution
+                useCORS: true,
+                logging: true,
+                backgroundColor: null // Ensure transparent background if needed
+            }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jspdf.jsPDF({
+                    orientation: 'landscape',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+
+                // Center the image
+                const imgWidth = canvas.width * 2 / 96; // Convert pixels to mm (assuming 96 DPI)
+                const imgHeight = canvas.height * 2 / 96;
+                const xPos = (pdfWidth - imgWidth) / 2;
+                const yPos = (pdfHeight - imgHeight) / 2;
+
+                pdf.addImage(imgData, 'PNG', xPos, yPos, imgWidth, imgHeight);
+
+                // Add signature manually if not captured well by html2canvas
+                const signatureText = "Folha de Inhamissa";
+                pdf.setFontSize(12);
+                pdf.setTextColor('#666666');
+                const signatureX = (pdfWidth / 2) + 70; // Adjust position as needed
+                const signatureY = pdfHeight - 30; // Adjust position as needed
+                pdf.text(signatureText, signatureX, signatureY, { align: 'center' });
+
+                pdf.save(`Certificado_${quizTitle}_${userName}.pdf`);
+                certificateContainer.style.boxShadow = originalBoxShadow; // Restore original shadow
+            }).catch(error => {
+                console.error('Error generating certificate:', error);
+                alert('Ocorreu um erro ao gerar o certificado. Tente novamente.');
+                certificateContainer.style.boxShadow = originalBoxShadow; // Restore original shadow
+            });
+        }
 
         // Carregar quizzes da comunidade
         async function loadCommunityQuizzes() {
             try {
                 const quizzesQuery = query(collection(db, 'quizzes'), orderBy('createdAt', 'desc'), limit(20));
                 const quizzesSnapshot = await getDocs(quizzesQuery);
-                
+
                 const container = document.getElementById('community-quizzes');
-                
+
                 if (!quizzesSnapshot.empty) {
                     container.innerHTML = '<h2 style="margin-bottom: 20px; color: var(--primary);">Quizzes da Comunidade</h2><div class="learning-modules" id="quiz-grid"></div>';
                     const quizGrid = document.getElementById('quiz-grid');
-                    
+
                     quizzesSnapshot.forEach((doc) => {
                         const quiz = doc.data();
                         const quizCard = document.createElement('div');
@@ -1090,7 +1417,7 @@ a:hover {
                                 <h3 class="module-title">${quiz.title}</h3>
                                 <p class="module-description">${quiz.description}</p>
                                 <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 0.85rem; color: var(--text-light);">
-                                    <span><i class="fas fa-user"></i> ${quiz.authorName}</span>
+                                    <span><i class="fas fa-user"></i> ${quiz.authorName || 'Anónimo'}</span>
                                     <span><i class="fas fa-calendar"></i> ${quiz.createdAt ? new Date(quiz.createdAt.toDate()).toLocaleDateString('pt-MZ') : 'Hoje'}</span>
                                 </div>
                                 <div style="margin-top: 8px; font-size: 0.85rem; color: var(--text-light);">
@@ -1098,16 +1425,19 @@ a:hover {
                                 </div>
                             </div>
                         `;
-                        
+
                         quizCard.addEventListener('click', () => {
                             openQuizModal(quiz, doc.id);
                         });
-                        
+
                         quizGrid.appendChild(quizCard);
                     });
+                } else {
+                    container.innerHTML = '<p style="text-align: center; color: var(--text-light);">Nenhum quiz da comunidade encontrado no momento.</p>';
                 }
             } catch (error) {
                 console.error('Erro ao carregar quizzes:', error);
+                container.innerHTML = '<p style="text-align: center; color: var(--error);">Falha ao carregar quizzes. Tente novamente mais tarde.</p>';
             }
         }
 
@@ -1115,20 +1445,27 @@ a:hover {
             const modal = document.createElement('div');
             modal.className = 'learning-modal';
             modal.style.display = 'block';
-            
+
             let questionsHTML = '';
             quiz.questions.forEach((q, index) => {
+                const isFirstQuestion = index === 0;
                 questionsHTML += `
-                    <div class="quiz-question" style="${index === 0 ? '' : 'display:none'}">${index + 1}. ${q.question}</div>
-                    <div class="quiz-options" style="${index === 0 ? '' : 'display:none'}">
+                    <div class="quiz-question" style="${isFirstQuestion ? '' : 'display:none'}">${index + 1}. ${q.question}</div>
+                    <div class="quiz-options" style="${isFirstQuestion ? '' : 'display:none'}">
                         ${q.options.map((opt, optIndex) => `
-                            <div class="quiz-option" data-correct="${optIndex === q.correctIndex}">${opt}</div>
+                            <div class="quiz-option" data-correct="${optIndex === q.correctIndex}" data-question-index="${index}" data-option-index="${optIndex}">${opt}</div>
                         `).join('')}
                     </div>
                     <div class="quiz-feedback" style="display:none"></div>
+                    <div class="quiz-justification" data-question-index="${index}" style="display:none">
+                        <div class="quiz-justification-title">
+                            <i class="fas fa-info-circle"></i> Justificativa
+                        </div>
+                        <p>${q.justification || 'Nenhuma justificativa disponível.'}</p>
+                    </div>
                 `;
             });
-            
+
             modal.innerHTML = `
                 <div class="learning-container">
                     <div class="learning-header" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #000;">
@@ -1137,54 +1474,49 @@ a:hover {
                     </div>
                     <div class="learning-body">
                         <p style="margin-bottom: 20px;">${quiz.description}</p>
-                        <div class="quiz-container">
+                        <div class="quiz-container" data-quiz-id="${quizId}">
                             ${questionsHTML}
                             <div class="quiz-actions">
-                                <button class="quiz-next">Próxima</button>
-                                <button class="quiz-finish" style="display:none">Finalizar</button>
+                                <button class="quiz-btn quiz-next">Próxima</button>
+                                <button class="quiz-btn quiz-finish" style="display:none">Finalizar</button>
                             </div>
                             <div class="quiz-results" style="display:none"></div>
                         </div>
                     </div>
                 </div>
             `;
-            
+
             document.body.appendChild(modal);
-            
+
             modal.querySelector('.close-learning').addEventListener('click', () => {
                 modal.remove();
             });
-            
+
             window.addEventListener('click', (e) => {
                 if (e.target === modal) {
                     modal.remove();
                 }
             });
-            
-            initQuizzes();
+
+            initQuizInteractivity(modal);
         }
 
         loadCommunityQuizzes();
-        
+
         // Carregar avatar do usuário
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
-        import { getDoc, doc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
-        
-        const authAprenda = getAuth(app);
-        
         onAuthStateChanged(authAprenda, async (user) => {
+            const userAvatar = document.getElementById('user-avatar');
+            const avatarInitials = document.getElementById('avatar-initials');
+
             if (user) {
                 try {
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
                     if (userDoc.exists()) {
                         const userData = userDoc.data();
-                        const initials = userData.name ? 
-                            userData.name.split(' ').map(n => n[0]).join('').toUpperCase() : 
+                        const initials = userData.name ?
+                            userData.name.split(' ').map(n => n[0]).join('').toUpperCase() :
                             user.email[0].toUpperCase();
-                        
-                        const userAvatar = document.getElementById('user-avatar');
-                        const avatarInitials = document.getElementById('avatar-initials');
-                        
+
                         if (userData.photoURL) {
                             userAvatar.innerHTML = `<img src="${userData.photoURL}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
                         } else {
@@ -1192,424 +1524,244 @@ a:hover {
                                 avatarInitials.textContent = initials;
                             }
                         }
+                        // Store user name for certificate
+                        userAvatar.dataset.userName = userData.name || user.displayName || 'Usuário';
                     }
                 } catch (error) {
                     console.error('Erro ao carregar usuário:', error);
                 }
+            } else {
+                 userAvatar.innerHTML = '<span id="avatar-initials">U</span>'; // Reset if no user
+                 delete userAvatar.dataset.userName;
             }
         });
-    </script>
-    <script>
-// DOM Elements
-const searchBtn = document.getElementById('search-btn');
-const searchModal = document.getElementById('search-modal');
-const closeSearchBtn = document.getElementById('close-search');
-searchBtn.addEventListener('click', () => {
-    searchModal.style.display = 'block';
-});
 
-closeSearchBtn.addEventListener('click', () => {
-    searchModal.style.display = 'none';
-});
+        // --- Quiz Interactivity ---
+        function initQuizInteractivity(modalElement) {
+            const quizContainer = modalElement.querySelector('.quiz-container');
+            const questions = quizContainer.querySelectorAll('.quiz-question');
+            const optionsDivs = quizContainer.querySelectorAll('.quiz-options');
+            const feedbacks = quizContainer.querySelectorAll('.quiz-feedback');
+            const justifications = quizContainer.querySelectorAll('.quiz-justification');
+            const nextBtn = quizContainer.querySelector('.quiz-next');
+            const finishBtn = quizContainer.querySelector('.quiz-finish');
+            const resultsDiv = quizContainer.querySelector('.quiz-results');
+            const quizId = quizContainer.dataset.quizId;
+            const quizTitle = modalElement.querySelector('.learning-title').textContent;
 
-window.addEventListener('click', (event) => {
-    if (event.target === searchModal) searchModal.style.display = 'none';
-});
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let answered = false;
+            let userAnswers = []; // To store user's answers and correct status
+
+            const userName = document.getElementById('user-avatar').dataset.userName || 'Visitante';
 
 
-// Improved Quiz functionality
-function initQuizzes() {
-    const quizzes = document.querySelectorAll('.quiz-container');
+            function showQuestion(index) {
+                // Hide all questions, options, feedbacks, justifications
+                questions.forEach((q, i) => {
+                    q.style.display = 'none';
+                    optionsDivs[i].style.display = 'none';
+                    feedbacks[i].style.display = 'none';
+                    justifications[i].style.display = 'none';
 
-    quizzes.forEach(quiz => {
-        const questions = quiz.querySelectorAll('.quiz-question');
-        const nextBtn = quiz.querySelector('.quiz-next');
-        const finishBtn = quiz.querySelector('.quiz-finish');
-        const resultsDiv = quiz.querySelector('.quiz-results');
-        let currentQuestion = 0;
-        let score = 0;
-        let answered = false;
+                    // Re-enable options
+                    optionsDivs[i].querySelectorAll('.quiz-option').forEach(opt => {
+                        opt.style.pointerEvents = 'auto';
+                        opt.classList.remove('correct', 'incorrect');
+                    });
+                });
 
-        // Show first question
-        showQuestion(currentQuestion);
+                // Show current question, options, and feedback placeholder
+                questions[index].style.display = 'block';
+                optionsDivs[index].style.display = 'block';
+                feedbacks[index].style.display = 'block';
+                feedbacks[index].textContent = ''; // Clear previous feedback
+                feedbacks[index].classList.remove('correct', 'incorrect');
 
-        // Option click handler
-        quiz.querySelectorAll('.quiz-option').forEach(option => {
-            option.addEventListener('click', function() {
+                // Show justification if it exists for this question
+                if (justifications[index] && justifications[index].innerHTML.includes('Justificativa')) {
+                    justifications[index].style.display = 'block';
+                }
+
+                // Update buttons
+                nextBtn.style.display = 'none';
+                finishBtn.style.display = 'none';
+
+                if (currentQuestionIndex === questions.length - 1) {
+                    finishBtn.style.display = 'inline-block';
+                } else {
+                    nextBtn.style.display = 'inline-block';
+                }
+            }
+
+            function handleOptionClick(event) {
                 if (answered) return;
 
-                const isCorrect = this.getAttribute('data-correct') === 'true';
-                const feedback = this.closest('.quiz-options').nextElementSibling;
+                const clickedOption = event.target.closest('.quiz-option');
+                if (!clickedOption) return;
 
-                if (isCorrect) {
-                    this.classList.add('correct');
-                    feedback.textContent = 'Resposta correta!';
-                    feedback.classList.add('correct');
-                    score++;
-                } else {
-                    this.classList.add('incorrect');
-                    feedback.textContent = 'Resposta incorreta.';
-                    feedback.classList.add('incorrect');
+                const questionIndex = parseInt(clickedOption.dataset.questionIndex);
+                const optionIndex = parseInt(clickedOption.dataset.optionIndex);
+                const isCorrect = clickedOption.getAttribute('data-correct') === 'true';
+                const feedbackElement = feedbacks[questionIndex];
+                const justificationElement = justifications[questionIndex];
 
-                    // Show correct answer
-                    const correctOption = this.parentElement.querySelector('[data-correct="true"]');
-                    correctOption.classList.add('correct');
-                }
 
                 answered = true;
-                nextBtn.style.display = 'inline-block';
 
-                // Disable all options after answer
-                const options = this.parentElement.querySelectorAll('.quiz-option');
-                options.forEach(opt => {
+                // Disable all options for the current question
+                optionsDivs[questionIndex].querySelectorAll('.quiz-option').forEach(opt => {
                     opt.style.pointerEvents = 'none';
                 });
-            });
-        });
 
-        // Next question handler
-        nextBtn.addEventListener('click', function() {
-            currentQuestion++;
-            answered = false;
+                if (isCorrect) {
+                    clickedOption.classList.add('correct');
+                    feedbackElement.textContent = 'Resposta correta!';
+                    feedbackElement.classList.add('correct');
+                    score++;
+                    userAnswers.push({ questionIndex, optionIndex, isCorrect: true });
+                } else {
+                    clickedOption.classList.add('incorrect');
+                    feedbackElement.textContent = 'Resposta incorreta.';
+                    feedbackElement.classList.add('incorrect');
+                    userAnswers.push({ questionIndex, optionIndex, isCorrect: false });
 
-            if (currentQuestion < questions.length) {
-                showQuestion(currentQuestion);
-                this.style.display = 'none';
+                    // Show correct answer
+                    const correctOption = optionsDivs[questionIndex].querySelector('[data-correct="true"]');
+                    if (correctOption) {
+                        correctOption.classList.add('correct');
+                    }
+                }
 
-                if (currentQuestion === questions.length - 1) {
+                // Show justification if available
+                if (justificationElement) {
+                    justificationElement.classList.add('show');
+                }
+
+                // Determine which button to show next
+                if (currentQuestionIndex === questions.length - 1) {
                     finishBtn.style.display = 'inline-block';
+                    nextBtn.style.display = 'none';
+                } else {
+                    nextBtn.style.display = 'inline-block';
+                    finishBtn.style.display = 'none';
                 }
             }
-        });
 
-        // Finish quiz handler
-        finishBtn.addEventListener('click', function() {
-            const percentage = Math.round((score / questions.length) * 100);
-            let message = '';
-
-            if (percentage >= 80) {
-                message = `Excelente! Você acertou ${score} de ${questions.length} perguntas (${percentage}%).`;
-            } else if (percentage >= 60) {
-                message = `Bom trabalho! Você acertou ${score} de ${questions.length} perguntas (${percentage}%).`;
-            } else if (percentage >= 40) {
-                message = `Você acertou ${score} de ${questions.length} perguntas (${percentage}%). Estude mais um pouco!`;
-            } else {
-                message = `Você acertou ${score} de ${questions.length} perguntas (${percentage}%). Recomendamos revisar o material.`;
-            }
-
-            resultsDiv.innerHTML = `<div class="quiz-final-result">${message}</div>`;
-            resultsDiv.style.display = 'block';
-            this.style.display = 'none';
-            nextBtn.style.display = 'none';
-
-            // Update progress in local storage
-            updateProgress(quiz.id.replace('-quiz', ''), percentage);
-        });
-
-        function showQuestion(index) {
-            // Hide all questions
-            questions.forEach((q, i) => {
-                q.style.display = 'none';
-                q.nextElementSibling.style.display = 'none'; // options
-                q.nextElementSibling.nextElementSibling.style.display = 'none'; // feedback
+            nextBtn.addEventListener('click', () => {
+                currentQuestionIndex++;
+                answered = false;
+                showQuestion(currentQuestionIndex);
             });
 
-            // Show current question
-            questions[index].style.display = 'block';
-            questions[index].nextElementSibling.style.display = 'block';
+            finishBtn.addEventListener('click', () => {
+                const percentage = Math.round((score / questions.length) * 100);
+                let message = '';
 
-            // Enable options for current question
-            const options = questions[index].nextElementSibling.querySelectorAll('.quiz-option');
-            options.forEach(opt => {
-                opt.style.pointerEvents = 'auto';
-                opt.classList.remove('correct', 'incorrect');
+                if (percentage >= 80) {
+                    message = `Excelente! Você acertou ${score} de ${questions.length} perguntas (${percentage}%).`;
+                } else if (percentage >= 60) {
+                    message = `Bom trabalho! Você acertou ${score} de ${questions.length} perguntas (${percentage}%).`;
+                } else if (percentage >= 40) {
+                    message = `Você acertou ${score} de ${questions.length} perguntas (${percentage}%). Estude mais um pouco!`;
+                } else {
+                    message = `Você acertou ${score} de ${questions.length} perguntas (${percentage}%). Recomendamos revisar o material.`;
+                }
+
+                resultsDiv.innerHTML = `<div class="quiz-final-result">${message}</div>`;
+                resultsDiv.style.display = 'block';
+                nextBtn.style.display = 'none';
+                finishBtn.style.display = 'none';
+
+                // Show all justifications
+                justifications.forEach(just => just.classList.add('show'));
+
+                // Generate certificate if user is logged in
+                if (userName !== 'Visitante') {
+                    generateCertificate(userName, quizTitle, percentage, quizId);
+                }
             });
 
-            // Show feedback for current question
-            questions[index].nextElementSibling.nextElementSibling.style.display = 'block';
-            questions[index].nextElementSibling.nextElementSibling.textContent = '';
-            questions[index].nextElementSibling.nextElementSibling.classList.remove('correct', 'incorrect');
-        }
-    });
-}
-
-// Update user progress
-function updateProgress(subject, percentage) {
-    let progress = JSON.parse(localStorage.getItem('learningProgress')) || {};
-    progress[subject] = percentage;
-    localStorage.setItem('learningProgress', JSON.stringify(progress));
-
-    // Update progress bar
-    const progressBar = document.getElementById(`${subject}-progress`);
-    if (progressBar) {
-        progressBar.style.width = `${percentage}%`;
-        progressBar.textContent = `${percentage}%`;
-    }
-}
-
-// Initialize progress bars from local storage
-function initProgressBars() {
-    const progress = JSON.parse(localStorage.getItem('learningProgress')) || {};
-
-    // Set progress for each subject
-    const subjects = [
-        'historia', 'matematica', 'portugues', 'historia-mocambique',
-        'geografia', 'biologia', 'fisica', 'quimica', 'educacao-civica', 'ingles'
-    ];
-
-    subjects.forEach(subject => {
-        const progressBar = document.getElementById(`${subject}-progress`);
-        if (progressBar) {
-            const percentage = progress[subject] || 0;
-            progressBar.style.width = `${percentage}%`;
-            progressBar.textContent = `${percentage}%`;
-        }
-    });
-}
-
-// Function to render dynamic quizzes
-function renderDynamicQuizzes() {
-    const container = document.getElementById('dynamic-quiz-container');
-    if (!container) return;
-
-    let html = '';
-    
-    dynamicQuizzes.forEach((quiz, quizIndex) => {
-        html += `
-            <div class="quiz-container" id="${quiz.id}-quiz" data-quiz-index="${quizIndex}">
-                <h4 style="color: var(--primary); margin-bottom: 20px;">${quiz.title}</h4>
-        `;
-
-        quiz.questions.forEach((q, qIndex) => {
-            const displayStyle = qIndex === 0 ? 'block' : 'none';
-            html += `
-                <div class="quiz-question" style="display:${displayStyle}">${qIndex + 1}. ${q.question}</div>
-                <div class="quiz-options" style="display:${displayStyle}">
-            `;
-
-            q.options.forEach((option, optIndex) => {
-                const isCorrect = optIndex === q.correctIndex;
-                html += `<div class="quiz-option" data-correct="${isCorrect}">${option}</div>`;
+            // Add event listeners to options
+            optionsDivs.forEach(optionsDiv => {
+                optionsDiv.addEventListener('click', handleOptionClick);
             });
 
-            html += `
-                </div>
-                <div class="quiz-feedback" style="display:${displayStyle}"></div>
-            `;
-        });
-
-        html += `
-                <div class="quiz-actions">
-                    <button class="quiz-next">Próxima</button>
-                    <button class="quiz-finish" style="display:none">Finalizar</button>
-                </div>
-                <div class="quiz-results" style="display:none"></div>
-            </div>
-        `;
-    });
-
-    container.innerHTML = html;
-    initQuizzes();
-}
-
-// Function to add new quiz
-function showAddQuizModal() {
-    const modal = document.createElement('div');
-    modal.className = 'learning-modal';
-    modal.style.display = 'block';
-    modal.innerHTML = `
-        <div class="learning-container" style="max-width: 600px;">
-            <div class="learning-header" style="background-color: var(--primary);">
-                <h2 class="learning-title">Adicionar Novo Quiz</h2>
-                <div class="close-learning" id="close-add-quiz">&times;</div>
-            </div>
-            <div class="learning-body">
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Título do Quiz:</label>
-                    <input type="text" id="quiz-title-input" style="width: 100%; padding: 12px; border: 1px solid var(--gray); border-radius: 8px; font-size: 1rem;" placeholder="Digite o título do quiz">
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Categoria:</label>
-                    <select id="quiz-category-input" style="width: 100%; padding: 12px; border: 1px solid var(--gray); border-radius: 8px; font-size: 1rem;">
-                        <option value="math">Matemática</option>
-                        <option value="portuguese">Português</option>
-                        <option value="history">História</option>
-                        <option value="geography">Geografia</option>
-                        <option value="biology">Biologia</option>
-                        <option value="physics">Física</option>
-                        <option value="chemistry">Química</option>
-                        <option value="civics">Educação Cívica</option>
-                        <option value="english">Inglês</option>
-                        <option value="school-history">História da Escola</option>
-                    </select>
-                </div>
-
-                <div id="questions-container">
-                    <h4 style="margin-bottom: 15px;">Perguntas:</h4>
-                    <div class="question-item" data-question-index="0">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Pergunta 1:</label>
-                        <input type="text" class="question-text" style="width: 100%; padding: 10px; border: 1px solid var(--gray); border-radius: 8px; margin-bottom: 10px;" placeholder="Digite a pergunta">
-                        
-                        <label style="display: block; margin-bottom: 8px;">Opções (marque a correta):</label>
-                        <div style="margin-bottom: 10px;">
-                            <input type="radio" name="correct-0" value="0" checked>
-                            <input type="text" class="option-text" style="width: 85%; padding: 8px; border: 1px solid var(--gray); border-radius: 8px; margin-left: 8px;" placeholder="Opção 1">
-                        </div>
-                        <div style="margin-bottom: 10px;">
-                            <input type="radio" name="correct-0" value="1">
-                            <input type="text" class="option-text" style="width: 85%; padding: 8px; border: 1px solid var(--gray); border-radius: 8px; margin-left: 8px;" placeholder="Opção 2">
-                        </div>
-                        <div style="margin-bottom: 10px;">
-                            <input type="radio" name="correct-0" value="2">
-                            <input type="text" class="option-text" style="width: 85%; padding: 8px; border: 1px solid var(--gray); border-radius: 8px; margin-left: 8px;" placeholder="Opção 3">
-                        </div>
-                        <div style="margin-bottom: 20px;">
-                            <input type="radio" name="correct-0" value="3">
-                            <input type="text" class="option-text" style="width: 85%; padding: 8px; border: 1px solid var(--gray); border-radius: 8px; margin-left: 8px;" placeholder="Opção 4">
-                        </div>
-                    </div>
-                </div>
-
-                <button id="add-question-btn" style="padding: 10px 20px; background-color: var(--info); color: white; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 20px;">
-                    <i class="fas fa-plus"></i> Adicionar Pergunta
-                </button>
-
-                <div style="text-align: center; margin-top: 20px;">
-                    <button id="save-quiz-btn" style="padding: 14px 28px; background-color: var(--success); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
-                        <i class="fas fa-save"></i> Salvar Quiz
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-
-    let questionCount = 1;
-
-    // Close modal
-    document.getElementById('close-add-quiz').addEventListener('click', () => {
-        modal.remove();
-    });
-
-    // Add question
-    document.getElementById('add-question-btn').addEventListener('click', () => {
-        const questionsContainer = document.getElementById('questions-container');
-        const newQuestion = document.createElement('div');
-        newQuestion.className = 'question-item';
-        newQuestion.setAttribute('data-question-index', questionCount);
-        newQuestion.innerHTML = `
-            <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--gray);">
-            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Pergunta ${questionCount + 1}:</label>
-            <input type="text" class="question-text" style="width: 100%; padding: 10px; border: 1px solid var(--gray); border-radius: 8px; margin-bottom: 10px;" placeholder="Digite a pergunta">
-            
-            <label style="display: block; margin-bottom: 8px;">Opções (marque a correta):</label>
-            <div style="margin-bottom: 10px;">
-                <input type="radio" name="correct-${questionCount}" value="0" checked>
-                <input type="text" class="option-text" style="width: 85%; padding: 8px; border: 1px solid var(--gray); border-radius: 8px; margin-left: 8px;" placeholder="Opção 1">
-            </div>
-            <div style="margin-bottom: 10px;">
-                <input type="radio" name="correct-${questionCount}" value="1">
-                <input type="text" class="option-text" style="width: 85%; padding: 8px; border: 1px solid var(--gray); border-radius: 8px; margin-left: 8px;" placeholder="Opção 2">
-            </div>
-            <div style="margin-bottom: 10px;">
-                <input type="radio" name="correct-${questionCount}" value="2">
-                <input type="text" class="option-text" style="width: 85%; padding: 8px; border: 1px solid var(--gray); border-radius: 8px; margin-left: 8px;" placeholder="Opção 3">
-            </div>
-            <div style="margin-bottom: 20px;">
-                <input type="radio" name="correct-${questionCount}" value="3">
-                <input type="text" class="option-text" style="width: 85%; padding: 8px; border: 1px solid var(--gray); border-radius: 8px; margin-left: 8px;" placeholder="Opção 4">
-            </div>
-        `;
-        questionsContainer.appendChild(newQuestion);
-        questionCount++;
-    });
-
-    // Save quiz
-    document.getElementById('save-quiz-btn').addEventListener('click', () => {
-        const title = document.getElementById('quiz-title-input').value.trim();
-        const category = document.getElementById('quiz-category-input').value;
-        
-        if (!title) {
-            alert('Por favor, digite o título do quiz.');
-            return;
+            // Show the first question
+            showQuestion(currentQuestionIndex);
         }
 
-        const questionItems = document.querySelectorAll('.question-item');
-        const questions = [];
+        // --- Dynamic Quiz Rendering ---
+        let dynamicQuizzes = []; // Initialize as empty array
 
-        questionItems.forEach((item, index) => {
-            const questionText = item.querySelector('.question-text').value.trim();
-            const optionTexts = Array.from(item.querySelectorAll('.option-text')).map(input => input.value.trim());
-            const correctIndex = parseInt(item.querySelector(`input[name="correct-${index}"]:checked`).value);
+        function renderDynamicQuizzes() {
+            const container = document.getElementById('quiz-grid'); // Assuming quiz-grid is where dynamic quizzes go
+            if (!container) return;
 
-            if (!questionText || optionTexts.some(opt => !opt)) {
+            container.innerHTML = ''; // Clear existing content
+
+            if (dynamicQuizzes.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-light);">Nenhum quiz personalizado encontrado. Crie um!</p>';
                 return;
             }
 
-            questions.push({
-                question: questionText,
-                options: optionTexts,
-                correctIndex: correctIndex
+            dynamicQuizzes.forEach((quiz, quizIndex) => {
+                const quizCard = document.createElement('div');
+                quizCard.className = 'module-card';
+                // Add a placeholder for subject color, default to primary
+                const subjectColor = `var(--${quiz.category || 'primary'})`;
+                const subjectLightColor = `var(--${quiz.category || 'primary'}-light)`;
+
+                quizCard.innerHTML = `
+                    <div class="module-image" style="background: linear-gradient(135deg, ${subjectColor}, ${subjectLightColor}); position: relative;">
+                        <i class="fas fa-question-circle module-icon"></i>
+                    </div>
+                    <div class="module-content">
+                        <h3 class="module-title">${quiz.title}</h3>
+                        <p class="module-description">Um quiz criado pela comunidade sobre ${quiz.category}.</p>
+                        <div style="margin-top: 8px; font-size: 0.85rem; color: var(--text-light);">
+                            <i class="fas fa-question"></i> ${quiz.questions.length} perguntas
+                        </div>
+                    </div>
+                `;
+
+                quizCard.addEventListener('click', () => {
+                    openQuizModal(quiz, quiz.id); // Use quiz.id for custom quizzes
+                });
+
+                container.appendChild(quizCard);
             });
-        });
-
-        if (questions.length === 0) {
-            alert('Por favor, adicione pelo menos uma pergunta completa.');
-            return;
         }
 
-        const newQuiz = {
-            id: 'quiz-' + Date.now(),
-            title: title,
-            category: category,
-            questions: questions
-        };
-
-        dynamicQuizzes.push(newQuiz);
-        localStorage.setItem('customQuizzes', JSON.stringify(dynamicQuizzes));
-        
-        renderDynamicQuizzes();
-        modal.remove();
-        
-        alert('Quiz adicionado com sucesso!');
-    });
-
-    // Close on outside click
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.remove();
-        }
-    });
-}
-
-// Load custom quizzes from localStorage
-function loadCustomQuizzes() {
-    const saved = localStorage.getItem('customQuizzes');
-    if (saved) {
-        try {
-            const parsed = JSON.parse(saved);
-            if (Array.isArray(parsed)) {
-                dynamicQuizzes = parsed;
+        // Load custom quizzes from localStorage
+        function loadCustomQuizzes() {
+            const saved = localStorage.getItem('customQuizzes');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed)) {
+                        dynamicQuizzes = parsed;
+                    }
+                } catch (e) {
+                    console.error('Erro ao carregar quizzes personalizados:', e);
+                }
             }
-        } catch (e) {
-            console.error('Erro ao carregar quizzes:', e);
         }
-    }
-}
 
-// Initialize when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    initProgressBars();
-    loadCustomQuizzes();
-    renderDynamicQuizzes();
-    
-    const addQuizBtn = document.getElementById('add-quiz-btn');
-    if (addQuizBtn) {
-        addQuizBtn.addEventListener('click', showAddQuizModal);
-    }
-});
-</script>
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCustomQuizzes();
+            renderDynamicQuizzes();
+
+            // Initial call for community quizzes
+            loadCommunityQuizzes();
+        });
+    </script>
+
+    <!-- Add html2canvas and jspdf libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 </body>
 </html>

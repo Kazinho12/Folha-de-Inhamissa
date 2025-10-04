@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-MZ">
 <head>
@@ -255,9 +254,220 @@
             }
         }
 
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            margin: auto;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-content h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 1.8rem;
+        }
+
+        .modal-content .explanation {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid var(--primary);
+            border-radius: 4px;
+        }
+
+        .modal-content .explanation strong {
+            color: var(--primary);
+        }
+
+        .modal-actions {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .certificate-btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .certificate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(255, 215, 0, 0.3);
+        }
+
+        .close-modal {
+            background: var(--border);
+            color: var(--text);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .close-modal:hover {
+            transform: translateY(-2px);
+        }
+
+        .certificate-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 40px;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            border: 1px solid var(--primary);
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .certificate-header {
+            margin-bottom: 30px;
+        }
+
+        .certificate-header .icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .certificate-header h1 {
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .certificate-header p {
+            font-size: 1.1rem;
+            color: #ccc;
+        }
+
+        .certificate-body h2 {
+            font-size: 1.8rem;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        .certificate-body p {
+            font-size: 1.2rem;
+            color: #ddd;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .certificate-body .user-name {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1.6rem;
+        }
+
+        .certificate-body .reason {
+            font-style: italic;
+            color: #bbb;
+            margin-top: 10px;
+            font-size: 1rem;
+        }
+
+        .certificate-footer {
+            margin-top: 40px;
+            position: relative;
+            padding-top: 20px;
+        }
+
+        .certificate-footer .signature {
+            position: relative;
+            font-size: 1rem;
+            color: #aaa;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+        }
+
+        .certificate-footer .signature::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 1px;
+            background-color: #555;
+        }
+
+        .download-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+        }
+
         @media (max-width: 768px) {
             .form-card {
                 padding: 24px;
+            }
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+            .certificate-container {
+                padding: 20px;
+            }
+            .certificate-header h1 {
+                font-size: 1.8rem;
+            }
+            .certificate-body p {
+                font-size: 1.1rem;
             }
         }
     </style>
@@ -361,11 +571,54 @@
         <span id="toast-message"></span>
     </div>
 
+    <div id="quiz-completion-modal" class="modal">
+        <div class="modal-content">
+            <div id="modal-quiz-info"></div>
+            <div id="modal-results"></div>
+            <div class="modal-actions">
+                <button class="btn certificate-btn" id="view-certificate-btn">
+                    <i class="fas fa-trophy"></i> Ver Certificado
+                </button>
+                <button class="btn btn-secondary close-modal">
+                    <i class="fas fa-times"></i> Voltar aos Quizzes
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="certificate-modal" class="modal">
+        <div class="modal-content">
+            <div class="certificate-container" id="certificate-content">
+                <div class="certificate-header">
+                    <i class="fas fa-certificate icon"></i>
+                    <h1>Certificado de Conclusão</h1>
+                    <p>Parabéns por completar o quiz!</p>
+                </div>
+                <div class="certificate-body">
+                    <h2>Emitido para:</h2>
+                    <p class="user-name" id="cert-user-name"></p>
+                    <p id="cert-reason"></p>
+                </div>
+                <div class="certificate-footer">
+                    <div class="signature">@Folha de Inhamissa</div>
+                </div>
+                <button class="download-btn" id="download-certificate-btn">
+                    <i class="fas fa-download"></i> Baixar Certificado
+                </button>
+            </div>
+            <button class="close-modal" style="position: absolute; top: 15px; right: 15px;">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
+        import { jsPDF } from "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+
 
         const firebaseConfig = {
             apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
@@ -430,6 +683,13 @@
                     <input type="radio" name="correct-${questionCount}" value="3">
                     <input type="text" class="form-control" name="option-${questionCount}-3" placeholder="Opção D" required>
                 </div>
+                <div class="form-group" style="margin-top: 16px;">
+                    <label class="form-label">
+                        <i class="fas fa-lightbulb"></i>
+                        Justificativa da resposta correta
+                    </label>
+                    <textarea class="form-control" name="justification-${questionCount}" rows="3" placeholder="Explique porque a resposta correta está correta..." required></textarea>
+                </div>
             `;
             container.appendChild(questionBlock);
         };
@@ -462,7 +722,7 @@
 
             const questions = [];
             const questionBlocks = document.querySelectorAll('.question-block');
-            
+
             questionBlocks.forEach((block, index) => {
                 const questionText = block.querySelector(`input[name^="question-text"]`).value.trim();
                 const options = [];
@@ -471,11 +731,14 @@
                     options.push(option);
                 }
                 const correctIndex = parseInt(block.querySelector(`input[name^="correct"]:checked`)?.value || 0);
+                const justification = block.querySelector(`textarea[name^="justification-${index + 1}"]`).value.trim();
+
 
                 questions.push({
                     question: questionText,
                     options,
-                    correctIndex
+                    correctIndex,
+                    justification
                 });
             });
 
