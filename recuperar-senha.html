@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-MZ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Senha - Folha de Inhamissa</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS Personalizado -->
+    <style>
+        :root {
+            --cor-fundo: #000000;      /* Preto */
+            --cor-texto: #FFFFFF;      /* Branco */
+            --cor-destaque: #FFD700;   /* Amarelo */
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .recover-container {
+            max-width: 500px;
+            margin: 30px auto;
+            padding: 40px;
+            background: var(--cor-fundo);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .recover-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: var(--cor-destaque);
+        }
+        
+        .logo-icon {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 3.5rem;
+            color: var(--cor-destaque);
+        }
+        
+        h1 {
+            color: var(--cor-destaque);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            position: relative;
+        }
+        
+        h1::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: var(--cor-destaque);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+        
+        .instructions {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--cor-texto);
+            line-height: 1.6;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            color: var(--cor-destaque);
+            font-size: 1.1rem;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all 0.3s;
+            background: var(--cor-fundo);
+            color: var(--cor-texto);
+        }
+        
+        input:focus {
+            border-color: var(--cor-destaque);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+            outline: none;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--cor-destaque);
+            color: #000000;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        button:hover {
+            background: #FFC107;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .links {
+            margin-top: 25px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .links a {
+            color: var(--cor-destaque);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .links a:hover {
+            color: #FFC107;
+            text-decoration: underline;
+        }
+        
+        footer {
+            background: var(--cor-destaque);
+            color: #000000;
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        .success-message {
+            color: #27ae60;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(39, 174, 96, 0.1);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 600px) {
+            .recover-container {
+                margin: 20px;
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="recover-container">
+        <div class="logo-icon">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <h1>Recuperar Senha - Folha de Inhamissa</h1>
+        
+        <p class="instructions">Digite seu endereço de email institucional abaixo e enviaremos um link para redefinir sua senha.</p>
+        
+        <div id="error-message" class="error-message"></div>
+        <div id="success-message" class="success-message"></div>
+        
+        <form id="recover-form">
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="email" placeholder="Email institucional" required>
+            </div>
+            
+            <button type="submit">
+                <i class="fas fa-paper-plane"></i> Enviar Link de Recuperação
+            </button>
+        </form>
+        
+        <div class="links">
+            <a href="login.html"><i class="fas fa-sign-in-alt"></i> Lembrou sua senha? Faça login</a>
+            <a href="registar.html"><i class="fas fa-user-plus"></i> Não tem uma conta? Registre-se</a>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 Escola Secundária de Inhamissa - Xai-Xai, Gaza, Moçambique</p>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+        import { 
+            getAuth, 
+            sendPasswordResetEmail
+        } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
+            authDomain: "luna-bot-70962.firebaseapp.com",
+            projectId: "luna-bot-70962",
+            storageBucket: "luna-bot-70962.appspot.com",
+            messagingSenderId: "247837414432",
+            appId: "1:247837414432:web:f7f9df049b8cfdbd909845",
+            measurementId: "G-8Q1L3CS37J"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Formulário de recuperação de senha
+        document.getElementById('recover-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const errorMessage = document.getElementById('error-message');
+            const successMessage = document.getElementById('success-message');
+            
+            // Limpar mensagens
+            errorMessage.textContent = '';
+            successMessage.textContent = '';
+            
+            try {
+                // Enviar email de recuperação
+                await sendPasswordResetEmail(auth, email);
+                
+                // Mensagem de sucesso
+                successMessage.textContent = `Email de recuperação enviado para ${email}. Verifique sua caixa de entrada e siga as instruções.`;
+                
+                // Limpar formulário
+                document.getElementById('recover-form').reset();
+                
+            } catch (error) {
+                const errorCode = error.code;
+                let message = "";
+                
+                switch(errorCode) {
+                    case "auth/user-not-found":
+                        message = "Nenhuma conta encontrada com este email.";
+                        break;
+                    case "auth/invalid-email":
+                        message = "Email inválido. Por favor, verifique o formato.";
+                        break;
+                    case "auth/too-many-requests":
+                        message = "Muitas tentativas. Tente novamente mais tarde.";
+                        break;
+                    default:
+                        message = "Ocorreu um erro ao enviar o email de recuperação. Tente novamente.";
+                        console.error("Erro detalhado:", error);
+                }
+                
+                errorMessage.textContent = message;
+            }
+        });
+    </script>
+</body>
+</html>

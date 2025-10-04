@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt-MZ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Folha de Inhamissa</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS Personalizado -->
+    <style>
+        :root {
+            --cor-fundo: #000000;      /* Preto */
+            --cor-texto: #FFFFFF;      /* Branco */
+            --cor-destaque: #FFD700;   /* Amarelo */
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .login-container {
+            max-width: 450px;
+            margin: 30px auto;
+            padding: 40px;
+            background: var(--cor-fundo);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: var(--cor-destaque);
+        }
+        
+        .logo-icon {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 3.5rem;
+            color: var(--cor-destaque);
+        }
+        
+        h1 {
+            color: var(--cor-destaque);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            position: relative;
+        }
+        
+        h1::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: var(--cor-destaque);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            color: var(--cor-destaque);
+            font-size: 1.1rem;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all 0.3s;
+            background: var(--cor-fundo);
+            color: var(--cor-texto);
+        }
+        
+        input:focus {
+            border-color: var(--cor-destaque);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+            outline: none;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .checkbox-container input[type="checkbox"] {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--cor-destaque);
+            border-radius: 4px;
+            background: var(--cor-fundo);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .checkbox-container input[type="checkbox"]:checked {
+            background: var(--cor-destaque);
+            border-color: var(--cor-destaque);
+            position: relative;
+        }
+        
+        .checkbox-container input[type="checkbox"]:checked::after {
+            content: '\f00c'; /* Ícone de check do Font Awesome */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #000000;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+        }
+        
+        .checkbox-container label {
+            color: var(--cor-texto);
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--cor-destaque);
+            color: #000000;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        button:hover {
+            background: #FFC107;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-google {
+            background: var(--cor-texto);
+            color: #4285F4;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .btn-google:hover {
+            background: #f8f9fa;
+        }
+        
+        .links {
+            margin-top: 25px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .links a {
+            color: var(--cor-destaque);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .links a:hover {
+            color: #FFC107;
+            text-decoration: underline;
+        }
+        
+        .social-login {
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .social-login p {
+            position: relative;
+            margin-bottom: 20px;
+            color: var(--cor-texto);
+        }
+        
+        .social-login p::before,
+        .social-login p::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 1px;
+            background: #e0e0e0;
+        }
+        
+        .social-login p::before {
+            left: 0;
+        }
+        
+        .social-login p::after {
+            right: 0;
+        }
+        
+        footer {
+            background: var(--cor-destaque);
+            color: #000000;
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 600px) {
+            .login-container {
+                margin: 20px;
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-icon">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <h1>Bem-vindo ao Folha de Inhamissa</h1>
+        
+        <div id="error-message" class="error-message"></div>
+        
+        <form id="login-form">
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="email" placeholder="Email institucional" required>
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="Sua senha" required>
+            </div>
+            <div class="checkbox-container">
+                <input type="checkbox" id="show-password">
+                <label for="show-password">Ver senha</label>
+            </div>
+            
+            <button type="submit">
+                <i class="fas fa-sign-in-alt"></i> Entrar
+            </button>
+        </form>
+        
+        <div class="links">
+            <a href="recuperar-senha.html"><i class="fas fa-key"></i> Recuperar senha</a>
+            <a href="registar.html"><i class="fas fa-user-plus"></i> Criar nova conta</a>
+        </div>
+        
+        <div class="social-login">
+            <p>Ou entre com</p>
+            <button id="google-login" class="btn-google">
+                <i class="fab fa-google"></i> Google
+            </button>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 Escola Secundária de Inhamissa - Xai-Xai, Gaza, Moçambique</p>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword,
+            sendPasswordResetEmail,
+            GoogleAuthProvider,
+            signInWithPopup
+        } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
+            authDomain: "luna-bot-70962.firebaseapp.com",
+            projectId: "luna-bot-70962",
+            storageBucket: "luna-bot-70962.appspot.com",
+            messagingSenderId: "247837414432",
+            appId: "1:247837414432:web:f7f9df049b8cfdbd909845",
+            measurementId: "G-8Q1L3CS37J"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // Login com email/senha
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+            
+            signInWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    localStorage.setItem('loggedInUser', email);
+                    window.location.href = "index.html";
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    let message = "";
+                    
+                    switch(errorCode) {
+                        case "auth/invalid-email":
+                            message = "Email inválido. Por favor, verifique o formato.";
+                            break;
+                        case "auth/user-disabled":
+                            message = "Esta conta foi desativada. Contacte o administrador.";
+                            break;
+                        case "auth/user-not-found":
+                        case "auth/wrong-password":
+                            message = "Email ou senha incorretos. Tente novamente.";
+                            break;
+                        default:
+                            message = "Ocorreu um erro. Por favor, tente mais tarde.";
+                    }
+                    
+                    errorMessage.textContent = message;
+                });
+        });
+
+        // Login com Google
+        document.getElementById('google-login').addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    localStorage.setItem('loggedInUser', result.user.email);
+                    window.location.href = "index.html";
+                }).catch((error) => {
+                    const errorMessage = error.message;
+                    document.getElementById('error-message').textContent = 
+                        "Erro ao entrar com Google: " + errorMessage;
+                });
+        });
+
+        // Sistema de recuperação de senha
+        function resetPassword(email) {
+            sendPasswordResetEmail(auth, email)
+                .then(() => {
+                    alert("Email de recuperação enviado! Verifique sua caixa de entrada.");
+                })
+                .catch((error) => {
+                    console.error("Erro ao enviar email de recuperação:", error);
+                });
+        }
+
+        // Mostrar/Esconder senha
+        document.getElementById('show-password').addEventListener('change', () => {
+            const passwordInput = document.getElementById('password');
+            passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+        });
+    </script>
+</body>
+</html>

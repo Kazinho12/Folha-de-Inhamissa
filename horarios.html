@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="pt-MZ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horários | Portal 04 de Outubro</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --accent: #f59e0b;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+            --gray: #e5e7eb;
+            --dark-gray: #374151;
+            --error: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --info: #3498db;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* App Bar */
+        .app-bar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: var(--white);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            font-size: 1.5rem;
+        }
+
+        .app-bar-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .app-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-btn, .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .search-btn {
+            background-color: var(--light);
+            color: var(--text-light);
+        }
+
+        .search-btn:hover {
+            background-color: var(--gray);
+        }
+
+        .user-avatar {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        .user-avatar:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Search Modal */
+        .search-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1001;
+            padding-top: 80px;
+        }
+
+        .search-container {
+            background-color: var(--white);
+            max-width: 600px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-header {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--gray);
+            border-radius: 20px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .close-search {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        .search-results {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .search-result-item {
+            padding: 12px;
+            border-bottom: 1px solid var(--gray);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .search-result-item:hover {
+            background-color: var(--light);
+        }
+
+        /* Profile Modal */
+        .profile-modal {
+            display: none;
+            position: fixed;
+            top: 70px;
+            right: 16px;
+            width: 320px;
+            background-color: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            overflow: hidden;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .profile-header {
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            position: relative;
+        }
+
+        #profile-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .profile-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .profile-info p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .profile-details {
+            padding: 16px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .detail-icon {
+            width: 24px;
+            color: var(--gray);
+            margin-right: 12px;
+            text-align: center;
+        }
+
+        .profile-actions {
+            display: flex;
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .profile-action {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+
+        .profile-action:hover {
+            background-color: var(--light);
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 80px 16px 100px;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--gray);
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 16px;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-light);
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Schedule Controls */
+        .schedule-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .schedule-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .period-toggle {
+            display: flex;
+            background-color: var(--white);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
+
+        .period-btn {
+            padding: 8px 16px;
+            border: none;
+            background-color: var(--white);
+            color: var(--text-light);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .period-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .edit-schedule-btn {
+            padding: 8px 16px;
+            background-color: var(--white);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .edit-schedule-btn:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Schedule Grid */
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .time-slot {
+            background-color: var(--white);
+            padding: 10px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-align: center;
+            border-radius: 6px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .day-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: 600;
+            border-radius: 6px;
+        }
+
+        .schedule-item {
+            background-color: var(--white);
+            padding: 10px;
+            border-radius: 6px;
+            box-shadow: var(--card-shadow);
+            min-height: 80px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .schedule-item.empty:hover {
+            background-color: var(--light);
+        }
+
+        .schedule-item.editable {
+            cursor: pointer;
+        }
+
+        /* Class Card */
+        .class-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 8px;
+            border-left: 4px solid var(--primary);
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+
+        .class-subject {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        .class-teacher {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .class-room {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            margin-top: auto;
+        }
+
+        .add-class-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+
+        .add-class-btn i {
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+        }
+
+        /* Tasks Section */
+        .tasks-section {
+            margin-top: 40px;
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .add-task-btn {
+            padding: 8px 16px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-task-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .task-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            background-color: var(--light);
+            color: var(--text-light);
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: var(--light);
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .task-item.completed {
+            opacity: 0.7;
+        }
+
+        .task-item.completed .task-main h4 {
+            text-decoration: line-through;
+        }
+
+        .task-main {
+            flex: 1;
+        }
+
+        .task-main h4 {
+            margin-bottom: 4px;
+        }
+
+        .task-main p {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+
+        .task-subject {
+            display: inline-block;
+            font-size: 0.8rem;
+            background-color: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .task-due {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin: 0 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .task-action {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            background-color: var(--white);
+            color: var(--text-light);
+            transition: all 0.2s;
+        }
+
+        .task-action.complete {
+            border: 1px solid var(--success);
+        }
+
+        .task-action.complete:hover {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .task-action.edit {
+            border: 1px solid var(--primary);
+        }
+
+        .task-action.edit:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            max-width: 500px;
+            margin: 30px auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--gray);
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--gray);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .form-col {
+            flex: 1;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .cancel-btn {
+            padding: 8px 16px;
+            background-color: var(--light);
+            color: var(--text);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .save-btn {
+            padding: 8px 16px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: var(--white);
+            box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            padding: 8px 0;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 0.7rem;
+            gap: 4px;
+            transition: color 0.2s;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item:hover {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Responsive Design */
+        @media (min-width: 768px) {
+            .main-content {
+                padding: 90px 24px 24px;
+            }
+
+            .bottom-nav {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .schedule-grid {
+                grid-template-columns: 60px repeat(5, 1fr);
+                font-size: 0.7rem;
+            }
+            
+            .task-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .task-due {
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- App Bar -->
+    <header class="app-bar">
+        <a href="index.html" class="logo">
+            <i class="fas fa-graduation-cap logo-icon"></i>
+            <span>Portal 04 de Outubro</span>
+        </a>
+        <h1 class="app-bar-title">Horários</h1>
+        <div class="app-bar-actions">
+            <div class="search-btn" id="search-btn">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="user-avatar" id="user-avatar">
+                <span id="avatar-initials">U</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Modal -->
+    <div class="search-modal" id="search-modal">
+        <div class="search-container">
+            <div class="search-header">
+                <i class="fas fa-search"></i>
+                <input type="text" class="search-input" id="search-input" placeholder="Pesquisar...">
+                <div class="close-search" id="close-search">&times;</div>
+            </div>
+            <div class="search-results" id="search-results">
+                <div class="search-result-item">
+                    <p>Digite pelo menos 2 caracteres</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="profile-modal" id="profile-modal">
+        <div class="profile-header">
+            <div class="profile-avatar" id="profile-avatar">
+                <img id="profile-image" src="" alt="Foto do perfil">
+                <span id="profile-initials">U</span>
+            </div>
+            <div class="profile-info">
+                <h3 id="profile-name">Usuário</h3>
+                <p id="profile-email">user@example.com</p>
+            </div>
+        </div>
+        
+        <div class="profile-details" id="profile-view">
+            <div class="detail-item">
+                <div class="detail-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div>
+                    <p id="profile-class">Classe: Carregando...</p>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <p id="profile-turma">Turma: Carregando...</p>
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-icon">
+                    <i class="fas fa-birthday-cake"></i>
+                </div>
+                <div>
+                    <p id="profile-birthdate">Nascimento: Carregando...</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="profile-actions">
+            <div class="profile-action" id="logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Sair</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" data-tab="schedule">Horário Escolar</div>
+            <div class="tab" data-tab="tasks">Tarefas</div>
+        </div>
+
+        <!-- Schedule Tab -->
+        <div class="tab-content active" id="schedule-tab">
+            <!-- Schedule Controls -->
+            <div class="schedule-controls">
+                <h2 class="schedule-title">Meu Horário</h2>
+                <div class="period-toggle">
+                    <button class="period-btn active" id="morning-btn">Manhã</button>
+                    <button class="period-btn" id="afternoon-btn">Tarde</button>
+                </div>
+                <button class="edit-schedule-btn" id="edit-schedule-btn">
+                    <i class="fas fa-edit"></i> Editar Horário
+                </button>
+            </div>
+
+            <!-- Morning Schedule -->
+            <div class="schedule-container" id="morning-schedule">
+                <div class="schedule-grid">
+                    <!-- Time Slots Column -->
+                    <div class="time-slot">Horário</div>
+                    <div class="day-header">Segunda</div>
+                    <div class="day-header">Terça</div>
+                    <div class="day-header">Quarta</div>
+                    <div class="day-header">Quinta</div>
+                    <div class="day-header">Sexta</div>
+
+                    <!-- Morning Classes -->
+                    <div class="time-slot">07:00-07:45</div>
+                    <div class="schedule-item" id="mon-1"></div>
+                    <div class="schedule-item" id="tue-1"></div>
+                    <div class="schedule-item" id="wed-1"></div>
+                    <div class="schedule-item" id="thu-1"></div>
+                    <div class="schedule-item" id="fri-1"></div>
+
+                    <div class="time-slot">07:50-08:35</div>
+                    <div class="schedule-item" id="mon-2"></div>
+                    <div class="schedule-item" id="tue-2"></div>
+                    <div class="schedule-item" id="wed-2"></div>
+                    <div class="schedule-item" id="thu-2"></div>
+                    <div class="schedule-item" id="fri-2"></div>
+
+                    <div class="time-slot">08:40-09:25</div>
+                    <div class="schedule-item" id="mon-3"></div>
+                    <div class="schedule-item" id="tue-3"></div>
+                    <div class="schedule-item" id="wed-3"></div>
+                    <div class="schedule-item" id="thu-3"></div>
+                    <div class="schedule-item" id="fri-3"></div>
+
+                    <div class="time-slot">09:40-10:25</div>
+                    <div class="schedule-item" id="mon-4"></div>
+                    <div class="schedule-item" id="tue-4"></div>
+                    <div class="schedule-item" id="wed-4"></div>
+                    <div class="schedule-item" id="thu-4"></div>
+                    <div class="schedule-item" id="fri-4"></div>
+
+                    <div class="time-slot">10:30-11:15</div>
+                    <div class="schedule-item" id="mon-5"></div>
+                    <div class="schedule-item" id="tue-5"></div>
+                    <div class="schedule-item" id="wed-5"></div>
+                    <div class="schedule-item" id="thu-5"></div>
+                    <div class="schedule-item" id="fri-5"></div>
+
+                    <div class="time-slot">11:20-12:05</div>
+                    <div class="schedule-item" id="mon-6"></div>
+                    <div class="schedule-item" id="tue-6"></div>
+                    <div class="schedule-item" id="wed-6"></div>
+                    <div class="schedule-item" id="thu-6"></div>
+                    <div class="schedule-item" id="fri-6"></div>
+                </div>
+            </div>
+
+            <!-- Afternoon Schedule -->
+            <div class="schedule-container" id="afternoon-schedule" style="display: none;">
+                <div class="schedule-grid">
+                    <!-- Time Slots Column -->
+                    <div class="time-slot">Horário</div>
+                    <div class="day-header">Segunda</div>
+                    <div class="day-header">Terça</div>
+                    <div class="day-header">Quarta</div>
+                    <div class="day-header">Quinta</div>
+                    <div class="day-header">Sexta</div>
+
+                    <!-- Afternoon Classes -->
+                    <div class="time-slot">12:30-13:15</div>
+                    <div class="schedule-item" id="mon-7"></div>
+                    <div class="schedule-item" id="tue-7"></div>
+                    <div class="schedule-item" id="wed-7"></div>
+                    <div class="schedule-item" id="thu-7"></div>
+                    <div class="schedule-item" id="fri-7"></div>
+
+                    <div class="time-slot">13:20-14:05</div>
+                    <div class="schedule-item" id="mon-8"></div>
+                    <div class="schedule-item" id="tue-8"></div>
+                    <div class="schedule-item" id="wed-8"></div>
+                    <div class="schedule-item" id="thu-8"></div>
+                    <div class="schedule-item" id="fri-8"></div>
+
+                    <div class="time-slot">14:10-14:55</div>
+                    <div class="schedule-item" id="mon-9"></div>
+                    <div class="schedule-item" id="tue-9"></div>
+                    <div class="schedule-item" id="wed-9"></div>
+                    <div class="schedule-item" id="thu-9"></div>
+                    <div class="schedule-item" id="fri-9"></div>
+
+                    <div class="time-slot">15:10-15:55</div>
+                    <div class="schedule-item" id="mon-10"></div>
+                    <div class="schedule-item" id="tue-10"></div>
+                    <div class="schedule-item" id="wed-10"></div>
+                    <div class="schedule-item" id="thu-10"></div>
+                    <div class="schedule-item" id="fri-10"></div>
+
+                    <div class="time-slot">16:00-16:45</div>
+                    <div class="schedule-item" id="mon-11"></div>
+                    <div class="schedule-item" id="tue-11"></div>
+                    <div class="schedule-item" id="wed-11"></div>
+                    <div class="schedule-item" id="thu-11"></div>
+                    <div class="schedule-item" id="fri-11"></div>
+
+                    <div class="time-slot">16:50-17:35</div>
+                    <div class="schedule-item" id="mon-12"></div>
+                    <div class="schedule-item" id="tue-12"></div>
+                    <div class="schedule-item" id="wed-12"></div>
+                    <div class="schedule-item" id="thu-12"></div>
+                    <div class="schedule-item" id="fri-12"></div>
+                </div>
+            </div>
+
+            <!-- Tasks Section -->
+            <div class="tasks-section">
+                <div class="section-header">
+                    <h2>Tarefas</h2>
+                    <button class="add-task-btn" id="add-task-btn">
+                        <i class="fas fa-plus"></i> Nova Tarefa
+                    </button>
+                </div>
+                
+                <div class="task-filters">
+                    <button class="filter-btn active" data-filter="all">Todas</button>
+                    <button class="filter-btn" data-filter="pending">Pendentes</button>
+                    <button class="filter-btn" data-filter="completed">Concluídas</button>
+                </div>
+                
+                <div class="task-list" id="task-list">
+                    <p class="no-tasks">Carregando tarefas...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tasks Tab -->
+        <div class="tab-content" id="tasks-tab">
+            <!-- Conteúdo da aba de tarefas pode ser mantido ou removido -->
+        </div>
+    </main>
+
+    <!-- Edit Class Modal -->
+    <div class="modal" id="edit-class-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Editar Aula</h3>
+                <div class="close-modal" id="close-edit-modal">&times;</div>
+            </div>
+            <div class="modal-body">
+                <form id="edit-class-form">
+                    <input type="hidden" id="edit-slot-id">
+                    <div class="form-group">
+                        <label class="form-label">Disciplina</label>
+                        <input type="text" class="form-input" id="edit-class-subject" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Professor</label>
+                        <input type="text" class="form-input" id="edit-class-teacher">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Sala</label>
+                        <input type="text" class="form-input" id="edit-class-room">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="cancel-btn" id="cancel-edit">Cancelar</button>
+                        <button type="button" class="save-btn delete-btn" id="delete-class">Excluir</button>
+                        <button type="submit" class="save-btn">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Modal -->
+    <div class="modal" id="task-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="task-modal-title">Nova Tarefa</h3>
+                <div class="close-modal" id="close-task-modal">&times;</div>
+            </div>
+            <div class="modal-body">
+                <form id="task-form">
+                    <input type="hidden" id="task-id">
+                    <div class="form-group">
+                        <label class="form-label">Título*</label>
+                        <input type="text" class="form-input" id="task-title" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-textarea" id="task-description"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label">Data de Entrega*</label>
+                                <input type="date" class="form-input" id="task-due-date" required>
+                            </div>
+                        </div>
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label class="form-label">Disciplina</label>
+                                <input type="text" class="form-input" id="task-subject">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="cancel-btn" id="cancel-task">Cancelar</button>
+                        <button type="submit" class="save-btn">Salvar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item">
+            <i class="fas fa-home nav-icon"></i>
+            <span>Início</span>
+        </a>
+        <a href="aprenda.html" class="nav-item">
+            <i class="fas fa-book nav-icon"></i>
+            <span>Aprenda</span>
+        </a>
+        <a href="horarios.html" class="nav-item active">
+            <i class="fas fa-calendar-alt nav-icon"></i>
+            <span>Horários</span>
+        </a>
+        <a href="noticias.html" class="nav-item">
+            <i class="fas fa-newspaper nav-icon"></i>
+            <span>Notícias</span>
+        </a>
+    </nav>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
+            authDomain: "luna-bot-70962.firebaseapp.com",
+            projectId: "luna-bot-70962",
+            storageBucket: "luna-bot-70962.appspot.com",
+            messagingSenderId: "247837414432",
+            appId: "1:247837414432:web:f7f9df049b8cfdbd909845",
+            measurementId: "G-8Q1L3CS37J"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // DOM Elements
+        const searchBtn = document.getElementById('search-btn');
+        const searchModal = document.getElementById('search-modal');
+        const closeSearchBtn = document.getElementById('close-search');
+        const userAvatar = document.getElementById('user-avatar');
+        const avatarInitials = document.getElementById('avatar-initials');
+        const profileModal = document.getElementById('profile-modal');
+        const profileInitials = document.getElementById('profile-initials');
+        const profileName = document.getElementById('profile-name');
+        const profileEmail = document.getElementById('profile-email');
+        const profileClass = document.getElementById('profile-class');
+        const profileTurma = document.getElementById('profile-turma');
+        const profileBirthdate = document.getElementById('profile-birthdate');
+        const logoutBtn = document.getElementById('logout');
+        const morningBtn = document.getElementById('morning-btn');
+        const afternoonBtn = document.getElementById('afternoon-btn');
+        const morningSchedule = document.getElementById('morning-schedule');
+        const afternoonSchedule = document.getElementById('afternoon-schedule');
+        const editScheduleBtn = document.getElementById('edit-schedule-btn');
+        const editClassModal = document.getElementById('edit-class-modal');
+        const closeEditModal = document.getElementById('close-edit-modal');
+        const cancelEditBtn = document.getElementById('cancel-edit');
+        const deleteClassBtn = document.getElementById('delete-class');
+        const editClassForm = document.getElementById('edit-class-form');
+        const editSlotId = document.getElementById('edit-slot-id');
+        const scheduleItems = document.querySelectorAll('.schedule-item');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const addTaskBtn = document.getElementById('add-task-btn');
+        const taskModal = document.getElementById('task-modal');
+        const closeTaskModal = document.getElementById('close-task-modal');
+        const cancelTaskBtn = document.getElementById('cancel-task');
+        const taskForm = document.getElementById('task-form');
+        const taskList = document.getElementById('task-list');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+
+        // App State
+        let currentUser = null;
+        let currentUserData = null;
+        let isEditMode = false;
+        let currentEditingSlot = null;
+        let currentEditingTask = null;
+
+        // Initialize the page
+        function init() {
+            setupEventListeners();
+            setupSearch();
+            setupTaskSystem();
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search modal
+            searchBtn.addEventListener('click', () => {
+                searchModal.style.display = 'block';
+                document.getElementById('search-input').focus();
+            });
+
+            closeSearchBtn.addEventListener('click', () => {
+                searchModal.style.display = 'none';
+            });
+
+            // Profile modal
+            userAvatar.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileModal.style.display = profileModal.style.display === 'block' ? 'none' : 'block';
+            });
+
+            logoutBtn.addEventListener('click', () => {
+                auth.signOut().then(() => {
+                    window.location.href = 'login.html';
+                }).catch((error) => {
+                    console.error('Erro ao sair:', error);
+                });
+            });
+
+            // Period toggle
+            morningBtn.addEventListener('click', () => {
+                morningBtn.classList.add('active');
+                afternoonBtn.classList.remove('active');
+                morningSchedule.style.display = 'block';
+                afternoonSchedule.style.display = 'none';
+            });
+
+            afternoonBtn.addEventListener('click', () => {
+                afternoonBtn.classList.add('active');
+                morningBtn.classList.remove('active');
+                afternoonSchedule.style.display = 'block';
+                morningSchedule.style.display = 'none';
+            });
+
+            // Edit schedule mode
+            editScheduleBtn.addEventListener('click', () => {
+                isEditMode = !isEditMode;
+                editScheduleBtn.textContent = isEditMode ? 'Cancelar Edição' : 'Editar Horário';
+                editScheduleBtn.style.backgroundColor = isEditMode ? 'var(--error)' : 'var(--white)';
+                editScheduleBtn.style.color = isEditMode ? 'white' : 'var(--primary)';
+                
+                scheduleItems.forEach(item => {
+                    if (isEditMode) {
+                        item.classList.add('editable');
+                        if (item.innerHTML === '') {
+                            item.innerHTML = `
+                                <div class="add-class-btn">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Adicionar Aula</span>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        item.classList.remove('editable');
+                        if (item.querySelector('.add-class-btn')) {
+                            item.innerHTML = '';
+                        }
+                    }
+                });
+            });
+
+            // Schedule item click
+            scheduleItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    if (!isEditMode) return;
+                    
+                    // Ignore clicks on child elements
+                    if (e.target !== item && !item.contains(e.target)) return;
+                    
+                    currentEditingSlot = item.id;
+                    editSlotId.value = item.id;
+                    
+                    // Check if slot has a class
+                    if (item.querySelector('.class-card')) {
+                        const subject = item.querySelector('.class-subject').textContent;
+                        const teacher = item.querySelector('.class-teacher').textContent;
+                        const room = item.querySelector('.class-room').textContent;
+                        
+                        document.getElementById('edit-class-subject').value = subject;
+                        document.getElementById('edit-class-teacher').value = teacher;
+                        document.getElementById('edit-class-room').value = room;
+                    } else {
+                        document.getElementById('edit-class-subject').value = '';
+                        document.getElementById('edit-class-teacher').value = '';
+                        document.getElementById('edit-class-room').value = '';
+                    }
+                    
+                    editClassModal.style.display = 'block';
+                });
+            });
+
+            // Edit class modal
+            closeEditModal.addEventListener('click', () => {
+                editClassModal.style.display = 'none';
+            });
+
+            cancelEditBtn.addEventListener('click', () => {
+                editClassModal.style.display = 'none';
+            });
+
+            deleteClassBtn.addEventListener('click', () => {
+                if (confirm('Tem certeza que deseja remover esta aula?')) {
+                    const slotElement = document.getElementById(currentEditingSlot);
+                    slotElement.innerHTML = '';
+                    editClassModal.style.display = 'none';
+                    saveSchedule();
+                }
+            });
+
+            editClassForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveClass();
+            });
+
+            // Tabs
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === searchModal) {
+                    searchModal.style.display = 'none';
+                }
+                
+                if (e.target === profileModal) {
+                    profileModal.style.display = 'none';
+                }
+                
+                if (e.target === editClassModal) {
+                    editClassModal.style.display = 'none';
+                }
+                
+                if (e.target === taskModal) {
+                    closeTaskModalFunc();
+                }
+            });
+        }
+
+        // Configuração da pesquisa
+        function setupSearch() {
+            const searchInput = document.getElementById('search-input');
+            const searchResults = document.getElementById('search-results');
+            
+            searchInput.addEventListener('input', async (e) => {
+                const query = e.target.value.trim().toLowerCase();
+                
+                if (query.length < 2) {
+                    searchResults.innerHTML = '<div class="search-result-item"><p>Digite pelo menos 2 caracteres</p></div>';
+                    return;
+                }
+                
+                try {
+                    // Pesquisa em múltiplas coleções
+                    const tasksPromise = db.collection('tasks')
+                        .where('userId', '==', currentUser.uid)
+                        .where('title', '>=', query)
+                        .where('title', '<=', query + '\uf8ff')
+                        .limit(5)
+                        .get();
+                    
+                    const schedulePromise = db.collection('users').doc(currentUser.uid)
+                        .collection('schedule')
+                        .where('subject', '>=', query)
+                        .where('subject', '<=', query + '\uf8ff')
+                        .limit(5)
+                        .get();
+                    
+                    const [tasksSnapshot, scheduleSnapshot] = await Promise.all([tasksPromise, schedulePromise]);
+                    
+                    let resultsHTML = '';
+                    
+                    // Resultados de tarefas
+                    tasksSnapshot.forEach(doc => {
+                        const task = doc.data();
+                        resultsHTML += `
+                            <div class="search-result-item" data-type="task" data-id="${doc.id}">
+                                <p><strong>Tarefa:</strong> ${task.title}</p>
+                                <small>${task.dueDate?.toDate?.().toLocaleDateString() || ''}</small>
+                            </div>
+                        `;
+                    });
+                    
+                    // Resultados de horários
+                    scheduleSnapshot.forEach(doc => {
+                        const classItem = doc.data();
+                        resultsHTML += `
+                            <div class="search-result-item" data-type="class" data-id="${doc.id}">
+                                <p><strong>Aula:</strong> ${classItem.subject}</p>
+                                <small>${classItem.teacher || ''} - ${classItem.room || ''}</small>
+                            </div>
+                        `;
+                    });
+                    
+                    if (!resultsHTML) {
+                        resultsHTML = '<div class="search-result-item"><p>Nenhum resultado encontrado</p></div>';
+                    }
+                    
+                    searchResults.innerHTML = resultsHTML;
+                    
+                    // Adiciona eventos aos resultados
+                    document.querySelectorAll('.search-result-item').forEach(item => {
+                        item.addEventListener('click', () => {
+                            const type = item.getAttribute('data-type');
+                            const id = item.getAttribute('data-id');
+                            
+                            if (type === 'task') {
+                                openEditTaskModal(id);
+                            } else if (type === 'class') {
+                                // Implemente a ação para aulas se necessário
+                            }
+                            
+                            searchModal.style.display = 'none';
+                            searchInput.value = '';
+                        });
+                    });
+                    
+                } catch (error) {
+                    console.error('Erro na pesquisa:', error);
+                    searchResults.innerHTML = '<div class="search-result-item"><p>Erro ao realizar pesquisa</p></div>';
+                }
+            });
+        }
+
+        // Sistema de Tarefas
+        function setupTaskSystem() {
+            // Event listeners
+            addTaskBtn.addEventListener('click', openNewTaskModal);
+            closeTaskModal.addEventListener('click', closeTaskModalFunc);
+            cancelTaskBtn.addEventListener('click', closeTaskModalFunc);
+            taskForm.addEventListener('submit', saveTask);
+            
+            // Filtros de tarefas
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    loadTasks(btn.getAttribute('data-filter'));
+                });
+            });
+            
+            // Carrega tarefas ao abrir a página
+            loadTasks();
+        }
+
+        function openNewTaskModal() {
+            document.getElementById('task-modal-title').textContent = 'Nova Tarefa';
+            document.getElementById('task-id').value = '';
+            document.getElementById('task-title').value = '';
+            document.getElementById('task-description').value = '';
+            document.getElementById('task-subject').value = '';
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('task-due-date').value = today;
+            
+            taskModal.style.display = 'block';
+        }
+
+        function openEditTaskModal(taskId) {
+            db.collection('tasks').doc(taskId).get().then(doc => {
+                if (doc.exists) {
+                    const task = doc.data();
+                    currentEditingTask = doc.id;
+                    
+                    document.getElementById('task-modal-title').textContent = 'Editar Tarefa';
+                    document.getElementById('task-id').value = doc.id;
+                    document.getElementById('task-title').value = task.title;
+                    document.getElementById('task-description').value = task.description || '';
+                    document.getElementById('task-subject').value = task.subject || '';
+                    
+                    const dueDate = task.dueDate.toDate ? task.dueDate.toDate() : new Date(task.dueDate);
+                    document.getElementById('task-due-date').value = dueDate.toISOString().split('T')[0];
+                    
+                    taskModal.style.display = 'block';
+                }
+            }).catch(error => {
+                console.error('Error getting task:', error);
+            });
+        }
+
+        function closeTaskModalFunc() {
+            taskModal.style.display = 'none';
+            currentEditingTask = null;
+        }
+
+        async function saveTask(e) {
+            e.preventDefault();
+            
+            const taskId = document.getElementById('task-id').value;
+            const title = document.getElementById('task-title').value;
+            const description = document.getElementById('task-description').value;
+            const dueDate = document.getElementById('task-due-date').value;
+            const subject = document.getElementById('task-subject').value;
+            
+            if (!title || !dueDate) {
+                alert('Por favor, preencha pelo menos o título e a data de entrega');
+                return;
+            }
+            
+            const taskData = {
+                title,
+                description,
+                dueDate: new Date(dueDate),
+                subject,
+                completed: false,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                userId: currentUser.uid
+            };
+            
+            try {
+                if (taskId) {
+                    // Atualizar tarefa existente
+                    await db.collection('tasks').doc(taskId).update(taskData);
+                } else {
+                    // Criar nova tarefa
+                    await db.collection('tasks').add(taskData);
+                }
+                
+                closeTaskModalFunc();
+                loadTasks();
+            } catch (error) {
+                console.error('Erro ao salvar tarefa:', error);
+                alert('Erro ao salvar tarefa');
+            }
+        }
+
+        async function loadTasks(filter = 'all') {
+            if (!currentUser) return;
+            
+            let query = db.collection('tasks')
+                .where('userId', '==', currentUser.uid)
+                .orderBy('dueDate', 'asc');
+            
+            // Aplicar filtros
+            if (filter === 'pending') {
+                query = query.where('completed', '==', false);
+            } else if (filter === 'completed') {
+                query = query.where('completed', '==', true);
+            }
+            
+            try {
+                const querySnapshot = await query.get();
+                const tasks = [];
+                
+                querySnapshot.forEach(doc => {
+                    tasks.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                renderTasks(tasks);
+            } catch (error) {
+                console.error('Erro ao carregar tarefas:', error);
+            }
+        }
+
+        function renderTasks(tasks) {
+            const taskList = document.getElementById('task-list');
+            
+            if (tasks.length === 0) {
+                taskList.innerHTML = '<p class="no-tasks">Nenhuma tarefa encontrada</p>';
+                return;
+            }
+            
+            taskList.innerHTML = '';
+            
+            tasks.forEach(task => {
+                const dueDate = task.dueDate.toDate ? task.dueDate.toDate() : new Date(task.dueDate);
+                const taskElement = document.createElement('div');
+                taskElement.className = `task-item ${task.completed ? 'completed' : ''}`;
+                taskElement.innerHTML = `
+                    <div class="task-main">
+                        <h4>${task.title}</h4>
+                        ${task.description ? `<p>${task.description}</p>` : ''}
+                        ${task.subject ? `<span class="task-subject">${task.subject}</span>` : ''}
+                    </div>
+                    <div class="task-due">
+                        <i class="far fa-calendar-alt"></i>
+                        ${dueDate.toLocaleDateString('pt-BR')}
+                    </div>
+                    <div class="task-actions">
+                        <button class="task-action complete" data-id="${task.id}">
+                            ${task.completed ? '✓' : ''}
+                        </button>
+                        <button class="task-action edit" data-id="${task.id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                `;
+                
+                // Event listeners para ações
+                taskElement.querySelector('.complete').addEventListener('click', () => {
+                    toggleTaskCompletion(task.id, task.completed);
+                });
+                
+                taskElement.querySelector('.edit').addEventListener('click', () => {
+                    openEditTaskModal(task.id);
+                });
+                
+                taskList.appendChild(taskElement);
+            });
+        }
+
+        async function toggleTaskCompletion(taskId, completed) {
+            try {
+                await db.collection('tasks').doc(taskId).update({
+                    completed: !completed
+                });
+                loadTasks();
+            } catch (error) {
+                console.error('Erro ao alternar conclusão da tarefa:', error);
+            }
+        }
+
+        // Load schedule from Firestore
+        async function loadSchedule() {
+            if (!currentUser) return;
+            
+            try {
+                const q = db.collection('users').doc(currentUser.uid).collection('schedule');
+                const querySnapshot = await q.get();
+                
+                querySnapshot.forEach(doc => {
+                    const classData = doc.data();
+                    const slotElement = document.getElementById(classData.slotId);
+                    
+                    if (slotElement) {
+                        slotElement.innerHTML = `
+                            <div class="class-card">
+                                <div class="class-subject">${classData.subject}</div>
+                                <div class="class-teacher">${classData.teacher || ''}</div>
+                                <div class="class-room">${classData.room || ''}</div>
+                            </div>
+                        `;
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error loading schedule:', error);
+            }
+        }
+
+        // Save class to schedule
+        async function saveClass() {
+            try {
+                const subject = document.getElementById('edit-class-subject').value;
+                const teacher = document.getElementById('edit-class-teacher').value;
+                const room = document.getElementById('edit-class-room').value;
+                const slotId = editSlotId.value;
+                
+                if (!subject) {
+                    alert('Por favor, informe a disciplina');
+                    return;
+                }
+                
+                const slotElement = document.getElementById(slotId);
+                slotElement.innerHTML = `
+                    <div class="class-card">
+                        <div class="class-subject">${subject}</div>
+                        <div class="class-teacher">${teacher || ''}</div>
+                        <div class="class-room">${room || ''}</div>
+                    </div>
+                `;
+                
+                editClassModal.style.display = 'none';
+                saveSchedule();
+                
+            } catch (error) {
+                console.error('Error saving class:', error);
+            }
+        }
+
+        // Save schedule to Firestore
+        async function saveSchedule() {
+            if (!currentUser) return;
+            
+            try {
+                // First, clear existing schedule
+                const scheduleRef = db.collection('users').doc(currentUser.uid).collection('schedule');
+                const querySnapshot = await scheduleRef.get();
+                
+                querySnapshot.forEach(async (doc) => {
+                    await doc.ref.delete();
+                });
+                
+                // Then save all classes
+                const classes = [];
+                scheduleItems.forEach(item => {
+                    if (item.querySelector('.class-card')) {
+                        const classData = {
+                            slotId: item.id,
+                            subject: item.querySelector('.class-subject').textContent,
+                            teacher: item.querySelector('.class-teacher').textContent || '',
+                            room: item.querySelector('.class-room').textContent || ''
+                        };
+                        classes.push(classData);
+                    }
+                });
+                
+                for (const classData of classes) {
+                    await scheduleRef.add(classData);
+                }
+                
+                console.log('Horário salvo com sucesso!');
+                
+            } catch (error) {
+                console.error('Error saving schedule:', error);
+            }
+        }
+
+        // Update profile data
+        async function updateProfileData() {
+            if (!currentUser) return;
+            
+            try {
+                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                
+                if (userDoc.exists) {
+                    currentUserData = userDoc.data();
+                    
+                    // Avatar - imagem ou iniciais
+                    if (currentUserData.photoURL) {
+                        document.getElementById('profile-image').src = currentUserData.photoURL;
+                        document.getElementById('profile-image').style.display = 'block';
+                        document.getElementById('profile-initials').style.display = 'none';
+                    } else {
+                        const initials = currentUserData.name ? 
+                            currentUserData.name.split(' ').map(n => n[0]).join('').toUpperCase() : 
+                            currentUser.email[0].toUpperCase();
+                        
+                        avatarInitials.textContent = initials;
+                        profileInitials.textContent = initials;
+                    }
+                    
+                    // Informações básicas
+                    profileName.textContent = currentUserData.name || currentUser.email.split('@')[0];
+                    profileEmail.textContent = currentUser.email;
+                    
+                    // Classe e turma
+                    if (currentUserData.class) {
+                        profileClass.textContent = `Classe: ${currentUserData.class}ª`;
+                    }
+                    if (currentUserData.turma) {
+                        profileTurma.textContent = `Turma: ${currentUserData.turma}`;
+                    }
+                    
+                    // Data de nascimento
+                    if (currentUserData.birthdate) {
+                        const date = currentUserData.birthdate.toDate ? 
+                            currentUserData.birthdate.toDate() : 
+                            new Date(currentUserData.birthdate);
+                            
+                        const formattedDate = date.toLocaleDateString('pt-MZ');
+                        document.getElementById('profile-birthdate').textContent = `Nascimento: ${formattedDate}`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        // Auth state observer
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                updateProfileData();
+                loadSchedule();
+                init();
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>

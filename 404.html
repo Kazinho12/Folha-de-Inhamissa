@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-MZ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página Não Encontrada - Portal 4 de Outubro</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS Personalizado -->
+    <style>
+        :root {
+            --cor-primaria: #2E5A88;     /* Azul principal */
+            --cor-secundaria: #E67E22;   /* Laranja */
+            --cor-terciaria: #27AE60;    /* Verde */
+            --cor-destaque: #9B59B6;    /* Roxo */
+            --cor-texto: #2C3E50;        /* Azul escuro */
+            --cor-fundo: #f8f9fa;        /* Cinza claro */
+            --cor-branco: #ffffff;
+            --gradiente-primario: linear-gradient(135deg, var(--cor-primaria) 0%, var(--cor-destaque) 100%);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--cor-fundo);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            color: var(--cor-texto);
+            text-align: center;
+        }
+        
+        .error-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 40px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .error-icon {
+            font-size: 8rem;
+            color: var(--cor-secundaria);
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+        
+        h1 {
+            color: var(--cor-primaria);
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            max-width: 500px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 14px 30px;
+            background: var(--gradiente-primario);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            margin: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        footer {
+            background: var(--cor-texto);
+            color: var(--cor-branco);
+            text-align: center;
+            padding: 20px;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-30px);}
+            60% {transform: translateY(-15px);}
+        }
+        
+        @media (max-width: 600px) {
+            .error-container {
+                padding: 20px;
+            }
+            
+            .error-icon {
+                font-size: 5rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h1>Página Não Encontrada</h1>
+        <p>Desculpe, a página que você está procurando não existe ou foi movida.</p>
+        <div>
+            <a href="index.html" class="btn">
+                <i class="fas fa-home"></i> Voltar à Página Inicial
+            </a>
+            <a href="javascript:history.back()" class="btn" style="background: var(--cor-terciaria);">
+                <i class="fas fa-arrow-left"></i> Voltar à Página Anterior
+            </a>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 Escola Básica 04 de Outubro - Xai-Xai, Gaza, Moçambique</p>
+    </footer>
+</body>
+</html>

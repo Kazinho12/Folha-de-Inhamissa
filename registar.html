@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="pt-MZ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Folha de Inhamissa</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- CSS Personalizado -->
+    <style>
+        :root {
+            --cor-fundo: #000000;      /* Preto */
+            --cor-texto: #FFFFFF;      /* Branco */
+            --cor-destaque: #FFD700;   /* Amarelo */
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .register-container {
+            max-width: 500px;
+            margin: 30px auto;
+            padding: 40px;
+            background: var(--cor-fundo);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .register-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: var(--cor-destaque);
+        }
+        
+        .logo-icon {
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 3.5rem;
+            color: var(--cor-destaque);
+        }
+        
+        h1 {
+            color: var(--cor-destaque);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            position: relative;
+        }
+        
+        h1::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background: var(--cor-destaque);
+            margin: 10px auto 0;
+            border-radius: 2px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 15px;
+            color: var(--cor-destaque);
+            font-size: 1.1rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all 0.3s;
+            background: var(--cor-fundo);
+            color: var(--cor-texto);
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        
+        select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFD700' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 15px;
+        }
+        
+        input:focus, select:focus {
+            border-color: var(--cor-destaque);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2);
+            outline: none;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .checkbox-container input[type="checkbox"] {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--cor-destaque);
+            border-radius: 4px;
+            background: var(--cor-fundo);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .checkbox-container input[type="checkbox"]:checked {
+            background: var(--cor-destaque);
+            border-color: var(--cor-destaque);
+            position: relative;
+        }
+        
+        .checkbox-container input[type="checkbox"]:checked::after {
+            content: '\f00c'; /* Ícone de check do Font Awesome */
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #000000;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+        }
+        
+        .checkbox-container label {
+            color: var(--cor-texto);
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: var(--cor-destaque);
+            color: #000000;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        button:hover {
+            background: #FFC107;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .links {
+            margin-top: 25px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .links a {
+            color: var(--cor-destaque);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .links a:hover {
+            color: #FFC107;
+            text-decoration: underline;
+        }
+        
+        footer {
+            background: var(--cor-destaque);
+            color: #000000;
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        .success-message {
+            color: #27ae60;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: rgba(39, 174, 96, 0.1);
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .input-group {
+            flex: 1;
+        }
+        
+        @media (max-width: 600px) {
+            .register-container {
+                margin: 20px;
+                padding: 30px;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="logo-icon">
+            <i class="fas fa-graduation-cap"></i>
+        </div>
+        <h1>Criar Nova Conta - Folha de Inhamissa</h1>
+        
+        <div id="error-message" class="error-message"></div>
+        <div id="success-message" class="success-message"></div>
+        
+        <form id="register-form">
+            <div class="input-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="name" placeholder="Nome completo" required>
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="email" placeholder="Email institucional" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="input-group">
+                    <i class="fas fa-users"></i>
+                    <select id="class" required>
+                        <option value="" disabled selected>Selecione a classe</option>
+                        <option value="1a">1ª Classe</option>
+                        <option value="2a">2ª Classe</option>
+                        <option value="3a">3ª Classe</option>
+                        <option value="4a">4ª Classe</option>
+                        <option value="5a">5ª Classe</option>
+                        <option value="6a">6ª Classe</option>
+                        <option value="7a">7ª Classe</option>
+                        <option value="8a">8ª Classe</option>
+                        <option value="9a">9ª Classe</option>
+                        <option value="10a">10ª Classe</option>
+                        <option value="11a">11ª Classe</option>
+                        <option value="12a">12ª Classe</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-door-open"></i>
+                    <select id="turma" required>
+                        <option value="" disabled selected>Selecione a turma</option>
+                        <option value="A">Turma A</option>
+                        <option value="B">Turma B</option>
+                        <option value="C">Turma C</option>
+                        <option value="D">Turma D</option>
+                        <option value="E">Turma E</option>
+                        <option value="F">Turma F</option>
+                        <option value="G">Turma G</option>
+                        <option value="H">Turma H</option>
+                        <option value="I">Turma I</option>
+                        <option value="J">Turma J</option>
+                        <option value="K">Turma K</option>
+                        <option value="L">Turma L</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="input-group">
+                    <i class="fas fa-birthday-cake"></i>
+                    <input type="date" id="birthdate" required>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fas fa-phone"></i>
+                    <input type="tel" id="phone" placeholder="Número de celular" pattern="[0-9]{9}" required>
+                    <small style="display: block; font-size: 0.8rem; color: var(--cor-texto); margin-top: 5px;">Formato: 841234567</small>
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="Senha (mínimo 6 caracteres)" required minlength="6">
+            </div>
+            <div class="checkbox-container">
+                <input type="checkbox" id="show-password">
+                <label for="show-password">Ver senha</label>
+            </div>
+            
+            <div class="input-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="confirm-password" placeholder="Confirmar senha" required>
+            </div>
+            <div class="checkbox-container">
+                <input type="checkbox" id="show-confirm-password">
+                <label for="show-confirm-password">Ver confirmação de senha</label>
+            </div>
+            
+            <button type="submit">
+                <i class="fas fa-user-plus"></i> Registrar
+            </button>
+        </form>
+        
+        <div class="links">
+            <a href="login.html"><i class="fas fa-sign-in-alt"></i> Já tem uma conta? Faça login</a>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2025 Escola Secundária de Inhamissa - Xai-Xai, Gaza, Moçambique</p>
+    </footer>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword,
+            updateProfile
+        } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc,
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
+            authDomain: "luna-bot-70962.firebaseapp.com",
+            projectId: "luna-bot-70962",
+            storageBucket: "luna-bot-70962.appspot.com",
+            messagingSenderId: "247837414432",
+            appId: "1:247837414432:web:f7f9df049b8cfdbd909845",
+            measurementId: "G-8Q1L3CS37J"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Elementos do DOM
+        const registerForm = document.getElementById('register-form');
+        const errorMessage = document.getElementById('error-message');
+        const successMessage = document.getElementById('success-message');
+        const classSelect = document.getElementById('class');
+        const turmaSelect = document.getElementById('turma');
+
+        // Função para atualizar as opções de turma com base na classe selecionada
+        function updateTurmaOptions() {
+            const selectedClass = classSelect.value;
+            turmaSelect.innerHTML = '<option value="" disabled selected>Selecione a turma</option>';
+
+            if (selectedClass === '11a' || selectedClass === '12a') {
+                // Turmas para 11ª e 12ª classes (A01-A06, B01-B09, C01-C05)
+                const turmas = [
+                    'A01', 'A02', 'A03', 'A04', 'A05', 'A06',
+                    'B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B09',
+                    'C01', 'C02', 'C03', 'C04', 'C05'
+                ];
+                turmas.forEach(turma => {
+                    const option = document.createElement('option');
+                    option.value = turma;
+                    option.textContent = `Turma ${turma}`;
+                    turmaSelect.appendChild(option);
+                });
+            } else {
+                // Turmas padrão para 1ª a 10ª classes (A a L)
+                const turmas = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
+                turmas.forEach(turma => {
+                    const option = document.createElement('option');
+                    option.value = turma;
+                    option.textContent = `Turma ${turma}`;
+                    turmaSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Atualizar turmas quando a classe for alterada
+        classSelect.addEventListener('change', updateTurmaOptions);
+
+        // Inicializar as opções de turma ao carregar a página
+        document.addEventListener('DOMContentLoaded', updateTurmaOptions);
+
+        // Função para mostrar mensagens de erro
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+            errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Função para mostrar mensagens de sucesso
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+        }
+
+        // Função para limpar mensagens
+        function clearMessages() {
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+
+        // Mostrar/Esconder senha
+        document.getElementById('show-password').addEventListener('change', () => {
+            const passwordInput = document.getElementById('password');
+            passwordInput.type = passwordInput.type === 'password' ? 'text' : 'password';
+        });
+
+        document.getElementById('show-confirm-password').addEventListener('change', () => {
+            const confirmPasswordInput = document.getElementById('confirm-password');
+            confirmPasswordInput.type = confirmPasswordInput.type === 'password' ? 'text' : 'password';
+        });
+
+        // Validação do formulário
+        if (registerForm) {
+            registerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                clearMessages();
+
+                // Obter valores dos campos
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const classValue = document.getElementById('class').value;
+                const turma = document.getElementById('turma').value;
+                const birthdate = document.getElementById('birthdate').value;
+                const phone = document.getElementById('phone').value.trim();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+
+                // Validações
+                if (!name || !email || !classValue || !turma || !birthdate || !phone || !password || !confirmPassword) {
+                    showError('Por favor, preencha todos os campos obrigatórios.');
+                    return;
+                }
+
+                if (password.length < 6) {
+                    showError('A senha deve ter no mínimo 6 caracteres.');
+                    return;
+                }
+
+                if (password !== confirmPassword) {
+                    showError('As senhas não coincidem.');
+                    return;
+                }
+
+                if (!email.endsWith('@gmail.com') && !email.endsWith('@outlook.com') && !email.endsWith('@hotmail.com')) {
+                    showError('Por favor, use um email válido (Gmail, Outlook ou Hotmail).');
+                    return;
+                }
+
+                if (!/^\d{9}$/.test(phone)) {
+                    showError('Número de celular inválido. Use o formato: 841234567');
+                    return;
+                }
+
+                try {
+                    // Criar usuário no Firebase Auth
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+
+                    // Atualizar perfil do usuário com o nome
+                    await updateProfile(user, {
+                        displayName: name
+                    });
+
+                    // Salvar informações adicionais no Firestore
+                    await addDoc(collection(db, 'users'), {
+                        uid: user.uid,
+                        name: name,
+                        email: email,
+                        class: classValue,
+                        turma: turma,
+                        birthdate: birthdate,
+                        phone: phone,
+                        role: 'student',
+                        createdAt: serverTimestamp(),
+                        updatedAt: serverTimestamp()
+                    });
+
+                    // Mostrar mensagem de sucesso
+                    showSuccess('Registro realizado com sucesso! Redirecionando para login...');
+
+                    // Limpar formulário
+                    registerForm.reset();
+
+                    // Redirecionar para a página de login após 3 segundos
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 3000);
+
+                } catch (error) {
+                    console.error('Erro no registro:', error);
+                    
+                    // Tratamento de erros específicos
+                    let errorMessage = 'Ocorreu um erro durante o registro. Tente novamente.';
+                    
+                    if (error.code === 'auth/email-already-in-use') {
+                        errorMessage = 'Este email já está em uso. Por favor, use outro email ou faça login.';
+                    } else if (error.code === 'auth/invalid-email') {
+                        errorMessage = 'Email inválido. Por favor, insira um email válido.';
+                    } else if (error.code === 'auth/weak-password') {
+                        errorMessage = 'Senha muito fraca. Use pelo menos 6 caracteres.';
+                    } else if (error.code === 'auth/network-request-failed') {
+                        errorMessage = 'Problema de conexão. Verifique sua internet e tente novamente.';
+                    }
+                    
+                    showError(errorMessage);
+                }
+            });
+        }
+
+        // Verificar se há parâmetros de erro na URL (para redirecionamentos de login)
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const errorParam = urlParams.get('error');
+            
+            if (errorParam) {
+                showError(decodeURIComponent(errorParam));
+            }
+        });
+    </script>
+</body>
+</html>
