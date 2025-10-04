@@ -621,7 +621,7 @@
     <script>
         let questionCount = 0;
 
-        window.addQuestion = function() {
+        function addQuestion() {
             questionCount++;
             const container = document.getElementById('questions-container');
             const questionDiv = document.createElement('div');
@@ -661,11 +661,15 @@
                 </div>
             `;
             container.appendChild(questionDiv);
-        };
+        }
 
-        window.removeQuestion = function(btn) {
+        function removeQuestion(btn) {
             btn.closest('.question-block').remove();
-        };
+        }
+
+        // Tornar funções disponíveis globalmente
+        window.addQuestion = addQuestion;
+        window.removeQuestion = removeQuestion;
 
         // Adicionar primeira pergunta ao carregar
         document.addEventListener('DOMContentLoaded', () => {
@@ -673,12 +677,14 @@
         });
     </script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
-        import { jsPDF } from "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
 
 
         const firebaseConfig = {
@@ -799,6 +805,35 @@
                 const submitBtn = e.target.querySelector('button[type="submit"]');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-check"></i> Criar Quiz';
+            }
+        });
+
+        // Função para download do certificado
+        document.addEventListener('click', async (e) => {
+            if (e.target && e.target.id === 'download-certificate-btn') {
+                try {
+                    const certificateContent = document.getElementById('certificate-content');
+                    
+                    const canvas = await html2canvas(certificateContent, {
+                        scale: 2,
+                        backgroundColor: '#1a1a1a'
+                    });
+                    
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new window.jspdf.jsPDF({
+                        orientation: 'landscape',
+                        unit: 'px',
+                        format: [canvas.width, canvas.height]
+                    });
+                    
+                    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+                    pdf.save('certificado-folha-inhamissa.pdf');
+                    
+                    showToast('Certificado baixado com sucesso!', 'success');
+                } catch (error) {
+                    console.error('Erro ao baixar certificado:', error);
+                    showToast('Erro ao baixar certificado', 'error');
+                }
             }
         });
 
