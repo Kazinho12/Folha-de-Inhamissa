@@ -1,6 +1,6 @@
 
 // upload-utils.js - Sistema de upload com ImgBB e Firebase fallback
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
+import { ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
 
 const IMGBB_API_KEY = '490019b11f119ad684399138b0226ff5';
 const IMGBB_API_URL = 'https://api.imgbb.com/1/upload';
@@ -10,6 +10,7 @@ let storage = null;
 // Inicializar storage do Firebase
 export function initUploadUtils(firebaseStorage) {
     storage = firebaseStorage;
+    console.log('Upload utils inicializado');
 }
 
 // Converter arquivo para base64
@@ -20,7 +21,10 @@ async function fileToBase64(file) {
             const base64 = reader.result.split(',')[1];
             resolve(base64);
         };
-        reader.onerror = reject;
+        reader.onerror = (error) => {
+            console.error('Erro ao converter para base64:', error);
+            reject(error);
+        };
         reader.readAsDataURL(file);
     });
 }
@@ -28,7 +32,11 @@ async function fileToBase64(file) {
 // Upload usando ImgBB
 async function uploadToImgBB(file, onProgress) {
     try {
-        console.log('Tentando upload via ImgBB...');
+        console.log('🌐 Tentando upload via ImgBB...', {
+            name: file.name,
+            size: file.size,
+            type: file.type
+        });
         
         if (onProgress) onProgress(10);
 
@@ -40,6 +48,7 @@ async function uploadToImgBB(file, onProgress) {
         // Criar FormData com base64
         const formData = new FormData();
         formData.append('image', base64Image);
+        formData.append('name', file.name);
         
         // Fazer upload
         const response = await fetch(`${IMGBB_API_URL}?key=${IMGBB_API_KEY}`, {
@@ -51,19 +60,21 @@ async function uploadToImgBB(file, onProgress) {
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Erro ImgBB:', errorText);
-            throw new Error(`ImgBB retornou status ${response.status}`);
+            console.error('❌ Erro ImgBB - Status:', response.status);
+            console.error('❌ Resposta:', errorText);
+            throw new Error(`ImgBB retornou status ${response.status}: ${errorText}`);
         }
 
         const data = await response.json();
         
         if (!data.success || !data.data || !data.data.url) {
+            console.error('❌ Resposta inválida do ImgBB:', data);
             throw new Error('Resposta inválida do ImgBB');
         }
 
         if (onProgress) onProgress(100);
         
-        console.log('Upload ImgBB bem-sucedido:', data.data.url);
+        console.log('✅ Upload ImgBB bem-sucedido:', data.data.url);
         return {
             success: true,
             url: data.data.url,
@@ -71,7 +82,7 @@ async function uploadToImgBB(file, onProgress) {
         };
 
     } catch (error) {
-        console.error('Falha no upload ImgBB:', error);
+        console.error('❌ Falha no upload ImgBB:', error.message);
         throw error;
     }
 }
@@ -79,7 +90,11 @@ async function uploadToImgBB(file, onProgress) {
 // Upload usando Firebase Storage
 async function uploadToFirebase(file, userId, onProgress) {
     try {
-        console.log('Tentando upload via Firebase Storage...');
+        console.log('🔥 Tentando upload via Firebase Storage...', {
+            name: file.name,
+            size: file.size,
+            type: file.type
+        });
         
         if (!storage) {
             throw new Error('Firebase Storage não inicializado');
@@ -89,8 +104,9 @@ async function uploadToFirebase(file, userId, onProgress) {
 
         // Criar referência única
         const fileExtension = file.name.split('.').pop();
-        const fileName = `quiz_${Date.now()}_${userId}.${fileExtension}`;
-        const storageRef = ref(storage, `quizzes/images/${fileName}`);
+        const timestamp = Date.now();
+        const fileName = `${timestamp}_${userId}.${fileExtension}`;
+        const storageRef = ref(storage, `uploads/${fileName}`);
 
         // Upload com progresso
         const uploadTask = uploadBytesResumable(storageRef, file);
@@ -99,22 +115,24 @@ async function uploadToFirebase(file, userId, onProgress) {
             uploadTask.on('state_changed',
                 (snapshot) => {
                     const progress = 10 + (snapshot.bytesTransferred / snapshot.totalBytes) * 90;
+                    console.log(`📊 Progresso Firebase: ${Math.round(progress)}%`);
                     if (onProgress) onProgress(progress);
                 },
                 (error) => {
-                    console.error('Erro Firebase Storage:', error);
+                    console.error('❌ Erro Firebase Storage:', error);
                     reject(error);
                 },
                 async () => {
                     try {
                         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                        console.log('Upload Firebase bem-sucedido:', downloadURL);
+                        console.log('✅ Upload Firebase bem-sucedido:', downloadURL);
                         resolve({
                             success: true,
                             url: downloadURL,
                             method: 'firebase'
                         });
                     } catch (error) {
+                        console.error('❌ Erro ao obter URL do Firebase:', error);
                         reject(error);
                     }
                 }
@@ -122,13 +140,13 @@ async function uploadToFirebase(file, userId, onProgress) {
         });
 
     } catch (error) {
-        console.error('Falha no upload Firebase:', error);
+        console.error('❌ Falha no upload Firebase:', error.message);
         throw error;
     }
 }
 
 // Função principal de upload com fallback
-export async function uploadQuizImage(file, userId, onProgress) {
+export async function uploadImage(file, userId, onProgress) {
     if (!file) {
         throw new Error('Nenhum arquivo fornecido');
     }
@@ -138,35 +156,52 @@ export async function uploadQuizImage(file, userId, onProgress) {
         throw new Error('O arquivo deve ser uma imagem');
     }
 
-    // Validar tamanho (máx 5MB)
-    const MAX_SIZE = 5 * 1024 * 1024;
+    // Validar tamanho (máx 32MB como no ImgBB)
+    const MAX_SIZE = 32 * 1024 * 1024;
     if (file.size > MAX_SIZE) {
-        throw new Error('Imagem muito grande. Máximo 5MB');
+        throw new Error('Imagem muito grande. Máximo 32MB');
     }
+
+    console.log('📤 Iniciando upload de imagem...', {
+        name: file.name,
+        size: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
+        type: file.type
+    });
 
     let lastError = null;
 
     // Tentar ImgBB primeiro
     try {
         const result = await uploadToImgBB(file, onProgress);
+        console.log('✅ Upload concluído via ImgBB');
         return result;
     } catch (imgbbError) {
-        console.warn('ImgBB falhou, tentando Firebase...', imgbbError);
+        console.warn('⚠️ ImgBB falhou, tentando Firebase...', imgbbError.message);
         lastError = imgbbError;
+        
+        // Resetar progresso para tentar Firebase
+        if (onProgress) onProgress(0);
     }
 
     // Se ImgBB falhar, tentar Firebase
     try {
         const result = await uploadToFirebase(file, userId, onProgress);
+        console.log('✅ Upload concluído via Firebase (fallback)');
         return result;
     } catch (firebaseError) {
-        console.error('Firebase também falhou:', firebaseError);
+        console.error('❌ Firebase também falhou:', firebaseError.message);
         lastError = firebaseError;
     }
 
     // Se ambos falharem
-    throw new Error(`Upload falhou (ImgBB e Firebase): ${lastError.message}`);
+    const errorMsg = `Upload falhou em ambos os serviços. ImgBB: ${lastError.message}`;
+    console.error('❌ ' + errorMsg);
+    throw new Error(errorMsg);
 }
+
+// Alias para compatibilidade
+export const uploadQuizImage = uploadImage;
+export const uploadNewsImage = uploadImage;
 
 // Função auxiliar para validar URL de imagem
 export function isValidImageUrl(url) {
