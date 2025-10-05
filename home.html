@@ -3007,21 +3007,14 @@
                                 const postDoc = await getDoc(postRef);
 
                                 if (!postDoc.exists()) {
-                                    throw new Error('Publicação não encontrada');
+                                    showToast('Esta publicação não existe mais', 'error');
+                                    likeBtn.disabled = false;
+                                    return;
                                 }
 
                                 const postData = postDoc.data();
                                 const likedBy = postData.likedBy || [];
                                 const hasLiked = likedBy.includes(user.uid);
-
-                                // Encontrar elementos DOM de forma segura
-                                const icon = likeBtn.querySelector('i');
-                                const span = likeBtn.querySelector('span');
-                                
-                                if (!icon || !span) {
-                                    console.error('Elementos DOM do botão de curtida não encontrados');
-                                    throw new Error('Erro na interface');
-                                }
 
                                 if (hasLiked) {
                                     // Remover curtida
@@ -3030,11 +3023,16 @@
                                         likedBy: likedBy.filter(id => id !== user.uid)
                                     });
 
+                                    // Atualizar UI de forma segura
                                     likeBtn.classList.remove('liked');
-                                    icon.className = 'far fa-thumbs-up';
-
-                                    const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
-                                    span.textContent = `${Math.max(0, currentCount - 1)} Curtir`;
+                                    const icon = likeBtn.querySelector('i');
+                                    const span = likeBtn.querySelector('span');
+                                    
+                                    if (icon) icon.className = 'far fa-thumbs-up';
+                                    if (span) {
+                                        const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
+                                        span.textContent = `${Math.max(0, currentCount - 1)} Curtir`;
+                                    }
 
                                     showToast('Curtida removida', 'success');
                                 } else {
@@ -3044,11 +3042,16 @@
                                         likedBy: [...likedBy, user.uid]
                                     });
 
+                                    // Atualizar UI de forma segura
                                     likeBtn.classList.add('liked');
-                                    icon.className = 'fas fa-thumbs-up';
-
-                                    const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
-                                    span.textContent = `${currentCount + 1} Curtir`;
+                                    const icon = likeBtn.querySelector('i');
+                                    const span = likeBtn.querySelector('span');
+                                    
+                                    if (icon) icon.className = 'fas fa-thumbs-up';
+                                    if (span) {
+                                        const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
+                                        span.textContent = `${currentCount + 1} Curtir`;
+                                    }
 
                                     showToast('Publicação curtida!', 'success');
                                 }
@@ -3059,13 +3062,9 @@
                                 let errorMessage = 'Erro ao curtir. Tente novamente.';
                                 
                                 if (error.code === 'permission-denied') {
-                                    errorMessage = 'Sem permissão para curtir esta publicação.';
+                                    errorMessage = 'Sem permissão para curtir. Verifique as regras do Firestore.';
                                 } else if (error.code === 'unavailable') {
                                     errorMessage = 'Serviço temporariamente indisponível.';
-                                } else if (error.message === 'Publicação não encontrada') {
-                                    errorMessage = 'Esta publicação não existe mais.';
-                                } else if (error.message === 'Erro na interface') {
-                                    errorMessage = 'Erro na interface. Recarregue a página.';
                                 } else if (!navigator.onLine) {
                                     errorMessage = 'Sem conexão com a internet.';
                                 }
@@ -3074,7 +3073,7 @@
                             } finally {
                                 setTimeout(() => {
                                     likeBtn.disabled = false;
-                                }, 1000);
+                                }, 500);
                             }
                         });
 
