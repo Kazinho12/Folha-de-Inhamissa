@@ -822,10 +822,8 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
-
-        // imgbb API configuration
-        const IMGBB_API_KEY = '490019b11f119ad684399138b0226ff5';
-        const IMGBB_API_URL = 'https://api.imgbb.com/1/upload';
+        import { getStorage } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
+        import { uploadQuizImage, initUploadUtils } from "./upload-utils.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
@@ -839,6 +837,10 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        // Inicializar módulo de upload
+        initUploadUtils(storage);
 
         const ADMIN_EMAILS = ['killiandesigner@gmail.com', 'jeanabilio72@gmail.com', 'ianomachai@gmail.com'];
 
@@ -941,31 +943,17 @@
 
                 let imageUrl = '';
                 if (imageFile) {
-                    updateProgress(1, 0);
-                    
                     try {
-                        const formData = new FormData();
-                        formData.append('image', imageFile);
-                        
-                        const uploadResponse = await fetch(`${IMGBB_API_URL}?key=${IMGBB_API_KEY}`, {
-                            method: 'POST',
-                            body: formData
-                        });
+                        // Usar sistema de upload com fallback automático
+                        const uploadResult = await uploadQuizImage(
+                            imageFile,
+                            user.uid,
+                            (progress) => updateProgress(1, progress)
+                        );
 
-                        updateProgress(1, 50);
+                        imageUrl = uploadResult.url;
+                        console.log(`Imagem enviada via ${uploadResult.method}:`, imageUrl);
 
-                        if (!uploadResponse.ok) {
-                            throw new Error(`Erro HTTP: ${uploadResponse.status}`);
-                        }
-
-                        const responseData = await uploadResponse.json();
-                        
-                        if (responseData.success) {
-                            imageUrl = responseData.data.url;
-                            updateProgress(1, 100);
-                        } else {
-                            throw new Error(responseData.error?.message || 'Erro ao fazer upload da imagem');
-                        }
                     } catch (error) {
                         console.error('Erro no upload da imagem:', error);
                         document.getElementById('upload-progress-modal').style.display = 'none';
