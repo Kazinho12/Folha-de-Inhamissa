@@ -608,69 +608,80 @@
                 return;
             }
 
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const progressModal = document.getElementById('upload-progress-modal');
+
             try {
-                const submitBtn = e.target.querySelector('button[type="submit"]');
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
 
                 // Mostrar modal de progresso
-                const progressModal = document.getElementById('upload-progress-modal');
                 progressModal.style.display = 'flex';
 
                 let imageUrl = '';
                 if (imageFile) {
+                    console.log('📤 Iniciando upload da imagem...');
+                    
                     try {
                         // Usar sistema de upload com fallback automático
                         const uploadResult = await uploadNewsImage(
                             imageFile,
                             user.uid,
-                            (progress) => updateProgress(1, progress)
+                            (progress) => {
+                                console.log(`Progresso do upload: ${progress}%`);
+                                updateProgress(1, progress);
+                            }
                         );
 
                         imageUrl = uploadResult.url;
-                        console.log(`Imagem enviada via ${uploadResult.method}:`, imageUrl);
+                        console.log(`✅ Imagem enviada via ${uploadResult.method}:`, imageUrl);
 
-                    } catch (error) {
-                        console.error('Erro no upload da imagem:', error);
+                    } catch (uploadError) {
+                        console.error('❌ Erro crítico no upload da imagem:', uploadError);
                         progressModal.style.display = 'none';
-                        throw new Error('Falha ao enviar imagem: ' + error.message);
+                        throw new Error(`Falha ao enviar imagem: ${uploadError.message}`);
                     }
                 } else {
+                    console.log('ℹ️ Nenhuma imagem selecionada');
                     updateProgress(1, 100);
                 }
 
-                // Simular progresso ao salvar notícia
+                // Salvar notícia no Firestore
+                console.log('💾 Salvando notícia no banco de dados...');
                 updateProgress(2, 0);
-                await new Promise(resolve => setTimeout(resolve, 300));
+                await new Promise(resolve => setTimeout(resolve, 200));
                 updateProgress(2, 30);
 
-                await addDoc(collection(db, 'news'), {
+                const newsData = {
                     title,
                     category,
                     excerpt,
                     content,
                     htmlContent,
-                    source,
+                    source: source || '',
                     tags,
-                    imageUrl,
+                    imageUrl: imageUrl || '',
                     author: user.displayName || user.email.split('@')[0],
                     authorId: user.uid,
                     createdAt: serverTimestamp(),
                     views: 0
-                });
+                };
+
+                updateProgress(2, 60);
+                await addDoc(collection(db, 'news'), newsData);
 
                 updateProgress(2, 100);
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 300));
 
                 progressModal.style.display = 'none';
+                console.log('✅ Notícia publicada com sucesso!');
                 showToast('Notícia publicada com sucesso!', 'success');
                 setTimeout(() => window.location.href = 'noticias.html', 1500);
 
             } catch (error) {
-                console.error('Erro ao publicar:', error);
-                document.getElementById('upload-progress-modal').style.display = 'none';
-                showToast('Erro ao publicar notícia: ' + error.message, 'error');
-                const submitBtn = e.target.querySelector('button[type="submit"]');
+                console.error('❌ Erro ao publicar notícia:', error);
+                progressModal.style.display = 'none';
+                showToast(`Erro: ${error.message}`, 'error');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Publicar Notícia';
             }
