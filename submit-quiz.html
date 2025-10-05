@@ -908,7 +908,13 @@
             questionBlocks.forEach((block, index) => {
                 const questionText = block.querySelector('.question-text').value.trim();
                 const options = Array.from(block.querySelectorAll('.option-input')).map(input => input.value.trim());
-                const correctAnswer = parseInt(block.querySelector(`input[name="correct-${index + 1}"]:checked`).value);
+                const correctAnswerElement = block.querySelector(`input[name="correct-${index + 1}"]:checked`);
+                
+                if (!correctAnswerElement) {
+                    throw new Error(`Por favor, selecione a resposta correta para a pergunta ${index + 1}`);
+                }
+                
+                const correctAnswer = parseInt(correctAnswerElement.value);
                 const justification = block.querySelector('.justification-text').value.trim();
 
                 questions.push({
