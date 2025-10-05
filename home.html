@@ -1582,6 +1582,16 @@
             uploadBytesResumable, 
             getDownloadURL 
         } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
+        
+        // Import interactivity functions
+        import { 
+            initInteractivity, 
+            toggleLike, 
+            checkIfLiked, 
+            submitComment, 
+            loadComments, 
+            renderComments 
+        } from "./interactivity.js";
 
         // Firebase configuration
         const firebaseConfig = {
@@ -2711,7 +2721,7 @@
                     <h4>Comentários</h4>
                     <div class="comment-form">
                         <textarea class="comment-input" id="comment-input-${postId}" placeholder="Adicione um comentário..." rows="1"></textarea>
-                        <button class="comment-submit" onclick="submitComment('${postId}')">Enviar</button>
+                        <button class="comment-submit" id="comment-submit-${postId}">Enviar</button>
                     </div>
                     <div class="comment-list" id="comment-list-${postId}">
                         <!-- Comentários serão carregados aqui -->
@@ -2720,11 +2730,31 @@
             `;
 
             postModal.style.display = 'block';
-            loadComments(postId);
+
+            // Configurar botão de enviar comentário
+            const commentSubmitBtn = document.getElementById(`comment-submit-${postId}`);
+            if (commentSubmitBtn) {
+                commentSubmitBtn.addEventListener('click', async () => {
+                    await window.submitComment(postId);
+                });
+            }
+
+            // Carregar e renderizar comentários
+            loadCommentsForPost(postId);
 
             if (post.imageUrls && post.imageUrls.length > 1) {
                 window.currentSlide = 0;
                 window.totalSlides = post.imageUrls.length;
+            }
+        }
+
+        // Função auxiliar para carregar comentários
+        async function loadCommentsForPost(postId) {
+            const commentListElement = document.getElementById(`comment-list-${postId}`);
+            if (commentListElement) {
+                commentListElement.innerHTML = '<p style="text-align: center; color: var(--gray); padding: 20px;">Carregando comentários...</p>';
+                const comments = await loadComments(postId);
+                renderComments(comments, commentListElement);
             }
         }
 
@@ -2841,6 +2871,9 @@
                         profileEmail.textContent = user.email;
                         updateProfileView();
                     }
+
+                    // Inicializar sistema de interatividade
+                    initInteractivity(db, auth, currentUserData);
 
                     await trackPageVisit();
                     await loadThemePreference(user.uid);
@@ -2973,108 +3006,12 @@
                         const likeBtn = postElement.querySelector('.like-btn');
 
                         // Verificar se usuário já curtiu
-                        const checkIfLiked = async () => {
-                            try {
-                                if (!auth.currentUser) return;
+                        checkIfLiked(postId, post, likeBtn);
 
-                                const likedBy = post.likedBy || [];
-                                if (likedBy.includes(auth.currentUser.uid)) {
-                                    likeBtn.classList.add('liked');
-                                    const icon = likeBtn.querySelector('i');
-                                    icon.className = 'fas fa-thumbs-up';
-                                }
-                            } catch (error) {
-                                console.error('Erro ao verificar curtida:', error);
-                            }
-                        };
-
-                        checkIfLiked();
-
+                        // Event listener para curtir
                         likeBtn.addEventListener('click', async (e) => {
                             e.stopPropagation();
-                            const user = auth.currentUser;
-
-                            if (!user) {
-                                showToast('Faça login para curtir', 'error');
-                                return;
-                            }
-
-                            if (likeBtn.disabled) return;
-                            likeBtn.disabled = true;
-
-                            try {
-                                const postRef = doc(db, 'posts', postId);
-                                const postDoc = await getDoc(postRef);
-
-                                if (!postDoc.exists()) {
-                                    showToast('Esta publicação não existe mais', 'error');
-                                    likeBtn.disabled = false;
-                                    return;
-                                }
-
-                                const postData = postDoc.data();
-                                const likedBy = postData.likedBy || [];
-                                const hasLiked = likedBy.includes(user.uid);
-
-                                if (hasLiked) {
-                                    // Remover curtida
-                                    await updateDoc(postRef, {
-                                        likes: increment(-1),
-                                        likedBy: likedBy.filter(id => id !== user.uid)
-                                    });
-
-                                    // Atualizar UI de forma segura
-                                    likeBtn.classList.remove('liked');
-                                    const icon = likeBtn.querySelector('i');
-                                    const span = likeBtn.querySelector('span');
-                                    
-                                    if (icon) icon.className = 'far fa-thumbs-up';
-                                    if (span) {
-                                        const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
-                                        span.textContent = `${Math.max(0, currentCount - 1)} Curtir`;
-                                    }
-
-                                    showToast('Curtida removida', 'success');
-                                } else {
-                                    // Adicionar curtida
-                                    await updateDoc(postRef, {
-                                        likes: increment(1),
-                                        likedBy: [...likedBy, user.uid]
-                                    });
-
-                                    // Atualizar UI de forma segura
-                                    likeBtn.classList.add('liked');
-                                    const icon = likeBtn.querySelector('i');
-                                    const span = likeBtn.querySelector('span');
-                                    
-                                    if (icon) icon.className = 'fas fa-thumbs-up';
-                                    if (span) {
-                                        const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
-                                        span.textContent = `${currentCount + 1} Curtir`;
-                                    }
-
-                                    showToast('Publicação curtida!', 'success');
-                                }
-                            } catch (error) {
-                                console.error('Erro ao curtir:', error);
-                                
-                                // Mensagens de erro mais específicas
-                                let errorMessage = 'Erro ao curtir. Tente novamente.';
-                                
-                                if (error.code === 'permission-denied') {
-                                    errorMessage = 'Sem permissão para curtir. Verifique as regras do Firestore.';
-                                } else if (error.code === 'unavailable') {
-                                    errorMessage = 'Serviço temporariamente indisponível.';
-                                } else if (!navigator.onLine) {
-                                    errorMessage = 'Sem conexão com a internet.';
-                                }
-                                
-                                showToast(errorMessage, 'error');
-                            } finally {
-                                setTimeout(() => {
-                                    likeBtn.disabled = false;
-                                }, 500);
-                            }
+                            await toggleLike(postId, likeBtn);
                         });
 
                         postElement.addEventListener('click', (e) => {
@@ -3109,174 +3046,8 @@
             );
         }
 
-        // Função global para submeter comentários
-        window.submitComment = async function(postId) {
-            if (!postId) {
-                showToast('Erro: ID da publicação não encontrado', 'error');
-                return;
-            }
-
-            const commentInput = document.getElementById(`comment-input-${postId}`);
-            if (!commentInput) {
-                showToast('Erro: Campo de comentário não encontrado', 'error');
-                return;
-            }
-
-            const commentText = commentInput.value.trim();
-
-            if (!commentText) {
-                showToast('Digite um comentário', 'error');
-                commentInput.focus();
-                return;
-            }
-
-            if (commentText.length > 500) {
-                showToast('Comentário muito longo (máximo 500 caracteres)', 'error');
-                return;
-            }
-
-            commentInput.disabled = true;
-
-            try {
-                const success = await addComment(postId, commentText);
-                if (success) {
-                    commentInput.value = '';
-                    setTimeout(() => {
-                        loadComments(postId);
-                    }, 500);
-                }
-            } catch (error) {
-                console.error('Erro ao submeter comentário:', error);
-                showToast('Erro inesperado ao comentar', 'error');
-            } finally {
-                commentInput.disabled = false;
-                commentInput.focus();
-            }
-        };
-
-        // Função para carregar comentários
-        async function loadComments(postId) {
-            try {
-                if (!postId) {
-                    console.warn('PostId não fornecido para carregar comentários');
-                    return;
-                }
-
-                const commentsQuery = query(
-                    collection(db, 'comments'),
-                    where('postId', '==', postId)
-                );
-
-                const commentsSnapshot = await getDocs(commentsQuery);
-                const commentsList = document.getElementById(`comment-list-${postId}`);
-
-                if (commentsList) {
-                    commentsList.innerHTML = '';
-
-                    const comments = [];
-                    commentsSnapshot.forEach((doc) => {
-                        comments.push({ id: doc.id, ...doc.data() });
-                    });
-
-                    comments.sort((a, b) => {
-                        if (!a.createdAt || !b.createdAt) return 0;
-                        return b.createdAt.toMillis() - a.createdAt.toMillis();
-                    });
-
-                    comments.forEach((comment) => {
-                        const commentDate = comment.createdAt ? comment.createdAt.toDate().toLocaleString('pt-MZ') : 'Agora';
-
-                        let authorAvatar = '';
-                        if (comment.authorPhotoURL) {
-                            authorAvatar = `<img src="${comment.authorPhotoURL}" alt="Foto do autor" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                           <span style="display: none;">${(comment.authorName || 'U').split(' ').map(n => n[0]).join('').toUpperCase()}</span>`;
-                        } else {
-                            authorAvatar = (comment.authorName || 'Usuário').split(' ').map(n => n[0]).join('').toUpperCase();
-                        }
-
-                        const commentElement = document.createElement('div');
-                        commentElement.className = 'comment-item';
-                        commentElement.innerHTML = `
-                            <div class="comment-avatar">${authorAvatar}</div>
-                            <div class="comment-content">
-                                <div class="comment-author">${comment.authorName || 'Usuário'}</div>
-                                <div class="comment-text">${comment.content || ''}</div>
-                                <div class="comment-time">${commentDate}</div>
-                            </div>
-                        `;
-                        commentsList.appendChild(commentElement);
-                    });
-
-                    if (comments.length === 0) {
-                        commentsList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Nenhum comentário ainda. Seja o primeiro!</p>';
-                    }
-                }
-            } catch (error) {
-                console.error('Erro ao carregar comentários:', error);
-                const commentsList = document.getElementById(`comment-list-${postId}`);
-                if (commentsList) {
-                    commentsList.innerHTML = '<p style="text-align: center; color: #e74c3c; padding: 20px;">Erro ao carregar comentários</p>';
-                }
-            }
-        }
-
-        // Função para adicionar um comentário
-        async function addComment(postId, content) {
-            const user = auth.currentUser;
-            if (!user) {
-                showToast('Faça login para comentar', 'error');
-                return false;
-            }
-
-            if (!content.trim()) {
-                showToast('Digite um comentário válido', 'error');
-                return false;
-            }
-
-            if (!postId) {
-                showToast('Erro: Publicação não identificada', 'error');
-                return false;
-            }
-
-            try {
-                const postRef = doc(db, 'posts', postId);
-                const postDoc = await getDoc(postRef);
-
-                if (!postDoc.exists()) {
-                    showToast('Esta publicação não existe mais', 'error');
-                    return false;
-                }
-
-                await addDoc(collection(db, 'comments'), {
-                    postId: postId,
-                    content: content.trim(),
-                    authorId: user.uid,
-                    authorName: currentUserData?.name || 'Usuário',
-                    authorPhotoURL: currentUserData?.photoURL || null,
-                    createdAt: serverTimestamp()
-                });
-
-                await updateDoc(postRef, {
-                    comments: increment(1)
-                });
-
-                showToast('Comentário adicionado!', 'success');
-                return true;
-
-            } catch (error) {
-                console.error('Erro ao adicionar comentário:', error);
-
-                let errorMessage = 'Erro ao adicionar comentário. Tente novamente.';
-                if (error.code === 'permission-denied') {
-                    errorMessage = 'Sem permissão para comentar nesta publicação.';
-                } else if (error.code === 'not-found') {
-                    errorMessage = 'Publicação não encontrada.';
-                }
-
-                showToast(errorMessage, 'error');
-                return false;
-            }
-        }
+        // Exportar submitComment globalmente para uso no HTML
+        window.submitComment = submitComment;
 
     </script>
 </body>
