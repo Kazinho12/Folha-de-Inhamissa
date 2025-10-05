@@ -3014,6 +3014,15 @@
                                 const likedBy = postData.likedBy || [];
                                 const hasLiked = likedBy.includes(user.uid);
 
+                                // Encontrar elementos DOM de forma segura
+                                const icon = likeBtn.querySelector('i');
+                                const span = likeBtn.querySelector('span');
+                                
+                                if (!icon || !span) {
+                                    console.error('Elementos DOM do botão de curtida não encontrados');
+                                    throw new Error('Erro na interface');
+                                }
+
                                 if (hasLiked) {
                                     // Remover curtida
                                     await updateDoc(postRef, {
@@ -3022,10 +3031,8 @@
                                     });
 
                                     likeBtn.classList.remove('liked');
-                                    const icon = likeBtn.querySelector('i');
                                     icon.className = 'far fa-thumbs-up';
 
-                                    const span = likeBtn.querySelector('span');
                                     const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
                                     span.textContent = `${Math.max(0, currentCount - 1)} Curtir`;
 
@@ -3038,10 +3045,8 @@
                                     });
 
                                     likeBtn.classList.add('liked');
-                                    const icon = likeBtn.querySelector('i');
                                     icon.className = 'fas fa-thumbs-up';
 
-                                    const span = likeBtn.querySelector('span');
                                     const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
                                     span.textContent = `${currentCount + 1} Curtir`;
 
@@ -3049,7 +3054,23 @@
                                 }
                             } catch (error) {
                                 console.error('Erro ao curtir:', error);
-                                showToast('Erro ao curtir. Verifique sua conexão.', 'error');
+                                
+                                // Mensagens de erro mais específicas
+                                let errorMessage = 'Erro ao curtir. Tente novamente.';
+                                
+                                if (error.code === 'permission-denied') {
+                                    errorMessage = 'Sem permissão para curtir esta publicação.';
+                                } else if (error.code === 'unavailable') {
+                                    errorMessage = 'Serviço temporariamente indisponível.';
+                                } else if (error.message === 'Publicação não encontrada') {
+                                    errorMessage = 'Esta publicação não existe mais.';
+                                } else if (error.message === 'Erro na interface') {
+                                    errorMessage = 'Erro na interface. Recarregue a página.';
+                                } else if (!navigator.onLine) {
+                                    errorMessage = 'Sem conexão com a internet.';
+                                }
+                                
+                                showToast(errorMessage, 'error');
                             } finally {
                                 setTimeout(() => {
                                     likeBtn.disabled = false;
