@@ -520,7 +520,9 @@
             modal.style.display = 'block';
 
             try {
-                const postsSnap = await getDocs(query(collection(db, 'posts'), orderBy('timestamp', 'desc')));
+                console.log('Carregando publicações...');
+                const postsSnap = await getDocs(collection(db, 'posts'));
+                console.log('Publicações carregadas:', postsSnap.size);
                 let html = '';
 
                 postsSnap.forEach(docSnap => {
@@ -615,7 +617,9 @@
             modal.style.display = 'block';
 
             try {
-                const newsSnap = await getDocs(query(collection(db, 'news'), orderBy('timestamp', 'desc')));
+                console.log('Carregando notícias...');
+                const newsSnap = await getDocs(collection(db, 'news'));
+                console.log('Notícias carregadas:', newsSnap.size);
                 let html = '';
 
                 newsSnap.forEach(docSnap => {
@@ -714,60 +718,67 @@
             quizzesList.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
             modal.style.display = 'block';
 
-            const quizzesSnap = await getDocs(query(collection(db, 'quizzes'), orderBy('createdAt', 'desc')));
-            let html = '';
+            try {
+                console.log('Carregando quizzes...');
+                const quizzesSnap = await getDocs(collection(db, 'quizzes'));
+                console.log('Quizzes carregados:', quizzesSnap.size);
+                let html = '';
 
-            quizzesSnap.forEach(docSnap => {
-                const quiz = docSnap.data();
-                const isEditing = window.editingQuiz === docSnap.id;
-                
-                html += `
-                    <div class="item-card">
-                        ${!isEditing ? `
-                            <div class="item-header">
-                                <div style="flex: 1;">
-                                    <div class="item-title">${quiz.title || 'Sem título'}</div>
-                                    <div class="item-meta">Categoria: ${quiz.category || 'N/A'}</div>
-                                    <div class="item-meta">${quiz.questions?.length || 0} perguntas | ${quiz.attempts || 0} tentativas</div>
+                quizzesSnap.forEach(docSnap => {
+                    const quiz = docSnap.data();
+                    const isEditing = window.editingQuiz === docSnap.id;
+                    
+                    html += `
+                        <div class="item-card">
+                            ${!isEditing ? `
+                                <div class="item-header">
+                                    <div style="flex: 1;">
+                                        <div class="item-title">${quiz.title || 'Sem título'}</div>
+                                        <div class="item-meta">Categoria: ${quiz.category || 'N/A'}</div>
+                                        <div class="item-meta">${quiz.questions?.length || 0} perguntas | ${quiz.attempts || 0} tentativas</div>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-edit" onclick="editQuiz('${docSnap.id}')">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </button>
+                                        <button class="btn btn-delete" onclick="deleteQuiz('${docSnap.id}')">
+                                            <i class="fas fa-trash"></i> Apagar
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="action-buttons">
-                                    <button class="btn btn-edit" onclick="editQuiz('${docSnap.id}')">
-                                        <i class="fas fa-edit"></i> Editar
-                                    </button>
-                                    <button class="btn btn-delete" onclick="deleteQuiz('${docSnap.id}')">
-                                        <i class="fas fa-trash"></i> Apagar
-                                    </button>
+                            ` : `
+                                <div class="edit-form">
+                                    <div class="form-group">
+                                        <label class="form-label">Título</label>
+                                        <input type="text" class="form-control" id="edit-quiz-title-${docSnap.id}" value="${quiz.title || ''}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Descrição</label>
+                                        <textarea class="form-control" id="edit-quiz-description-${docSnap.id}">${quiz.description || ''}</textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Categoria</label>
+                                        <input type="text" class="form-control" id="edit-quiz-category-${docSnap.id}" value="${quiz.category || ''}">
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-save" onclick="saveQuiz('${docSnap.id}')">
+                                            <i class="fas fa-save"></i> Salvar
+                                        </button>
+                                        <button class="btn btn-cancel" onclick="cancelEditQuiz()">
+                                            <i class="fas fa-times"></i> Cancelar
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        ` : `
-                            <div class="edit-form">
-                                <div class="form-group">
-                                    <label class="form-label">Título</label>
-                                    <input type="text" class="form-control" id="edit-quiz-title-${docSnap.id}" value="${quiz.title || ''}">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Descrição</label>
-                                    <textarea class="form-control" id="edit-quiz-description-${docSnap.id}">${quiz.description || ''}</textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Categoria</label>
-                                    <input type="text" class="form-control" id="edit-quiz-category-${docSnap.id}" value="${quiz.category || ''}">
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="btn btn-save" onclick="saveQuiz('${docSnap.id}')">
-                                        <i class="fas fa-save"></i> Salvar
-                                    </button>
-                                    <button class="btn btn-cancel" onclick="cancelEditQuiz()">
-                                        <i class="fas fa-times"></i> Cancelar
-                                    </button>
-                                </div>
-                            </div>
-                        `}
-                    </div>
-                `;
-            });
+                            `}
+                        </div>
+                    `;
+                });
 
-            quizzesList.innerHTML = html || '<div class="empty-state"><i class="fas fa-question-circle"></i><p>Nenhum quiz encontrado</p></div>';
+                quizzesList.innerHTML = html || '<div class="empty-state"><i class="fas fa-question-circle"></i><p>Nenhum quiz encontrado</p></div>';
+            } catch (error) {
+                console.error('Erro ao carregar quizzes:', error);
+                quizzesList.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar quizzes. Verifique suas permissões.</p></div>';
+            }
         }
 
         window.editQuiz = function(quizId) {
@@ -815,10 +826,12 @@
             statsContent.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
 
             try {
-                const visitasSnap = await getDocs(query(collection(db, 'uso'), orderBy('timestamp', 'desc'), limit(100)));
+                console.log('Carregando estatísticas...');
+                const visitasSnap = await getDocs(query(collection(db, 'uso'), limit(100)));
                 const postsSnap = await getDocs(collection(db, 'posts'));
                 const newsSnap = await getDocs(collection(db, 'news'));
                 const usersSnap = await getDocs(collection(db, 'users'));
+                console.log('Dados carregados - Visitas:', visitasSnap.size, 'Posts:', postsSnap.size, 'Notícias:', newsSnap.size, 'Usuários:', usersSnap.size);
 
                 let totalLikes = 0;
                 let totalViews = 0;
