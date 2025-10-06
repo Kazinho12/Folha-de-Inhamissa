@@ -521,15 +521,15 @@
                     });
 
                     // Mostrar mensagem de sucesso
-                    showSuccess('Registro realizado com sucesso! Redirecionando para login...');
+                    showSuccess('Registro realizado com sucesso! Redirecionando...');
 
                     // Limpar formulário
                     registerForm.reset();
 
-                    // Redirecionar para a página de login após 3 segundos
+                    // Redirecionar para a home após 1.5 segundos (usuário já está autenticado)
                     setTimeout(() => {
-                        window.location.href = 'login.html';
-                    }, 3000);
+                        window.location.href = 'home.html';
+                    }, 1500);
 
                 } catch (error) {
                     console.error('Erro no registro:', error);
