@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notícias da Escola</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #FFC107;
+            --background-color: #f4f7f6;
+            --text-color: #333;
+            --gray: #777;
+            --white: #fff;
+            --shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .main-content {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: var(--gray);
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .news-card {
+            background-color: var(--white);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        .news-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .news-content {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .news-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+
+        .news-date {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 15px;
+        }
+
+        .news-excerpt {
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .news-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .news-link:hover {
+            color: var(--secondary-color);
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--white);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--gray);
+            font-size: 0.8rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .nav-icon {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        /* Loading Animation */
+        .loading-animation {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            min-height: 400px;
+        }
+
+        .loading-animation .lottie-container {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 16px;
+        }
+
+        .loading-animation p {
+            color: var(--gray);
+            font-size: 1rem;
+        }
+
+        .loading-animation.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Animação de Carregamento -->
+        <div class="loading-animation" id="loading-news">
+            <div class="lottie-container" id="loading-lottie-news"></div>
+            <p>Carregando notícias...</p>
+        </div>
+
+        <div class="page-header">
+            <h1 class="page-title">Notícias da Escola</h1>
+            <p class="page-subtitle">Fique por dentro das últimas novidades</p>
+        </div>
+
+        <div class="news-grid" id="news-grid">
+            <!-- News cards will be loaded here by JavaScript -->
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="home.html" class="nav-item">
+            <i class="fas fa-home nav-icon"></i>
+            <span>Início</span>
+        </a>
+        <a href="aprenda.html" class="nav-item">
+            <i class="fas fa-book nav-icon"></i>
+            <span>Aprenda</span>
+        </a>
+        <a href="horarios.html" class="nav-item">
+            <i class="fas fa-calendar-alt nav-icon"></i>
+            <span>Horários</span>
+        </a>
+        <a href="noticias.html" class="nav-item active">
+            <i class="fas fa-newspaper nav-icon"></i>
+            <span>Notícias</span>
+        </a>
+    </nav>
+
+    <!-- Lottie Player -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const storage = getStorage(app);
+
+        // Inicializar animação Lottie de carregamento
+        const loadingLottieContainer = document.getElementById('loading-lottie-news');
+        if (loadingLottieContainer) {
+            const lottiePlayer = document.createElement('lottie-player');
+            lottiePlayer.setAttribute('src', 'folhadeinhamissa.json');
+            lottiePlayer.setAttribute('background', 'transparent');
+            lottiePlayer.setAttribute('speed', '1');
+            lottiePlayer.setAttribute('style', 'width: 100%; height: 100%;');
+            lottiePlayer.setAttribute('loop', 'true');
+            lottiePlayer.setAttribute('autoplay', 'true');
+            loadingLottieContainer.appendChild(lottiePlayer);
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const newsGrid = document.getElementById('news-grid');
+            if (!newsGrid) {
+                console.error("Elemento 'news-grid' não encontrado.");
+                return;
+            }
+
+            try {
+                // Fetch news from Firestore
+                const newsSnapshot = await getDocs(collection(db, "news"));
+                if (newsSnapshot.empty) {
+                    newsGrid.innerHTML = '<p style="text-align: center; padding: 40px;">Nenhuma notícia encontrada.</p>';
+                } else {
+                    newsSnapshot.forEach(doc => {
+                        const news = doc.data();
+                        const newsCard = document.createElement('div');
+                        newsCard.classList.add('news-card');
+                        newsCard.innerHTML = `
+                            <img src="${news.imageUrl || 'placeholder.png'}" alt="${news.title}">
+                            <div class="news-content">
+                                <h3 class="news-title">${news.title}</h3>
+                                <p class="news-date">${new Date(news.date.seconds * 1000).toLocaleDateString('pt-BR')}</p>
+                                <p class="news-excerpt">${news.excerpt}</p>
+                                <a href="noticia_detalhe.html?id=${doc.id}" class="news-link">Leia mais &rarr;</a>
+                            </div>
+                        `;
+                        newsGrid.appendChild(newsCard);
+                    });
+                }
+            } catch (error) {
+                console.error('Erro ao carregar notícias:', error);
+                newsGrid.innerHTML = '<p style="text-align: center; padding: 40px;">Erro ao carregar notícias. Tente novamente mais tarde.</p>';
+            } finally {
+                // Ocultar animação de carregamento
+                const loadingAnimation = document.getElementById('loading-news');
+                if (loadingAnimation) {
+                    loadingAnimation.classList.add('hidden');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
