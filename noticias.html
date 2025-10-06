@@ -567,7 +567,31 @@
         transform: translateY(-3px);
     }
 
-    /* Loading Spinner */
+    /* Loading Animation */
+    .loading-animation {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+    }
+    
+    .loading-animation .lottie-container {
+        width: 200px;
+        height: 200px;
+        margin-bottom: 16px;
+    }
+    
+    .loading-animation p {
+        color: var(--text-light);
+        font-size: 1rem;
+    }
+
+    .loading-animation.hidden {
+        display: none;
+    }
+
+    /* Loading Spinner (fallback) */
     .loading {
         display: flex;
         justify-content: center;
@@ -649,9 +673,6 @@
         </a>
         <h1 class="app-bar-title">Notícias</h1>
         <div class="app-bar-actions">
-            <div class="add-news-btn" id="add-news-btn">
-                <i class="fas fa-plus"></i>
-            </div>
             <div class="search-btn" id="search-btn">
                 <i class="fas fa-search"></i>
             </div>
@@ -663,8 +684,14 @@
 
     <!-- Main Content -->
     <main class="main-content">
+        <!-- Animação de Carregamento -->
+        <div class="loading-animation" id="loading-news">
+            <div class="lottie-container" id="loading-lottie-news"></div>
+            <p>Carregando notícias...</p>
+        </div>
+
         <!-- Categories -->
-        <div class="categories">
+        <div class="categories" style="display: none;" id="categories-container">
             <div class="category active">Todas</div>
             <div class="category">Educação</div>
             <div class="category">Eventos</div>
@@ -723,6 +750,9 @@
     </div>
 
 
+    <!-- Lottie Player -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+
     <!-- Firebase and LinkPreview API -->
     <script type="module">
         // Import Firebase modules
@@ -765,7 +795,6 @@
         const LINKPREVIEW_ENDPOINT = 'https://api.linkpreview.net';
 
         // DOM Elements
-        const addNewsBtn = document.getElementById('add-news-btn');
         const userAvatar = document.getElementById('user-avatar');
         const avatarInitials = document.getElementById('avatar-initials');
         
@@ -794,6 +823,19 @@
                 console.error('Erro ao carregar dados do usuário:', error);
             }
         }
+        // Inicializar animação Lottie de carregamento
+        const loadingLottieContainer = document.getElementById('loading-lottie-news');
+        if (loadingLottieContainer) {
+            const lottiePlayer = document.createElement('lottie-player');
+            lottiePlayer.setAttribute('src', 'folhadeinhamissa.json');
+            lottiePlayer.setAttribute('background', 'transparent');
+            lottiePlayer.setAttribute('speed', '1');
+            lottiePlayer.setAttribute('style', 'width: 100%; height: 100%;');
+            lottiePlayer.setAttribute('loop', 'true');
+            lottiePlayer.setAttribute('autoplay', 'true');
+            loadingLottieContainer.appendChild(lottiePlayer);
+        }
+
         const categories = document.querySelectorAll('.category');
         const newsGrid = document.getElementById('news-grid');
         const loadMoreBtn = document.getElementById('load-more');
@@ -1004,14 +1046,20 @@
             } catch (error) {
                 console.error('Error loading news:', error);
                 newsGrid.innerHTML = '<p class="error-message">Ocorreu um erro ao carregar as notícias</p>';
+            } finally {
+                // Ocultar animação de carregamento e mostrar categorias
+                const loadingAnimation = document.getElementById('loading-news');
+                const categoriesContainer = document.getElementById('categories-container');
+                if (loadingAnimation) {
+                    loadingAnimation.classList.add('hidden');
+                }
+                if (categoriesContainer) {
+                    categoriesContainer.style.display = 'flex';
+                }
             }
         }
 
         // Event Listeners
-        addNewsBtn.addEventListener('click', () => {
-            window.location.href = 'submit-news.html';
-        });
-
         closeModalBtn.addEventListener('click', () => {
             newsModal.style.display = 'none';
         });
