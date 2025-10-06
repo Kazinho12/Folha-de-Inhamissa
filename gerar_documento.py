@@ -102,9 +102,33 @@ create_paragraph(doc, 'Este documento apresenta o desenvolvimento, metodologias 
 
 add_page_break(doc)
 
-# DELIMITAÇÃO DO TEMA (RESUMIDA)
+# DELIMITAÇÃO DO TEMA
 create_heading(doc, 'Delimitação do Tema', level=1)
-create_paragraph(doc, 'Desenvolvimento da plataforma web "Folha de Inhamissa" (agosto-outubro 2025) utilizando HTML5, CSS3, JavaScript e Firebase. Funcionalidades: autenticação de utilizadores, feed social, notícias, horários e quizzes interativos.')
+
+create_heading(doc, 'Delimitação Espacial', level=2)
+create_paragraph(doc, 'O projeto foi desenvolvido para a Escola Secundária de Inhamissa, localizada em Xai-Xai, província de Gaza, Moçambique, servindo uma comunidade escolar de aproximadamente 1.200 alunos, 45 professores e 12 funcionários administrativos.')
+
+create_heading(doc, 'Delimitação Temporal', level=2)
+create_paragraph(doc, 'O desenvolvimento do portal ocorreu entre agosto e outubro de 2025, período de três meses que compreendeu desde a conceção inicial até a implementação completa e testes de validação com utilizadores.')
+
+create_heading(doc, 'Delimitação Tecnológica', level=2)
+create_paragraph(doc, 'O projeto utilizou exclusivamente tecnologias web modernas e acessíveis:')
+create_list(doc, [
+    'Frontend: HTML5 para estruturação, CSS3 para design responsivo e JavaScript ES6+ para interatividade',
+    'Backend: Firebase Platform (Authentication, Cloud Firestore, Storage)',
+    'Hospedagem: Netlify para deployment contínuo',
+    'Versionamento: Git/GitHub para controlo de versões'
+])
+
+create_heading(doc, 'Delimitação Funcional', level=2)
+create_paragraph(doc, 'O sistema implementa cinco módulos principais:')
+create_list(doc, [
+    'Sistema de autenticação e gestão de perfis de utilizadores',
+    'Feed social com publicações multimédia e interações',
+    'Módulo de notícias escolares com editor rico',
+    'Plataforma de quizzes educativos com certificação automática',
+    'Sistema de consulta de horários personalizados'
+])
 
 add_page_break(doc)
 
@@ -149,13 +173,9 @@ add_page_break(doc)
 
 # JUSTIFICATIVA
 create_heading(doc, 'Justificativa', level=1)
-create_paragraph(doc, 'A escolha do tema fundamenta-se em motivações pessoais, académicas e sociais que convergem para a modernização comunicacional escolar.')
-
-create_heading(doc, 'Relevância Pessoal e Académica', level=2)
-create_paragraph(doc, 'A experiência direta com limitações dos métodos tradicionais motivou a busca por soluções inovadoras. O projeto permite consolidar competências em programação web, bases de dados e design de interfaces.')
-
-create_heading(doc, 'Relevância Social e Tecnológica', level=2)
-create_paragraph(doc, 'A transformação digital educacional contribui para democratização da informação, desenvolvimento de competências digitais e sustentabilidade. O projeto deixa legado tangível para a escola e documenta o processo para replicação noutras instituições.')
+create_paragraph(doc, 'O desenvolvimento do portal "Folha de Inhamissa" justifica-se pela necessidade urgente de modernizar a comunicação escolar, superando limitações dos métodos tradicionais como custos elevados de impressão, distribuição restrita e impossibilidade de atualização em tempo real.')
+create_paragraph(doc, 'Do ponto de vista académico, o projeto permite aplicar competências adquiridas em TIC, consolidando conhecimentos em programação web, bases de dados cloud e design de interfaces responsivas. Socialmente, contribui para a inclusão digital, democratização da informação e desenvolvimento de competências tecnológicas essenciais no século XXI.')
+create_paragraph(doc, 'A iniciativa deixa um legado tangível para a escola, documenta metodologias replicáveis noutras instituições e promove sustentabilidade ambiental através da redução do uso de papel.')
 
 add_page_break(doc)
 
