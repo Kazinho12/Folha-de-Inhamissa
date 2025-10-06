@@ -269,8 +269,10 @@ create_heading(doc, 'Referências Bibliográficas', level=1)
 referencias = [
     'CASTELLS, M. (2003). A Galáxia Internet: Reflexões sobre Internet, Negócios e Sociedade. Lisboa: Fundação Calouste Gulbenkian.',
     'DUCKETT, J. (2014). HTML and CSS: Design and Build Websites. Indianapolis: John Wiley & Sons.',
+    'EQUIPE KUTIVA. (2025). Biblioteca Virtual Kutiva. Plataforma colaborativa educativa. Disponível em: https://kutiva-8a875.web.app. Acesso em: 06 out. 2025.',
     'FIREBASE DOCUMENTATION. (2025). Firebase Authentication Documentation. Disponível em: https://firebase.google.com/docs/auth. Acesso em: 15 set. 2025.',
     'KENSKI, V. M. (2012). Educação e Tecnologias: O Novo Ritmo da Informação. 8ª ed. Campinas: Papirus Editora.',
+    'KILLIAN, J. (2025). Fatomania - Portal Educativo. Site educativo para treino mental. Disponível em: https://fatomania.netlify.app. Acesso em: 06 out. 2025.',
     'LÉVY, P. (1999). Cibercultura. São Paulo: Editora 34.',
     'MARCOTTE, E. (2011). Responsive Web Design. New York: A Book Apart.',
     'MORAN, J. M.; MASETTO, M. T.; BEHRENS, M. A. (2013). Novas Tecnologias e Mediação Pedagógica. 21ª ed. Campinas: Papirus Editora.',
@@ -288,14 +290,27 @@ add_page_break(doc)
 # APÊNDICES
 create_heading(doc, 'Apêndices', level=1)
 
-create_heading(doc, 'Apêndice A - Capturas de Ecrã da Plataforma', level=2)
-create_paragraph(doc, 'Este apêndice apresenta capturas de ecrã das principais funcionalidades do portal "Folha de Inhamissa", incluindo:')
+create_heading(doc, 'Apêndice A - Apresentação da Plataforma', level=2)
+create_paragraph(doc, 'A plataforma "Folha de Inhamissa" está totalmente funcional e acessível através do seguinte endereço:')
+create_paragraph(doc, 'Site Principal: https://folhadeinhamissa.netlify.app', bold=True)
+
+create_heading(doc, 'Recursos Educativos Integrados', level=3)
+create_paragraph(doc, 'O projeto inclui acesso a recursos educativos complementares desenvolvidos para enriquecer a experiência de aprendizagem:')
 create_list(doc, [
-    'Página de login e registo',
-    'Feed de publicações sociais',
-    'Módulo de notícias escolares',
-    'Sistema de quizzes interativos',
-    'Interface de horários'
+    'Biblioteca Virtual Kutiva: https://kutiva-8a875.web.app - Plataforma colaborativa com chat integrado e recursos para estudo desenvolvida pela equipe Kutiva.',
+    'Site Educativo Fatomania: https://fatomania.netlify.app - Portal educativo com conteúdos diversos para treino mental desenvolvido por Jean Killian.'
+])
+
+create_heading(doc, 'Funcionalidades Disponíveis', level=3)
+create_paragraph(doc, 'Todas as funcionalidades estão plenamente operacionais:')
+create_list(doc, [
+    'Sistema de autenticação seguro com Firebase',
+    'Feed social com publicações, comentários e curtidas',
+    'Módulo de notícias escolares multimédia',
+    'Plataforma de quizzes interativos com certificação',
+    'Sistema de consulta de horários escolares',
+    'Chat disponível através da Biblioteca Kutiva',
+    'Recursos de treino mental disponíveis na Fatomania'
 ])
 
 create_heading(doc, 'Apêndice B - Código-Fonte Principal', level=2)
