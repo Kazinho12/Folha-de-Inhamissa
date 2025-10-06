@@ -106,42 +106,29 @@ add_page_break(doc)
 create_heading(doc, 'Delimitação do Tema', level=1)
 
 create_heading(doc, 'Delimitação Espacial', level=2)
-create_paragraph(doc, 'O projeto foi desenvolvido para a Escola Secundária de Inhamissa, localizada em Xai-Xai, província de Gaza, Moçambique, servindo uma comunidade escolar de aproximadamente 1.200 alunos, 45 professores e 12 funcionários administrativos.')
+create_paragraph(doc, 'O projeto foi desenvolvido para a Escola Secundária de Inhamissa, em Xai-Xai, Gaza, servindo aproximadamente 1.200 alunos e 45 professores.')
 
 create_heading(doc, 'Delimitação Temporal', level=2)
-create_paragraph(doc, 'O desenvolvimento do portal ocorreu entre agosto e outubro de 2025, período de três meses que compreendeu desde a conceção inicial até a implementação completa e testes de validação com utilizadores.')
+create_paragraph(doc, 'O desenvolvimento ocorreu entre agosto e outubro de 2025, período de três meses.')
 
 create_heading(doc, 'Delimitação Tecnológica', level=2)
-create_paragraph(doc, 'O projeto utilizou exclusivamente tecnologias web modernas e acessíveis:')
-create_list(doc, [
-    'Frontend: HTML5 para estruturação, CSS3 para design responsivo e JavaScript ES6+ para interatividade',
-    'Backend: Firebase Platform (Authentication, Cloud Firestore, Storage)',
-    'Hospedagem: Netlify para deployment contínuo',
-    'Versionamento: Git/GitHub para controlo de versões'
-])
+create_paragraph(doc, 'O projeto utilizou HTML5, CSS3, JavaScript e Firebase Platform para autenticação, armazenamento de dados e hospedagem na plataforma Netlify.')
 
 create_heading(doc, 'Delimitação Funcional', level=2)
-create_paragraph(doc, 'O sistema implementa cinco módulos principais:')
-create_list(doc, [
-    'Sistema de autenticação e gestão de perfis de utilizadores',
-    'Feed social com publicações multimédia e interações',
-    'Módulo de notícias escolares com editor rico',
-    'Plataforma de quizzes educativos com certificação automática',
-    'Sistema de consulta de horários personalizados'
-])
+create_paragraph(doc, 'O sistema implementa autenticação de utilizadores, feed social, publicação de notícias, quizzes educativos e consulta de horários.')
 
 add_page_break(doc)
 
 # PROBLEMA
 create_heading(doc, 'Problema', level=1)
 create_heading(doc, 'Questão de Partida', level=2)
-create_paragraph(doc, 'Como pode um portal web interativo melhorar o acesso à informação escolar e facilitar a comunicação entre alunos, professores e administração na Escola Secundária de Inhamissa?', bold=True)
+create_paragraph(doc, 'Como pode um portal web interativo melhorar o acesso à informação escolar e facilitar a comunicação na Escola Secundária de Inhamissa?', bold=True)
 
 create_heading(doc, 'Contextualização', level=2)
-create_paragraph(doc, 'A escola enfrenta desafios na disseminação eficiente de informações. Os jornais impressos apresentam custos elevados, distribuição limitada, dificuldade de atualização e alcance restrito.')
+create_paragraph(doc, 'A escola enfrenta desafios na disseminação de informações. Os jornais impressos apresentam custos elevados e distribuição limitada.')
 
 create_heading(doc, 'Solução Proposta', level=2)
-create_paragraph(doc, 'Portal web "Folha de Inhamissa" que oferece: acesso universal 24/7, atualização em tempo real, interatividade (comentários, curtidas), centralização de recursos, arquivo digital permanente e escalabilidade cloud.')
+create_paragraph(doc, 'Portal web "Folha de Inhamissa" oferecendo acesso 24/7, atualização em tempo real, interatividade e centralização de recursos.')
 
 add_page_break(doc)
 
@@ -173,9 +160,8 @@ add_page_break(doc)
 
 # JUSTIFICATIVA
 create_heading(doc, 'Justificativa', level=1)
-create_paragraph(doc, 'O desenvolvimento do portal "Folha de Inhamissa" justifica-se pela necessidade urgente de modernizar a comunicação escolar, superando limitações dos métodos tradicionais como custos elevados de impressão, distribuição restrita e impossibilidade de atualização em tempo real.')
-create_paragraph(doc, 'Do ponto de vista académico, o projeto permite aplicar competências adquiridas em TIC, consolidando conhecimentos em programação web, bases de dados cloud e design de interfaces responsivas. Socialmente, contribui para a inclusão digital, democratização da informação e desenvolvimento de competências tecnológicas essenciais no século XXI.')
-create_paragraph(doc, 'A iniciativa deixa um legado tangível para a escola, documenta metodologias replicáveis noutras instituições e promove sustentabilidade ambiental através da redução do uso de papel.')
+create_paragraph(doc, 'O desenvolvimento do portal "Folha de Inhamissa" justifica-se pela necessidade de modernizar a comunicação escolar, superando limitações dos métodos tradicionais como custos elevados de impressão e distribuição restrita.')
+create_paragraph(doc, 'Do ponto de vista académico, o projeto permite aplicar competências adquiridas em TIC. Socialmente, contribui para a inclusão digital e democratização da informação, além de promover sustentabilidade ambiental através da redução do uso de papel.')
 
 add_page_break(doc)
 
