@@ -1021,10 +1021,6 @@ a:hover {
 
         <!-- Quizzes da Comunidade -->
         <div id="community-quizzes" style="margin-bottom: 40px;"></div>
-
-        <div class="learning-modules" id="quiz-grid">
-            <!-- Quizzes da comunidade serão carregados aqui -->
-        </div>
     </main>
 
     
@@ -2505,7 +2501,14 @@ function initQuizzes() {
                 message = `Você acertou ${score} de ${questions.length} perguntas (${percentage}%). Recomendamos revisar o material.`;
             }
 
-            resultsDiv.innerHTML = `<div class="quiz-final-result">${message}</div>`;
+            // Adicionar botão de download de certificado se passou (>= 70%)
+            let certificateBtn = '';
+            if (percentage >= 70) {
+                const quizId = quiz.id || 'quiz';
+                certificateBtn = `<button onclick="downloadCertificate('${quizId}', ${score}, ${questions.length}, ${percentage})" style="margin-top: 15px; padding: 10px 20px; background-color: var(--primary); color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;"><i class="fas fa-download"></i> Baixar Certificado</button>`;
+            }
+
+            resultsDiv.innerHTML = `<div class="quiz-final-result">${message}${certificateBtn}</div>`;
             resultsDiv.style.display = 'block';
             this.style.display = 'none';
             nextBtn.style.display = 'none';
@@ -2805,6 +2808,86 @@ function loadCustomQuizzes() {
             console.error('Erro ao carregar quizzes:', e);
         }
     }
+}
+
+// Função para gerar e baixar certificado como imagem
+function downloadCertificate(quizName, score, total, percentage) {
+    // Criar canvas para o certificado
+    const canvas = document.createElement('canvas');
+    canvas.width = 1200;
+    canvas.height = 800;
+    const ctx = canvas.getContext('2d');
+    
+    // Fundo gradiente
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, '#000000');
+    gradient.addColorStop(1, '#1a1a1a');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Borda dourada
+    ctx.strokeStyle = '#FFD700';
+    ctx.lineWidth = 20;
+    ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+    
+    // Título "CERTIFICADO"
+    ctx.fillStyle = '#FFD700';
+    ctx.font = 'bold 72px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('CERTIFICADO', canvas.width / 2, 150);
+    
+    // Subtítulo
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '32px Inter, sans-serif';
+    ctx.fillText('de Conclusão', canvas.width / 2, 210);
+    
+    // Nome do aluno (usar nome do localStorage ou "Estudante")
+    const userName = localStorage.getItem('userName') || 'Estudante';
+    ctx.fillStyle = '#FFD700';
+    ctx.font = 'bold 42px Inter, sans-serif';
+    ctx.fillText(userName, canvas.width / 2, 320);
+    
+    // Texto descritivo
+    ctx.fillStyle = '#CCCCCC';
+    ctx.font = '28px Inter, sans-serif';
+    ctx.fillText('Concluiu com sucesso o quiz:', canvas.width / 2, 390);
+    
+    // Nome do quiz
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = 'bold 36px Inter, sans-serif';
+    const displayQuizName = quizName.replace('-quiz', '').replace(/-/g, ' ').toUpperCase();
+    ctx.fillText(displayQuizName, canvas.width / 2, 450);
+    
+    // Pontuação
+    ctx.fillStyle = '#FFD700';
+    ctx.font = 'bold 48px Inter, sans-serif';
+    ctx.fillText(`${score} de ${total} (${percentage}%)`, canvas.width / 2, 540);
+    
+    // Data
+    const today = new Date().toLocaleDateString('pt-MZ');
+    ctx.fillStyle = '#CCCCCC';
+    ctx.font = '24px Inter, sans-serif';
+    ctx.fillText(`Data: ${today}`, canvas.width / 2, 620);
+    
+    // Escola
+    ctx.fillStyle = '#FFD700';
+    ctx.font = 'bold 28px Inter, sans-serif';
+    ctx.fillText('Escola Secundária de Inhamissa', canvas.width / 2, 700);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.font = '22px Inter, sans-serif';
+    ctx.fillText('Xai-Xai, Gaza, Moçambique', canvas.width / 2, 740);
+    
+    // Converter canvas para imagem e fazer download
+    canvas.toBlob(function(blob) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `certificado-${displayQuizName}-${today.replace(/\//g, '-')}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
 }
 
 // Initialize when page loads

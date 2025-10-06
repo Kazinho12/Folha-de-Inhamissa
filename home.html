@@ -585,6 +585,48 @@
             line-height: 1.5;
             white-space: pre-wrap;
         }
+        
+        .post-text.truncated {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .read-more-btn {
+            color: var(--primary);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            display: inline-block;
+            transition: color 0.2s;
+        }
+        
+        .read-more-btn:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+        
+        /* Animação de carregamento */
+        .loading-animation {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+        }
+        
+        .loading-animation .lottie-container {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 16px;
+        }
+        
+        .loading-animation p {
+            color: var(--gray);
+            font-size: 1rem;
+        }
 
         /* Formatação de texto */
         .post-text strong, .post-text b {
@@ -867,7 +909,7 @@
         }
 
         .post-modal-content {
-            background: rgba(26, 26, 26, 0.95);
+            background: var(--card-bg);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             border: 1px solid rgba(255, 215, 0, 0.2);
@@ -885,7 +927,11 @@
             justify-content: space-between;
             align-items: center;
             padding: 16px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .post-modal-header h3 {
+            color: var(--text);
         }
 
         .close-modal {
@@ -1505,8 +1551,9 @@
 
     <!-- Conteúdo Principal (Feed) -->
     <main class="main-content" id="main-content">
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
+        <div class="loading-animation" id="loading">
+            <div class="lottie-container" id="loading-lottie"></div>
+            <p>Carregando publicações...</p>
         </div>
         <div class="error-message" id="error-message">
             <i class="fas fa-exclamation-circle"></i>
@@ -1547,6 +1594,9 @@
 
     <!-- Toast notifications -->
     <div class="toast" id="toast"></div>
+
+    <!-- Lottie Player -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
     <!-- Firebase e App Script -->
     <script type="module">
@@ -1598,6 +1648,19 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const storage = getStorage(app);
+
+        // Inicializar animação Lottie de carregamento
+        const loadingLottieContainer = document.getElementById('loading-lottie');
+        if (loadingLottieContainer) {
+            const lottiePlayer = document.createElement('lottie-player');
+            lottiePlayer.setAttribute('src', 'folhadeinhamissa.json');
+            lottiePlayer.setAttribute('background', 'transparent');
+            lottiePlayer.setAttribute('speed', '1');
+            lottiePlayer.setAttribute('style', 'width: 100%; height: 100%;');
+            lottiePlayer.setAttribute('loop', 'true');
+            lottiePlayer.setAttribute('autoplay', 'true');
+            loadingLottieContainer.appendChild(lottiePlayer);
+        }
 
         // Elementos da UI
         const userAvatar = document.getElementById('user-avatar');
@@ -2926,6 +2989,13 @@
 
                         const postElement = document.createElement('div');
                         postElement.className = 'post-card';
+                        
+                        // Verificar se o texto é longo e precisa ser truncado
+                        const contentLength = (post.content || '').length;
+                        const shouldTruncate = contentLength > 200;
+                        const textClass = shouldTruncate ? 'post-text truncated' : 'post-text';
+                        const readMoreBtn = shouldTruncate ? '<div class="read-more-btn">Ver mais...</div>' : '';
+                        
                         postElement.innerHTML = `
                             <div class="post-header">
                                 <div class="post-avatar">
@@ -2938,7 +3008,8 @@
                                 ${post.views ? `<div class="view-counter"><i class="fas fa-eye"></i> ${post.views}</div>` : ''}
                             </div>
                             <div class="post-content">
-                                <div class="post-text">${processedContent}</div>
+                                <div class="${textClass}">${processedContent}</div>
+                                ${readMoreBtn}
                                 ${mediaPreview}
                             </div>
                             <div class="post-actions">
@@ -2968,6 +3039,15 @@
                             e.stopPropagation();
                             openPostModal(post, postId);
                         });
+                        
+                        // Adicionar evento no botão "Ver mais"
+                        const readMoreButton = postElement.querySelector('.read-more-btn');
+                        if (readMoreButton) {
+                            readMoreButton.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                openPostModal(post, postId);
+                            });
+                        }
 
                         const likeBtn = postElement.querySelector('.like-btn');
 
