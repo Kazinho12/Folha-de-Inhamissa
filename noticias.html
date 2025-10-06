@@ -1,10 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notícias da Escola</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
@@ -146,7 +146,6 @@
             margin-bottom: 5px;
         }
 
-        /* Loading Animation */
         .loading-animation {
             display: flex;
             flex-direction: column;
@@ -173,9 +172,7 @@
     </style>
 </head>
 <body>
-    <!-- Main Content -->
     <main class="main-content">
-        <!-- Animação de Carregamento -->
         <div class="loading-animation" id="loading-news">
             <div class="lottie-container" id="loading-lottie-news"></div>
             <p>Carregando notícias...</p>
@@ -191,7 +188,6 @@
         </div>
     </main>
 
-    <!-- Bottom Navigation -->
     <nav class="bottom-nav">
         <a href="home.html" class="nav-item">
             <i class="fas fa-home nav-icon"></i>
@@ -211,20 +207,23 @@
         </a>
     </nav>
 
-    <!-- Lottie Player -->
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-    <script src="firebase-config.js"></script>
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
+            authDomain: "luna-bot-70962.firebaseapp.com",
+            projectId: "luna-bot-70962",
+            storageBucket: "luna-bot-70962.appspot.com",
+            messagingSenderId: "247837414432",
+            appId: "1:247837414432:web:f7f9df049b8cfdbd909845"
+        };
+
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const auth = getAuth(app);
-        const storage = getStorage(app);
 
-        // Inicializar animação Lottie de carregamento
         const loadingLottieContainer = document.getElementById('loading-lottie-news');
         if (loadingLottieContainer) {
             const lottiePlayer = document.createElement('lottie-player');
@@ -245,7 +244,6 @@
             }
 
             try {
-                // Fetch news from Firestore
                 const newsSnapshot = await getDocs(collection(db, "news"));
                 if (newsSnapshot.empty) {
                     newsGrid.innerHTML = '<p style="text-align: center; padding: 40px;">Nenhuma notícia encontrada.</p>';
@@ -270,7 +268,6 @@
                 console.error('Erro ao carregar notícias:', error);
                 newsGrid.innerHTML = '<p style="text-align: center; padding: 40px;">Erro ao carregar notícias. Tente novamente mais tarde.</p>';
             } finally {
-                // Ocultar animação de carregamento
                 const loadingAnimation = document.getElementById('loading-news');
                 if (loadingAnimation) {
                     loadingAnimation.classList.add('hidden');
