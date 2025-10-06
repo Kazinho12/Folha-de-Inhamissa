@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notícias | Folha de Inhamissa</title>
-    <link rel="icon" type="image/png" href="/Folhadeinhamissa.png">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
@@ -742,9 +741,7 @@
             limit, 
             getDocs,
             doc,
-            getDoc,
-            updateDoc,
-            increment
+            getDoc
         } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
         // Firebase configuration
@@ -921,24 +918,12 @@
         }
 
         // Open news in modal
-        async function openNewsModal(news, newsId = null) {
+        async function openNewsModal(news) {
             modalImage.src = news.imageUrl || 'https://via.placeholder.com/800x400?text=Sem+Imagem';
             modalCategory.textContent = news.category || 'Geral';
             modalTitle.textContent = news.title;
             modalAuthor.textContent = `Por ${news.author || 'Administrador'}`;
             modalDate.textContent = formatDate(news.createdAt);
-            
-            // Increment view count if newsId is provided
-            if (newsId) {
-                try {
-                    const newsRef = doc(db, 'news', newsId);
-                    await updateDoc(newsRef, {
-                        views: increment(1)
-                    });
-                } catch (error) {
-                    console.error('Erro ao incrementar visualizações:', error);
-                }
-            }
             
             // Process content with formatting
             let content = processContent(news.content);
@@ -1006,7 +991,7 @@
                             </div>
                         </div>
                     `;
-                    newsCard.addEventListener('click', () => openNewsModal(news, doc.id));
+                    newsCard.addEventListener('click', () => openNewsModal(news));
                     newsGrid.appendChild(newsCard);
                 });
 

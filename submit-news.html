@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enviar Notícia | Folha de Inhamissa</title>
-    <link rel="icon" type="image/png" href="/Folhadeinhamissa.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -391,55 +390,12 @@
         <span id="toast-message"></span>
     </div>
 
-    <!-- Modal de Progresso -->
-    <div id="upload-progress-modal" class="modal" style="display: none; position: fixed; z-index: 10001; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); backdrop-filter: blur(5px); justify-content: center; align-items: center; padding: 20px;">
-        <div class="modal-content" style="background-color: var(--card-bg); margin: auto; padding: 30px; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); width: 90%; max-width: 500px;">
-            <h2 style="text-align: center; margin-bottom: 20px; color: var(--primary);">
-                <i class="fas fa-upload"></i> Publicando Notícia
-            </h2>
-            <div class="progress-container" style="margin: 20px 0;">
-                <div class="progress-step" style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px; padding: 15px; background: rgba(255, 255, 255, 0.03); border-radius: 8px; border: 1px solid var(--border);">
-                    <div class="progress-icon" id="step1-icon" style="width: 50px; height: 50px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #888;">
-                        <i class="fas fa-image"></i>
-                    </div>
-                    <div class="progress-info" style="flex: 1;">
-                        <div class="progress-label" style="font-weight: 600; margin-bottom: 8px;">Upload da Imagem</div>
-                        <div class="progress-bar-container" style="width: 100%; height: 8px; background: var(--border); border-radius: 10px; overflow: hidden;">
-                            <div class="progress-bar" id="image-progress-bar" style="height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-dark)); width: 0%; transition: width 0.3s ease; border-radius: 10px;"></div>
-                        </div>
-                        <div class="progress-percentage" id="image-progress-text" style="margin-top: 5px; font-size: 0.9rem; color: #888; font-weight: 600;">0%</div>
-                    </div>
-                </div>
-                <div class="progress-step" style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px; padding: 15px; background: rgba(255, 255, 255, 0.03); border-radius: 8px; border: 1px solid var(--border);">
-                    <div class="progress-icon" id="step2-icon" style="width: 50px; height: 50px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #888;">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <div class="progress-info" style="flex: 1;">
-                        <div class="progress-label" style="font-weight: 600; margin-bottom: 8px;">Salvando Notícia</div>
-                        <div class="progress-bar-container" style="width: 100%; height: 8px; background: var(--border); border-radius: 10px; overflow: hidden;">
-                            <div class="progress-bar" id="news-progress-bar" style="height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-dark)); width: 0%; transition: width 0.3s ease; border-radius: 10px;"></div>
-                        </div>
-                        <div class="progress-percentage" id="news-progress-text" style="margin-top: 5px; font-size: 0.9rem; color: #888; font-weight: 600;">0%</div>
-                    </div>
-                </div>
-            </div>
-            <div class="overall-progress" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid var(--border);">
-                <div class="overall-label" style="font-size: 1.1rem; font-weight: 700; color: var(--primary); text-align: center;">Progresso Geral</div>
-                <div class="progress-bar-container" style="width: 100%; height: 20px; background: var(--border); border-radius: 10px; overflow: hidden; margin-top: 10px;">
-                    <div class="progress-bar" id="overall-progress-bar" style="height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-dark)); width: 0%; transition: width 0.3s ease; border-radius: 10px;"></div>
-                </div>
-                <div class="progress-percentage" id="overall-progress-text" style="margin-top: 8px; font-size: 1.2rem; color: #888; font-weight: 600; text-align: center;">0%</div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
-        import { getStorage } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
-        import { uploadNewsImage, initUploadUtils } from "./upload-utils.js";
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
@@ -455,32 +411,7 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        // Inicializar módulo de upload
-        initUploadUtils(storage);
-
         const ADMIN_EMAILS = ['killiandesigner@gmail.com', 'jeanabilio72@gmail.com', 'ianomachai@gmail.com'];
-
-        function updateProgress(step, percentage) {
-            const stepIcon = document.getElementById(`step${step}-icon`);
-            const progressBar = document.getElementById(step === 1 ? 'image-progress-bar' : 'news-progress-bar');
-            const progressText = document.getElementById(step === 1 ? 'image-progress-text' : 'news-progress-text');
-            
-            if (percentage > 0 && percentage < 100) {
-                stepIcon.style.background = 'linear-gradient(135deg, var(--primary), var(--primary-dark))';
-                stepIcon.style.color = '#000';
-            } else if (percentage === 100) {
-                stepIcon.style.background = 'var(--success)';
-                stepIcon.style.color = 'white';
-            }
-            
-            progressBar.style.width = percentage + '%';
-            progressText.textContent = Math.round(percentage) + '%';
-            
-            // Atualizar progresso geral
-            const overallProgress = (step === 1 ? percentage / 2 : 50 + percentage / 2);
-            document.getElementById('overall-progress-bar').style.width = overallProgress + '%';
-            document.getElementById('overall-progress-text').textContent = Math.round(overallProgress) + '%';
-        }
 
         // Tema
         const themeToggle = document.getElementById('theme-toggle');
@@ -608,80 +539,49 @@
                 return;
             }
 
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            const progressModal = document.getElementById('upload-progress-modal');
-
             try {
+                const submitBtn = e.target.querySelector('button[type="submit"]');
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
 
-                // Mostrar modal de progresso
-                progressModal.style.display = 'flex';
-
                 let imageUrl = '';
                 if (imageFile) {
-                    console.log('📤 Iniciando upload da imagem...');
-                    
-                    try {
-                        // Usar sistema de upload com fallback automático
-                        const uploadResult = await uploadNewsImage(
-                            imageFile,
-                            user.uid,
-                            (progress) => {
-                                console.log(`Progresso do upload: ${progress}%`);
-                                updateProgress(1, progress);
+                    const storageRef = ref(storage, `news/${Date.now()}_${imageFile.name}`);
+                    const uploadTask = uploadBytesResumable(storageRef, imageFile);
+
+                    await new Promise((resolve, reject) => {
+                        uploadTask.on('state_changed', null,
+                            (error) => reject(error),
+                            async () => {
+                                imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                                resolve();
                             }
                         );
-
-                        imageUrl = uploadResult.url;
-                        console.log(`✅ Imagem enviada via ${uploadResult.method}:`, imageUrl);
-
-                    } catch (uploadError) {
-                        console.error('❌ Erro crítico no upload da imagem:', uploadError);
-                        progressModal.style.display = 'none';
-                        throw new Error(`Falha ao enviar imagem: ${uploadError.message}`);
-                    }
-                } else {
-                    console.log('ℹ️ Nenhuma imagem selecionada');
-                    updateProgress(1, 100);
+                    });
                 }
 
-                // Salvar notícia no Firestore
-                console.log('💾 Salvando notícia no banco de dados...');
-                updateProgress(2, 0);
-                await new Promise(resolve => setTimeout(resolve, 200));
-                updateProgress(2, 30);
-
-                const newsData = {
+                await addDoc(collection(db, 'news'), {
                     title,
                     category,
                     excerpt,
                     content,
                     htmlContent,
-                    source: source || '',
+                    source,
                     tags,
-                    imageUrl: imageUrl || '',
+                    imageUrl,
                     author: user.displayName || user.email.split('@')[0],
                     authorId: user.uid,
                     createdAt: serverTimestamp(),
                     views: 0
-                };
+                });
 
-                updateProgress(2, 60);
-                await addDoc(collection(db, 'news'), newsData);
-
-                updateProgress(2, 100);
-                await new Promise(resolve => setTimeout(resolve, 300));
-
-                progressModal.style.display = 'none';
-                console.log('✅ Notícia publicada com sucesso!');
                 showToast('Notícia publicada com sucesso!', 'success');
                 setTimeout(() => window.location.href = 'noticias.html', 1500);
 
             } catch (error) {
-                console.error('❌ Erro ao publicar notícia:', error);
-                progressModal.style.display = 'none';
-                showToast(`Erro: ${error.message}`, 'error');
+                console.error('Erro ao publicar:', error);
+                showToast('Erro ao publicar notícia', 'error');
+                const submitBtn = e.target.querySelector('button[type="submit"]');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Publicar Notícia';
             }

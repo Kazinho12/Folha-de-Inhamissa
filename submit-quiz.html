@@ -1,10 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="pt-MZ">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enviar Quiz | Folha de Inhamissa</title>
-    <link rel="icon" type="image/png" href="/Folhadeinhamissa.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -255,318 +255,9 @@
             }
         }
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 10001;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.7);
-            backdrop-filter: blur(5px);
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .modal-content {
-            background-color: var(--card-bg);
-            margin: auto;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
-            width: 90%;
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-            position: relative;
-        }
-
-        .modal-content h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: var(--primary);
-            font-size: 1.8rem;
-        }
-
-        .modal-content .explanation {
-            margin-top: 15px;
-            padding: 15px;
-            background-color: rgba(255, 255, 255, 0.05);
-            border-left: 4px solid var(--primary);
-            border-radius: 4px;
-        }
-
-        .modal-content .explanation strong {
-            color: var(--primary);
-        }
-
-        .modal-actions {
-            margin-top: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .certificate-btn {
-            background: var(--primary);
-            color: #000;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .certificate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(255, 215, 0, 0.3);
-        }
-
-        .close-modal {
-            background: var(--border);
-            color: var(--text);
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .close-modal:hover {
-            transform: translateY(-2px);
-        }
-
-        .certificate-container {
-            position: relative;
-            width: 100%;
-            max-width: 700px;
-            margin: 40px auto;
-            padding: 40px;
-            background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-            border: 1px solid var(--primary);
-            text-align: center;
-            overflow: hidden;
-        }
-
-        .certificate-header {
-            margin-bottom: 30px;
-        }
-
-        .certificate-header .icon {
-            font-size: 3rem;
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-
-        .certificate-header h1 {
-            font-size: 2.2rem;
-            color: var(--primary);
-            margin-bottom: 5px;
-        }
-
-        .certificate-header p {
-            font-size: 1.1rem;
-            color: #ccc;
-        }
-
-        .certificate-body h2 {
-            font-size: 1.8rem;
-            color: var(--text);
-            margin-bottom: 10px;
-        }
-
-        .certificate-body p {
-            font-size: 1.2rem;
-            color: #ddd;
-            margin-bottom: 25px;
-            line-height: 1.6;
-        }
-
-        .certificate-body .user-name {
-            font-weight: 700;
-            color: var(--primary);
-            font-size: 1.6rem;
-        }
-
-        .certificate-body .reason {
-            font-style: italic;
-            color: #bbb;
-            margin-top: 10px;
-            font-size: 1rem;
-        }
-
-        .certificate-footer {
-            margin-top: 40px;
-            position: relative;
-            padding-top: 20px;
-        }
-
-        .certificate-footer .signature {
-            position: relative;
-            font-size: 1rem;
-            color: #aaa;
-            bottom: 0;
-            width: 100%;
-            text-align: center;
-        }
-
-        .certificate-footer .signature::before {
-            content: '';
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 150px;
-            height: 1px;
-            background-color: #555;
-        }
-
-        .download-btn {
-            background: var(--success);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 20px;
-        }
-
-        .download-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
-        }
-
-        .progress-container {
-            margin: 20px 0;
-        }
-
-        .progress-step {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 25px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
-            border: 1px solid var(--border);
-        }
-
-        .progress-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: #888;
-            transition: all 0.3s;
-        }
-
-        .progress-icon.active {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: #000;
-            animation: pulse 1.5s infinite;
-        }
-
-        .progress-icon.completed {
-            background: var(--success);
-            color: white;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.1);
-            }
-        }
-
-        .progress-info {
-            flex: 1;
-        }
-
-        .progress-label {
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text);
-        }
-
-        .progress-bar-container {
-            width: 100%;
-            height: 8px;
-            background: var(--border);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-            width: 0%;
-            transition: width 0.3s ease;
-            border-radius: 10px;
-        }
-
-        .progress-percentage {
-            margin-top: 5px;
-            font-size: 0.9rem;
-            color: #888;
-            font-weight: 600;
-        }
-
-        .overall-progress {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px solid var(--border);
-        }
-
-        .overall-label {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--primary);
-            text-align: center;
-        }
-
         @media (max-width: 768px) {
             .form-card {
                 padding: 24px;
-            }
-            .modal-content {
-                width: 95%;
-                padding: 20px;
-            }
-            .certificate-container {
-                padding: 20px;
-            }
-            .certificate-header h1 {
-                font-size: 1.8rem;
-            }
-            .certificate-body p {
-                font-size: 1.1rem;
-            }
-            .progress-step {
-                flex-direction: column;
-                text-align: center;
             }
         }
     </style>
@@ -613,20 +304,14 @@
                     </label>
                     <select class="form-control" id="quiz-category" required>
                         <option value="">Selecione uma categoria</option>
-                        <option value="Português">Português</option>
-                        <option value="Inglês">Inglês</option>
                         <option value="Matemática">Matemática</option>
-                        <option value="Educação Física">Educação Física</option>
-                        <option value="TIC">TIC</option>
-                        <option value="Introdução à Filosofia">Introdução à Filosofia</option>
+                        <option value="Português">Português</option>
                         <option value="História">História</option>
                         <option value="Geografia">Geografia</option>
-                        <option value="Francês">Francês</option>
                         <option value="Biologia">Biologia</option>
-                        <option value="Química">Química</option>
                         <option value="Física">Física</option>
-                        <option value="Educação Visual">Educação Visual</option>
-                        <option value="Geometria Descritiva">Geometria Descritiva</option>
+                        <option value="Química">Química</option>
+                        <option value="Inglês">Inglês</option>
                     </select>
                 </div>
 
@@ -676,154 +361,11 @@
         <span id="toast-message"></span>
     </div>
 
-    <div id="upload-progress-modal" class="modal">
-        <div class="modal-content" style="max-width: 500px;">
-            <h2 style="text-align: center; margin-bottom: 20px; color: var(--primary);">
-                <i class="fas fa-upload"></i> Enviando Quiz
-            </h2>
-            <div class="progress-container">
-                <div class="progress-step">
-                    <div class="progress-icon" id="step1-icon">
-                        <i class="fas fa-image"></i>
-                    </div>
-                    <div class="progress-info">
-                        <div class="progress-label">Upload da Imagem</div>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" id="image-progress-bar"></div>
-                        </div>
-                        <div class="progress-percentage" id="image-progress-text">0%</div>
-                    </div>
-                </div>
-                <div class="progress-step">
-                    <div class="progress-icon" id="step2-icon">
-                        <i class="fas fa-database"></i>
-                    </div>
-                    <div class="progress-info">
-                        <div class="progress-label">Salvando Quiz</div>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" id="quiz-progress-bar"></div>
-                        </div>
-                        <div class="progress-percentage" id="quiz-progress-text">0%</div>
-                    </div>
-                </div>
-            </div>
-            <div class="overall-progress">
-                <div class="overall-label">Progresso Geral</div>
-                <div class="progress-bar-container" style="height: 20px; margin-top: 10px;">
-                    <div class="progress-bar" id="overall-progress-bar" style="height: 100%;"></div>
-                </div>
-                <div class="progress-percentage" id="overall-progress-text" style="font-size: 1.2rem; margin-top: 8px;">0%</div>
-            </div>
-        </div>
-    </div>
-
-    <div id="quiz-completion-modal" class="modal">
-        <div class="modal-content">
-            <div id="modal-quiz-info"></div>
-            <div id="modal-results"></div>
-            <div class="modal-actions">
-                <button class="btn certificate-btn" id="view-certificate-btn">
-                    <i class="fas fa-trophy"></i> Ver Certificado
-                </button>
-                <button class="btn btn-secondary close-modal">
-                    <i class="fas fa-times"></i> Voltar aos Quizzes
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="certificate-modal" class="modal">
-        <div class="modal-content">
-            <div class="certificate-container" id="certificate-content">
-                <div class="certificate-header">
-                    <i class="fas fa-certificate icon"></i>
-                    <h1>Certificado de Conclusão</h1>
-                    <p>Parabéns por completar o quiz!</p>
-                </div>
-                <div class="certificate-body">
-                    <h2>Emitido para:</h2>
-                    <p class="user-name" id="cert-user-name"></p>
-                    <p id="cert-reason"></p>
-                </div>
-                <div class="certificate-footer">
-                    <div class="signature">@Folha de Inhamissa</div>
-                </div>
-                <button class="download-btn" id="download-certificate-btn">
-                    <i class="fas fa-download"></i> Baixar Certificado
-                </button>
-            </div>
-            <button class="close-modal" style="position: absolute; top: 15px; right: 15px;">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    
-    <script>
-        let questionCount = 0;
-
-        function addQuestion() {
-            questionCount++;
-            const container = document.getElementById('questions-container');
-            const questionDiv = document.createElement('div');
-            questionDiv.className = 'question-block';
-            questionDiv.innerHTML = `
-                <div class="question-header">
-                    <h4>Pergunta ${questionCount}</h4>
-                    <button type="button" class="remove-question" onclick="removeQuestion(this)">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-                <input type="text" class="form-control question-text" placeholder="Digite a pergunta..." required>
-                <div class="options-container">
-                    <div class="option-group">
-                        <input type="radio" name="correct-${questionCount}" value="0" required>
-                        <input type="text" class="form-control option-input" placeholder="Opção A" required>
-                    </div>
-                    <div class="option-group">
-                        <input type="radio" name="correct-${questionCount}" value="1" required>
-                        <input type="text" class="form-control option-input" placeholder="Opção B" required>
-                    </div>
-                    <div class="option-group">
-                        <input type="radio" name="correct-${questionCount}" value="2" required>
-                        <input type="text" class="form-control option-input" placeholder="Opção C" required>
-                    </div>
-                    <div class="option-group">
-                        <input type="radio" name="correct-${questionCount}" value="3" required>
-                        <input type="text" class="form-control option-input" placeholder="Opção D" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">
-                        <i class="fas fa-lightbulb"></i>
-                        Justificativa da Resposta Correta
-                    </label>
-                    <textarea class="form-control justification-text" rows="3" placeholder="Explique por que esta é a resposta correta..." required></textarea>
-                </div>
-            `;
-            container.appendChild(questionDiv);
-        }
-
-        function removeQuestion(btn) {
-            btn.closest('.question-block').remove();
-        }
-
-        window.addQuestion = addQuestion;
-        window.removeQuestion = removeQuestion;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            addQuestion();
-        });
-    </script>
-    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
-        import { getStorage } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
-        import { uploadQuizImage, initUploadUtils } from "./upload-utils.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
@@ -839,10 +381,8 @@
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        // Inicializar módulo de upload
-        initUploadUtils(storage);
-
         const ADMIN_EMAILS = ['killiandesigner@gmail.com', 'jeanabilio72@gmail.com', 'ianomachai@gmail.com'];
+        let questionCount = 0;
 
         const imageInput = document.getElementById('quiz-image');
         const imagePreview = document.getElementById('image-preview');
@@ -860,34 +400,50 @@
             }
         });
 
+        window.addQuestion = function() {
+            questionCount++;
+            const container = document.getElementById('questions-container');
+            const questionBlock = document.createElement('div');
+            questionBlock.className = 'question-block';
+            questionBlock.id = `question-${questionCount}`;
+            questionBlock.innerHTML = `
+                <div class="question-header">
+                    <strong>Pergunta ${questionCount}</strong>
+                    <button type="button" class="remove-question" onclick="removeQuestion(${questionCount})">
+                        <i class="fas fa-trash"></i> Remover
+                    </button>
+                </div>
+                <input type="text" class="form-control" name="question-text-${questionCount}" placeholder="Digite a pergunta..." required style="margin-bottom: 16px;">
+                <div class="option-input">
+                    <input type="radio" name="correct-${questionCount}" value="0" required>
+                    <input type="text" class="form-control" name="option-${questionCount}-0" placeholder="Opção A" required>
+                </div>
+                <div class="option-input">
+                    <input type="radio" name="correct-${questionCount}" value="1">
+                    <input type="text" class="form-control" name="option-${questionCount}-1" placeholder="Opção B" required>
+                </div>
+                <div class="option-input">
+                    <input type="radio" name="correct-${questionCount}" value="2">
+                    <input type="text" class="form-control" name="option-${questionCount}-2" placeholder="Opção C" required>
+                </div>
+                <div class="option-input">
+                    <input type="radio" name="correct-${questionCount}" value="3">
+                    <input type="text" class="form-control" name="option-${questionCount}-3" placeholder="Opção D" required>
+                </div>
+            `;
+            container.appendChild(questionBlock);
+        };
+
+        window.removeQuestion = function(id) {
+            document.getElementById(`question-${id}`).remove();
+        };
+
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toast-message');
             toast.className = `toast ${type} show`;
             toastMessage.textContent = message;
             setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
-        function updateProgress(step, percentage) {
-            const stepIcon = document.getElementById(`step${step}-icon`);
-            const progressBar = document.getElementById(step === 1 ? 'image-progress-bar' : 'quiz-progress-bar');
-            const progressText = document.getElementById(step === 1 ? 'image-progress-text' : 'quiz-progress-text');
-            
-            if (percentage > 0 && percentage < 100) {
-                stepIcon.classList.add('active');
-                stepIcon.classList.remove('completed');
-            } else if (percentage === 100) {
-                stepIcon.classList.remove('active');
-                stepIcon.classList.add('completed');
-            }
-            
-            progressBar.style.width = percentage + '%';
-            progressText.textContent = Math.round(percentage) + '%';
-            
-            // Atualizar progresso geral
-            const overallProgress = (step === 1 ? percentage / 2 : 50 + percentage / 2);
-            document.getElementById('overall-progress-bar').style.width = overallProgress + '%';
-            document.getElementById('overall-progress-text').textContent = Math.round(overallProgress) + '%';
         }
 
         document.getElementById('quiz-form').addEventListener('submit', async (e) => {
@@ -904,142 +460,72 @@
             const category = document.getElementById('quiz-category').value;
             const imageFile = imageInput.files[0];
 
-            const questionBlocks = document.querySelectorAll('.question-block');
             const questions = [];
+            const questionBlocks = document.querySelectorAll('.question-block');
+            
+            questionBlocks.forEach((block, index) => {
+                const questionText = block.querySelector(`input[name^="question-text"]`).value.trim();
+                const options = [];
+                for (let i = 0; i < 4; i++) {
+                    const option = block.querySelector(`input[name$="-${i}"]`).value.trim();
+                    options.push(option);
+                }
+                const correctIndex = parseInt(block.querySelector(`input[name^="correct"]:checked`)?.value || 0);
 
-            try {
-                questionBlocks.forEach((block, index) => {
-                    const questionText = block.querySelector('.question-text').value.trim();
-                    const options = Array.from(block.querySelectorAll('.option-input')).map(input => input.value.trim());
-                    const correctAnswerElement = block.querySelector(`input[name="correct-${index + 1}"]:checked`);
-                    
-                    if (!correctAnswerElement) {
-                        throw new Error(`Por favor, selecione a resposta correta para a pergunta ${index + 1}`);
-                    }
-                    
-                    const correctAnswer = parseInt(correctAnswerElement.value);
-                    const justification = block.querySelector('.justification-text').value.trim();
-
-                    questions.push({
-                        question: questionText,
-                        options,
-                        correctAnswer,
-                        justification
-                    });
+                questions.push({
+                    question: questionText,
+                    options,
+                    correctIndex
                 });
-            } catch (validationError) {
-                showToast(validationError.message, 'error');
-                return;
-            }
+            });
 
             if (questions.length === 0) {
                 showToast('Adicione pelo menos uma pergunta', 'error');
                 return;
             }
 
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            const progressModal = document.getElementById('upload-progress-modal');
-
             try {
+                const submitBtn = e.target.querySelector('button[type="submit"]');
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
-
-                // Mostrar modal de progresso
-                progressModal.style.display = 'flex';
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando...';
 
                 let imageUrl = '';
                 if (imageFile) {
-                    console.log('📤 Iniciando upload da imagem do quiz...');
-                    
-                    try {
-                        // Usar sistema de upload com fallback automático
-                        const uploadResult = await uploadQuizImage(
-                            imageFile,
-                            user.uid,
-                            (progress) => {
-                                console.log(`Progresso do upload: ${progress}%`);
-                                updateProgress(1, progress);
+                    const storageRef = ref(storage, `quizzes/${Date.now()}_${imageFile.name}`);
+                    const uploadTask = uploadBytesResumable(storageRef, imageFile);
+
+                    await new Promise((resolve, reject) => {
+                        uploadTask.on('state_changed', null,
+                            (error) => reject(error),
+                            async () => {
+                                imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                                resolve();
                             }
                         );
-
-                        imageUrl = uploadResult.url;
-                        console.log(`✅ Imagem enviada via ${uploadResult.method}:`, imageUrl);
-
-                    } catch (uploadError) {
-                        console.error('❌ Erro crítico no upload da imagem:', uploadError);
-                        progressModal.style.display = 'none';
-                        throw new Error(`Falha ao enviar imagem: ${uploadError.message}`);
-                    }
-                } else {
-                    console.log('ℹ️ Nenhuma imagem selecionada');
-                    updateProgress(1, 100);
+                    });
                 }
 
-                // Salvar quiz no Firestore
-                console.log('💾 Salvando quiz no banco de dados...');
-                updateProgress(2, 0);
-                await new Promise(resolve => setTimeout(resolve, 200));
-                updateProgress(2, 30);
-
-                const quizData = {
+                await addDoc(collection(db, 'quizzes'), {
                     title,
                     description,
                     category,
-                    imageUrl: imageUrl || '',
+                    imageUrl,
                     questions,
                     authorName: user.displayName || user.email.split('@')[0],
                     authorId: user.uid,
                     createdAt: serverTimestamp(),
                     attempts: 0
-                };
+                });
 
-                updateProgress(2, 60);
-                await addDoc(collection(db, 'quizzes'), quizData);
-
-                updateProgress(2, 100);
-                await new Promise(resolve => setTimeout(resolve, 300));
-
-                progressModal.style.display = 'none';
-                console.log('✅ Quiz criado com sucesso!');
                 showToast('Quiz criado com sucesso!', 'success');
                 setTimeout(() => window.location.href = 'aprenda.html', 1500);
 
             } catch (error) {
-                console.error('❌ Erro ao criar quiz:', error);
-                progressModal.style.display = 'none';
-                showToast(`Erro: ${error.message}`, 'error');
+                console.error('Erro ao criar quiz:', error);
+                showToast('Erro ao criar quiz', 'error');
+                const submitBtn = e.target.querySelector('button[type="submit"]');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-check"></i> Criar Quiz';
-            }
-        });
-
-        // Função para download do certificado
-        document.addEventListener('click', async (e) => {
-            if (e.target && (e.target.id === 'download-certificate-btn' || e.target.closest('#download-certificate-btn'))) {
-                try {
-                    const certificateContent = document.getElementById('certificate-content');
-                    
-                    const canvas = await html2canvas(certificateContent, {
-                        scale: 2,
-                        backgroundColor: '#1a1a1a'
-                    });
-                    
-                    const imgData = canvas.toDataURL('image/png');
-                    const { jsPDF } = window.jspdf;
-                    const pdf = new jsPDF({
-                        orientation: 'landscape',
-                        unit: 'px',
-                        format: [canvas.width, canvas.height]
-                    });
-                    
-                    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-                    pdf.save('certificado-folha-inhamissa.pdf');
-                    
-                    showToast('Certificado baixado com sucesso!', 'success');
-                } catch (error) {
-                    console.error('Erro ao baixar certificado:', error);
-                    showToast('Erro ao baixar certificado', 'error');
-                }
             }
         });
 
@@ -1051,6 +537,8 @@
                 window.location.href = 'admin.html';
             }
         });
+
+        addQuestion();
     </script>
 </body>
 </html>
