@@ -1574,8 +1574,14 @@
                     });
                 });
                 
-                // Ordenar por data manualmente
+                // Ordenar: não concluídas primeiro (por data), depois concluídas (por data)
                 tasks.sort((a, b) => {
+                    // Primeiro, separar por status (não concluídas primeiro)
+                    if (a.completed !== b.completed) {
+                        return a.completed ? 1 : -1;
+                    }
+                    
+                    // Depois, ordenar por data de entrega
                     const dateA = a.dueDate?.toDate ? a.dueDate.toDate() : new Date(a.dueDate);
                     const dateB = b.dueDate?.toDate ? b.dueDate.toDate() : new Date(b.dueDate);
                     return dateA - dateB;
