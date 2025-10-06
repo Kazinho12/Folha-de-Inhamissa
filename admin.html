@@ -65,7 +65,7 @@
 
         .admin-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 24px;
             margin-top: 40px;
         }
@@ -127,61 +127,6 @@
             font-size: 0.9rem;
         }
 
-        .data-table {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 24px;
-            margin-top: 24px;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        th {
-            background: rgba(255, 215, 0, 0.1);
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .action-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin: 0 4px;
-            font-size: 0.85rem;
-        }
-
-        .edit-btn {
-            background: var(--primary);
-            color: #000;
-        }
-
-        .delete-btn {
-            background: var(--error);
-            color: white;
-        }
-
-        .unauthorized {
-            text-align: center;
-            padding: 80px 20px;
-        }
-
-        .unauthorized i {
-            font-size: 4rem;
-            color: #ef4444;
-            margin-bottom: 24px;
-        }
-
         .modal {
             display: none;
             position: fixed;
@@ -196,10 +141,12 @@
 
         .modal-content {
             background: var(--card-bg);
-            max-width: 800px;
+            max-width: 900px;
             margin: 40px auto;
             border-radius: 12px;
             padding: 24px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .modal-header {
@@ -207,22 +154,177 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
         }
 
         .close-modal {
             font-size: 1.5rem;
             cursor: pointer;
             color: #888;
+            transition: color 0.3s;
         }
 
-        .user-card {
+        .close-modal:hover {
+            color: var(--error);
+        }
+
+        .item-card {
             background: rgba(255, 215, 0, 0.05);
             padding: 16px;
             border-radius: 8px;
             margin-bottom: 12px;
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .item-header {
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .item-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .item-meta {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            display: inline-flex;
             align-items: center;
+            gap: 6px;
+        }
+
+        .btn-edit {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .btn-edit:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-delete {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .btn-ban {
+            background: #f97316;
+            color: white;
+        }
+
+        .btn-ban:hover {
+            background: #ea580c;
+        }
+
+        .edit-form {
+            background: rgba(255, 215, 0, 0.03);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn-save {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #059669;
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #4b5563;
+        }
+
+        .unauthorized {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .unauthorized i {
+            font-size: 4rem;
+            color: #ef4444;
+            margin-bottom: 24px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
         }
     </style>
 </head>
@@ -254,6 +356,36 @@
         </div>
     </div>
 
+    <div class="modal" id="posts-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Gerenciar Publicações</h2>
+                <span class="close-modal" onclick="closeModal('posts-modal')">&times;</span>
+            </div>
+            <div id="posts-list"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="news-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Gerenciar Notícias</h2>
+                <span class="close-modal" onclick="closeModal('news-modal')">&times;</span>
+            </div>
+            <div id="news-list"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="quizzes-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Gerenciar Quizzes</h2>
+                <span class="close-modal" onclick="closeModal('quizzes-modal')">&times;</span>
+            </div>
+            <div id="quizzes-list"></div>
+        </div>
+    </div>
+
     <div class="modal" id="stats-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -266,7 +398,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, deleteUser } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
         import { getFirestore, collection, getDocs, doc, deleteDoc, updateDoc, query, orderBy, limit, getDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -306,34 +438,70 @@
             const modal = document.getElementById('users-modal');
             const usersList = document.getElementById('users-list');
             
-            usersList.innerHTML = '<p>Carregando...</p>';
+            usersList.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
             modal.style.display = 'block';
 
             const usersSnap = await getDocs(collection(db, 'users'));
             let html = '';
 
-            usersSnap.forEach(doc => {
-                const user = doc.data();
+            usersSnap.forEach(docSnap => {
+                const user = docSnap.data();
                 html += `
-                    <div class="user-card">
-                        <div>
-                            <strong>${user.name || 'Sem nome'}</strong><br>
-                            <small>${user.email}</small><br>
-                            <small>Classe: ${user.class || 'N/A'} | Turma: ${user.turma || 'N/A'}</small>
+                    <div class="item-card">
+                        <div class="item-header">
+                            <div>
+                                <div class="item-title">${user.name || 'Sem nome'}</div>
+                                <div class="item-meta">${user.email}</div>
+                                <div class="item-meta">Classe: ${user.class || 'N/A'} | Turma: ${user.turma || 'N/A'}</div>
+                                ${user.banned ? '<div class="item-meta" style="color: var(--error);">⛔ Banido</div>' : ''}
+                            </div>
+                            <div class="action-buttons">
+                                ${!user.banned ? `
+                                    <button class="btn btn-ban" onclick="banUser('${docSnap.id}')">
+                                        <i class="fas fa-ban"></i> Banir
+                                    </button>
+                                ` : `
+                                    <button class="btn btn-save" onclick="unbanUser('${docSnap.id}')">
+                                        <i class="fas fa-check"></i> Desbanir
+                                    </button>
+                                `}
+                                <button class="btn btn-delete" onclick="deleteUserDoc('${docSnap.id}')">
+                                    <i class="fas fa-trash"></i> Remover
+                                </button>
+                            </div>
                         </div>
-                        <button class="action-btn delete-btn" onclick="deleteUserDoc('${doc.id}')">
-                            <i class="fas fa-trash"></i> Remover
-                        </button>
                     </div>
                 `;
             });
 
-            usersList.innerHTML = html || '<p>Nenhum usuário encontrado</p>';
+            usersList.innerHTML = html || '<div class="empty-state"><i class="fas fa-users"></i><p>Nenhum usuário encontrado</p></div>';
         }
 
-        window.deleteUserDoc = async function(userId) {
-            if (!confirm('Tem certeza que deseja remover este usuário?')) return;
+        window.banUser = async function(userId) {
+            if (!confirm('Tem certeza que deseja banir este usuário?')) return;
+            try {
+                await updateDoc(doc(db, 'users', userId), { banned: true });
+                alert('Usuário banido com sucesso!');
+                showUsers();
+            } catch (error) {
+                console.error('Erro ao banir usuário:', error);
+                alert('Erro ao banir usuário');
+            }
+        };
 
+        window.unbanUser = async function(userId) {
+            try {
+                await updateDoc(doc(db, 'users', userId), { banned: false });
+                alert('Usuário desbanido com sucesso!');
+                showUsers();
+            } catch (error) {
+                console.error('Erro ao desbanir usuário:', error);
+                alert('Erro ao desbanir usuário');
+            }
+        };
+
+        window.deleteUserDoc = async function(userId) {
+            if (!confirm('Tem certeza que deseja remover este usuário permanentemente?')) return;
             try {
                 await deleteDoc(doc(db, 'users', userId));
                 alert('Usuário removido com sucesso!');
@@ -344,12 +512,297 @@
             }
         };
 
+        async function showPosts() {
+            const modal = document.getElementById('posts-modal');
+            const postsList = document.getElementById('posts-list');
+            
+            postsList.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
+            modal.style.display = 'block';
+
+            const postsSnap = await getDocs(query(collection(db, 'posts'), orderBy('timestamp', 'desc')));
+            let html = '';
+
+            postsSnap.forEach(docSnap => {
+                const post = docSnap.data();
+                const isEditing = window.editingPost === docSnap.id;
+                
+                html += `
+                    <div class="item-card">
+                        ${!isEditing ? `
+                            <div class="item-header">
+                                <div style="flex: 1;">
+                                    <div class="item-title">${post.content?.substring(0, 100) || 'Sem conteúdo'}...</div>
+                                    <div class="item-meta">Por: ${post.authorName || 'Desconhecido'}</div>
+                                    <div class="item-meta">❤️ ${post.likes || 0} | 💬 ${post.comments?.length || 0}</div>
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn btn-edit" onclick="editPost('${docSnap.id}')">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </button>
+                                    <button class="btn btn-delete" onclick="deletePost('${docSnap.id}')">
+                                        <i class="fas fa-trash"></i> Apagar
+                                    </button>
+                                </div>
+                            </div>
+                        ` : `
+                            <div class="edit-form">
+                                <div class="form-group">
+                                    <label class="form-label">Conteúdo</label>
+                                    <textarea class="form-control" id="edit-post-content-${docSnap.id}">${post.content || ''}</textarea>
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn btn-save" onclick="savePost('${docSnap.id}')">
+                                        <i class="fas fa-save"></i> Salvar
+                                    </button>
+                                    <button class="btn btn-cancel" onclick="cancelEdit()">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        `}
+                    </div>
+                `;
+            });
+
+            postsList.innerHTML = html || '<div class="empty-state"><i class="fas fa-newspaper"></i><p>Nenhuma publicação encontrada</p></div>';
+        }
+
+        window.editPost = function(postId) {
+            window.editingPost = postId;
+            showPosts();
+        };
+
+        window.cancelEdit = function() {
+            window.editingPost = null;
+            showPosts();
+        };
+
+        window.savePost = async function(postId) {
+            const content = document.getElementById(`edit-post-content-${postId}`).value;
+            try {
+                await updateDoc(doc(db, 'posts', postId), { content });
+                alert('Publicação atualizada com sucesso!');
+                window.editingPost = null;
+                showPosts();
+            } catch (error) {
+                console.error('Erro ao atualizar publicação:', error);
+                alert('Erro ao atualizar publicação');
+            }
+        };
+
+        window.deletePost = async function(postId) {
+            if (!confirm('Tem certeza que deseja apagar esta publicação?')) return;
+            try {
+                await deleteDoc(doc(db, 'posts', postId));
+                alert('Publicação apagada com sucesso!');
+                showPosts();
+            } catch (error) {
+                console.error('Erro ao apagar publicação:', error);
+                alert('Erro ao apagar publicação');
+            }
+        };
+
+        async function showNews() {
+            const modal = document.getElementById('news-modal');
+            const newsList = document.getElementById('news-list');
+            
+            newsList.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
+            modal.style.display = 'block';
+
+            const newsSnap = await getDocs(query(collection(db, 'news'), orderBy('timestamp', 'desc')));
+            let html = '';
+
+            newsSnap.forEach(docSnap => {
+                const news = docSnap.data();
+                const isEditing = window.editingNews === docSnap.id;
+                
+                html += `
+                    <div class="item-card">
+                        ${!isEditing ? `
+                            <div class="item-header">
+                                <div style="flex: 1;">
+                                    <div class="item-title">${news.title || 'Sem título'}</div>
+                                    <div class="item-meta">Por: ${news.authorName || 'Desconhecido'}</div>
+                                    <div class="item-meta">${news.content?.substring(0, 100) || ''}...</div>
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn btn-edit" onclick="editNews('${docSnap.id}')">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </button>
+                                    <button class="btn btn-delete" onclick="deleteNews('${docSnap.id}')">
+                                        <i class="fas fa-trash"></i> Apagar
+                                    </button>
+                                </div>
+                            </div>
+                        ` : `
+                            <div class="edit-form">
+                                <div class="form-group">
+                                    <label class="form-label">Título</label>
+                                    <input type="text" class="form-control" id="edit-news-title-${docSnap.id}" value="${news.title || ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Conteúdo</label>
+                                    <textarea class="form-control" id="edit-news-content-${docSnap.id}">${news.content || ''}</textarea>
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn btn-save" onclick="saveNews('${docSnap.id}')">
+                                        <i class="fas fa-save"></i> Salvar
+                                    </button>
+                                    <button class="btn btn-cancel" onclick="cancelEditNews()">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        `}
+                    </div>
+                `;
+            });
+
+            newsList.innerHTML = html || '<div class="empty-state"><i class="fas fa-newspaper"></i><p>Nenhuma notícia encontrada</p></div>';
+        }
+
+        window.editNews = function(newsId) {
+            window.editingNews = newsId;
+            showNews();
+        };
+
+        window.cancelEditNews = function() {
+            window.editingNews = null;
+            showNews();
+        };
+
+        window.saveNews = async function(newsId) {
+            const title = document.getElementById(`edit-news-title-${newsId}`).value;
+            const content = document.getElementById(`edit-news-content-${newsId}`).value;
+            try {
+                await updateDoc(doc(db, 'news', newsId), { title, content });
+                alert('Notícia atualizada com sucesso!');
+                window.editingNews = null;
+                showNews();
+            } catch (error) {
+                console.error('Erro ao atualizar notícia:', error);
+                alert('Erro ao atualizar notícia');
+            }
+        };
+
+        window.deleteNews = async function(newsId) {
+            if (!confirm('Tem certeza que deseja apagar esta notícia?')) return;
+            try {
+                await deleteDoc(doc(db, 'news', newsId));
+                alert('Notícia apagada com sucesso!');
+                showNews();
+            } catch (error) {
+                console.error('Erro ao apagar notícia:', error);
+                alert('Erro ao apagar notícia');
+            }
+        };
+
+        async function showQuizzes() {
+            const modal = document.getElementById('quizzes-modal');
+            const quizzesList = document.getElementById('quizzes-list');
+            
+            quizzesList.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
+            modal.style.display = 'block';
+
+            const quizzesSnap = await getDocs(query(collection(db, 'quizzes'), orderBy('createdAt', 'desc')));
+            let html = '';
+
+            quizzesSnap.forEach(docSnap => {
+                const quiz = docSnap.data();
+                const isEditing = window.editingQuiz === docSnap.id;
+                
+                html += `
+                    <div class="item-card">
+                        ${!isEditing ? `
+                            <div class="item-header">
+                                <div style="flex: 1;">
+                                    <div class="item-title">${quiz.title || 'Sem título'}</div>
+                                    <div class="item-meta">Categoria: ${quiz.category || 'N/A'}</div>
+                                    <div class="item-meta">${quiz.questions?.length || 0} perguntas | ${quiz.attempts || 0} tentativas</div>
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn btn-edit" onclick="editQuiz('${docSnap.id}')">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </button>
+                                    <button class="btn btn-delete" onclick="deleteQuiz('${docSnap.id}')">
+                                        <i class="fas fa-trash"></i> Apagar
+                                    </button>
+                                </div>
+                            </div>
+                        ` : `
+                            <div class="edit-form">
+                                <div class="form-group">
+                                    <label class="form-label">Título</label>
+                                    <input type="text" class="form-control" id="edit-quiz-title-${docSnap.id}" value="${quiz.title || ''}">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Descrição</label>
+                                    <textarea class="form-control" id="edit-quiz-description-${docSnap.id}">${quiz.description || ''}</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Categoria</label>
+                                    <input type="text" class="form-control" id="edit-quiz-category-${docSnap.id}" value="${quiz.category || ''}">
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn btn-save" onclick="saveQuiz('${docSnap.id}')">
+                                        <i class="fas fa-save"></i> Salvar
+                                    </button>
+                                    <button class="btn btn-cancel" onclick="cancelEditQuiz()">
+                                        <i class="fas fa-times"></i> Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        `}
+                    </div>
+                `;
+            });
+
+            quizzesList.innerHTML = html || '<div class="empty-state"><i class="fas fa-question-circle"></i><p>Nenhum quiz encontrado</p></div>';
+        }
+
+        window.editQuiz = function(quizId) {
+            window.editingQuiz = quizId;
+            showQuizzes();
+        };
+
+        window.cancelEditQuiz = function() {
+            window.editingQuiz = null;
+            showQuizzes();
+        };
+
+        window.saveQuiz = async function(quizId) {
+            const title = document.getElementById(`edit-quiz-title-${quizId}`).value;
+            const description = document.getElementById(`edit-quiz-description-${quizId}`).value;
+            const category = document.getElementById(`edit-quiz-category-${quizId}`).value;
+            try {
+                await updateDoc(doc(db, 'quizzes', quizId), { title, description, category });
+                alert('Quiz atualizado com sucesso!');
+                window.editingQuiz = null;
+                showQuizzes();
+            } catch (error) {
+                console.error('Erro ao atualizar quiz:', error);
+                alert('Erro ao atualizar quiz');
+            }
+        };
+
+        window.deleteQuiz = async function(quizId) {
+            if (!confirm('Tem certeza que deseja apagar este quiz?')) return;
+            try {
+                await deleteDoc(doc(db, 'quizzes', quizId));
+                alert('Quiz apagado com sucesso!');
+                showQuizzes();
+            } catch (error) {
+                console.error('Erro ao apagar quiz:', error);
+                alert('Erro ao apagar quiz');
+            }
+        };
+
         async function showStats() {
             const modal = document.getElementById('stats-modal');
             const statsContent = document.getElementById('stats-content');
             
             modal.style.display = 'block';
-            statsContent.innerHTML = '<p>Carregando estatísticas...</p>';
+            statsContent.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
 
             const visitasSnap = await getDocs(query(collection(db, 'uso'), orderBy('timestamp', 'desc'), limit(100)));
             const postsSnap = await getDocs(collection(db, 'posts'));
@@ -357,8 +810,8 @@
             let totalLikes = 0;
             let totalViews = 0;
 
-            postsSnap.forEach(doc => {
-                const post = doc.data();
+            postsSnap.forEach(docSnap => {
+                const post = docSnap.data();
                 totalLikes += post.likes || 0;
                 totalViews += post.views || 0;
             });
@@ -377,29 +830,6 @@
                         <div class="stat-value">${totalViews}</div>
                         <div class="stat-label">Total de Visualizações</div>
                     </div>
-                </div>
-                <div class="data-table">
-                    <h3>Últimas Visitas</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Página</th>
-                                <th>Data</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${visitasSnap.docs.map(doc => {
-                                const visita = doc.data();
-                                const date = visita.timestamp?.toDate();
-                                return `
-                                    <tr>
-                                        <td>${visita.page || 'N/A'}</td>
-                                        <td>${date ? date.toLocaleString('pt-MZ') : 'N/A'}</td>
-                                    </tr>
-                                `;
-                            }).join('')}
-                        </tbody>
-                    </table>
                 </div>
             `;
         }
@@ -459,7 +889,22 @@
                     <div class="admin-card" onclick="showUsers()">
                         <i class="fas fa-users"></i>
                         <h3>Gerenciar Usuários</h3>
-                        <p>Visualizar e moderar usuários</p>
+                        <p>Visualizar, banir e moderar usuários</p>
+                    </div>
+                    <div class="admin-card" onclick="showPosts()">
+                        <i class="fas fa-file-alt"></i>
+                        <h3>Gerenciar Publicações</h3>
+                        <p>Editar e apagar publicações</p>
+                    </div>
+                    <div class="admin-card" onclick="showNews()">
+                        <i class="fas fa-rss"></i>
+                        <h3>Gerenciar Notícias</h3>
+                        <p>Editar e apagar notícias</p>
+                    </div>
+                    <div class="admin-card" onclick="showQuizzes()">
+                        <i class="fas fa-tasks"></i>
+                        <h3>Gerenciar Quizzes</h3>
+                        <p>Editar e apagar quizzes</p>
                     </div>
                     <div class="admin-card" onclick="showStats()">
                         <i class="fas fa-chart-line"></i>
@@ -470,6 +915,9 @@
             `;
 
             window.showUsers = showUsers;
+            window.showPosts = showPosts;
+            window.showNews = showNews;
+            window.showQuizzes = showQuizzes;
             window.showStats = showStats;
         });
     </script>
