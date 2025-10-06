@@ -519,52 +519,57 @@
             postsList.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
             modal.style.display = 'block';
 
-            const postsSnap = await getDocs(query(collection(db, 'posts'), orderBy('timestamp', 'desc')));
-            let html = '';
+            try {
+                const postsSnap = await getDocs(query(collection(db, 'posts'), orderBy('timestamp', 'desc')));
+                let html = '';
 
-            postsSnap.forEach(docSnap => {
-                const post = docSnap.data();
-                const isEditing = window.editingPost === docSnap.id;
-                
-                html += `
-                    <div class="item-card">
-                        ${!isEditing ? `
-                            <div class="item-header">
-                                <div style="flex: 1;">
-                                    <div class="item-title">${post.content?.substring(0, 100) || 'Sem conteúdo'}...</div>
-                                    <div class="item-meta">Por: ${post.authorName || 'Desconhecido'}</div>
-                                    <div class="item-meta">❤️ ${post.likes || 0} | 💬 ${post.comments?.length || 0}</div>
+                postsSnap.forEach(docSnap => {
+                    const post = docSnap.data();
+                    const isEditing = window.editingPost === docSnap.id;
+                    
+                    html += `
+                        <div class="item-card">
+                            ${!isEditing ? `
+                                <div class="item-header">
+                                    <div style="flex: 1;">
+                                        <div class="item-title">${post.content?.substring(0, 100) || 'Sem conteúdo'}...</div>
+                                        <div class="item-meta">Por: ${post.authorName || 'Desconhecido'}</div>
+                                        <div class="item-meta">❤️ ${post.likes || 0} | 💬 ${post.comments?.length || 0} | 👁️ ${post.views || 0}</div>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-edit" onclick="editPost('${docSnap.id}')">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </button>
+                                        <button class="btn btn-delete" onclick="deletePost('${docSnap.id}')">
+                                            <i class="fas fa-trash"></i> Apagar
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="action-buttons">
-                                    <button class="btn btn-edit" onclick="editPost('${docSnap.id}')">
-                                        <i class="fas fa-edit"></i> Editar
-                                    </button>
-                                    <button class="btn btn-delete" onclick="deletePost('${docSnap.id}')">
-                                        <i class="fas fa-trash"></i> Apagar
-                                    </button>
+                            ` : `
+                                <div class="edit-form">
+                                    <div class="form-group">
+                                        <label class="form-label">Conteúdo</label>
+                                        <textarea class="form-control" id="edit-post-content-${docSnap.id}">${post.content || ''}</textarea>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-save" onclick="savePost('${docSnap.id}')">
+                                            <i class="fas fa-save"></i> Salvar
+                                        </button>
+                                        <button class="btn btn-cancel" onclick="cancelEdit()">
+                                            <i class="fas fa-times"></i> Cancelar
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        ` : `
-                            <div class="edit-form">
-                                <div class="form-group">
-                                    <label class="form-label">Conteúdo</label>
-                                    <textarea class="form-control" id="edit-post-content-${docSnap.id}">${post.content || ''}</textarea>
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="btn btn-save" onclick="savePost('${docSnap.id}')">
-                                        <i class="fas fa-save"></i> Salvar
-                                    </button>
-                                    <button class="btn btn-cancel" onclick="cancelEdit()">
-                                        <i class="fas fa-times"></i> Cancelar
-                                    </button>
-                                </div>
-                            </div>
-                        `}
-                    </div>
-                `;
-            });
+                            `}
+                        </div>
+                    `;
+                });
 
-            postsList.innerHTML = html || '<div class="empty-state"><i class="fas fa-newspaper"></i><p>Nenhuma publicação encontrada</p></div>';
+                postsList.innerHTML = html || '<div class="empty-state"><i class="fas fa-newspaper"></i><p>Nenhuma publicação encontrada</p></div>';
+            } catch (error) {
+                console.error('Erro ao carregar publicações:', error);
+                postsList.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar publicações. Verifique suas permissões.</p></div>';
+            }
         }
 
         window.editPost = function(postId) {
@@ -609,56 +614,61 @@
             newsList.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
             modal.style.display = 'block';
 
-            const newsSnap = await getDocs(query(collection(db, 'news'), orderBy('timestamp', 'desc')));
-            let html = '';
+            try {
+                const newsSnap = await getDocs(query(collection(db, 'news'), orderBy('timestamp', 'desc')));
+                let html = '';
 
-            newsSnap.forEach(docSnap => {
-                const news = docSnap.data();
-                const isEditing = window.editingNews === docSnap.id;
-                
-                html += `
-                    <div class="item-card">
-                        ${!isEditing ? `
-                            <div class="item-header">
-                                <div style="flex: 1;">
-                                    <div class="item-title">${news.title || 'Sem título'}</div>
-                                    <div class="item-meta">Por: ${news.authorName || 'Desconhecido'}</div>
-                                    <div class="item-meta">${news.content?.substring(0, 100) || ''}...</div>
+                newsSnap.forEach(docSnap => {
+                    const news = docSnap.data();
+                    const isEditing = window.editingNews === docSnap.id;
+                    
+                    html += `
+                        <div class="item-card">
+                            ${!isEditing ? `
+                                <div class="item-header">
+                                    <div style="flex: 1;">
+                                        <div class="item-title">${news.title || 'Sem título'}</div>
+                                        <div class="item-meta">Por: ${news.authorName || 'Desconhecido'}</div>
+                                        <div class="item-meta">${news.content?.substring(0, 100) || ''}...</div>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-edit" onclick="editNews('${docSnap.id}')">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </button>
+                                        <button class="btn btn-delete" onclick="deleteNews('${docSnap.id}')">
+                                            <i class="fas fa-trash"></i> Apagar
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="action-buttons">
-                                    <button class="btn btn-edit" onclick="editNews('${docSnap.id}')">
-                                        <i class="fas fa-edit"></i> Editar
-                                    </button>
-                                    <button class="btn btn-delete" onclick="deleteNews('${docSnap.id}')">
-                                        <i class="fas fa-trash"></i> Apagar
-                                    </button>
+                            ` : `
+                                <div class="edit-form">
+                                    <div class="form-group">
+                                        <label class="form-label">Título</label>
+                                        <input type="text" class="form-control" id="edit-news-title-${docSnap.id}" value="${news.title || ''}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Conteúdo</label>
+                                        <textarea class="form-control" id="edit-news-content-${docSnap.id}">${news.content || ''}</textarea>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-save" onclick="saveNews('${docSnap.id}')">
+                                            <i class="fas fa-save"></i> Salvar
+                                        </button>
+                                        <button class="btn btn-cancel" onclick="cancelEditNews()">
+                                            <i class="fas fa-times"></i> Cancelar
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        ` : `
-                            <div class="edit-form">
-                                <div class="form-group">
-                                    <label class="form-label">Título</label>
-                                    <input type="text" class="form-control" id="edit-news-title-${docSnap.id}" value="${news.title || ''}">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Conteúdo</label>
-                                    <textarea class="form-control" id="edit-news-content-${docSnap.id}">${news.content || ''}</textarea>
-                                </div>
-                                <div class="action-buttons">
-                                    <button class="btn btn-save" onclick="saveNews('${docSnap.id}')">
-                                        <i class="fas fa-save"></i> Salvar
-                                    </button>
-                                    <button class="btn btn-cancel" onclick="cancelEditNews()">
-                                        <i class="fas fa-times"></i> Cancelar
-                                    </button>
-                                </div>
-                            </div>
-                        `}
-                    </div>
-                `;
-            });
+                            `}
+                        </div>
+                    `;
+                });
 
-            newsList.innerHTML = html || '<div class="empty-state"><i class="fas fa-newspaper"></i><p>Nenhuma notícia encontrada</p></div>';
+                newsList.innerHTML = html || '<div class="empty-state"><i class="fas fa-newspaper"></i><p>Nenhuma notícia encontrada</p></div>';
+            } catch (error) {
+                console.error('Erro ao carregar notícias:', error);
+                newsList.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar notícias. Verifique suas permissões.</p></div>';
+            }
         }
 
         window.editNews = function(newsId) {
@@ -804,34 +814,59 @@
             modal.style.display = 'block';
             statsContent.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
 
-            const visitasSnap = await getDocs(query(collection(db, 'uso'), orderBy('timestamp', 'desc'), limit(100)));
-            const postsSnap = await getDocs(collection(db, 'posts'));
+            try {
+                const visitasSnap = await getDocs(query(collection(db, 'uso'), orderBy('timestamp', 'desc'), limit(100)));
+                const postsSnap = await getDocs(collection(db, 'posts'));
+                const newsSnap = await getDocs(collection(db, 'news'));
+                const usersSnap = await getDocs(collection(db, 'users'));
 
-            let totalLikes = 0;
-            let totalViews = 0;
+                let totalLikes = 0;
+                let totalViews = 0;
+                let totalComments = 0;
 
-            postsSnap.forEach(docSnap => {
-                const post = docSnap.data();
-                totalLikes += post.likes || 0;
-                totalViews += post.views || 0;
-            });
+                postsSnap.forEach(docSnap => {
+                    const post = docSnap.data();
+                    totalLikes += post.likes || 0;
+                    totalViews += post.views || 0;
+                    totalComments += post.comments?.length || 0;
+                });
 
-            statsContent.innerHTML = `
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value">${visitasSnap.size}</div>
-                        <div class="stat-label">Visitas Registradas</div>
+                statsContent.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">${visitasSnap.size}</div>
+                            <div class="stat-label">Visitas Registradas</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${usersSnap.size}</div>
+                            <div class="stat-label">Total de Usuários</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${postsSnap.size}</div>
+                            <div class="stat-label">Total de Publicações</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${newsSnap.size}</div>
+                            <div class="stat-label">Total de Notícias</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${totalLikes}</div>
+                            <div class="stat-label">Total de Curtidas</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${totalComments}</div>
+                            <div class="stat-label">Total de Comentários</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${totalViews}</div>
+                            <div class="stat-label">Total de Visualizações</div>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-value">${totalLikes}</div>
-                        <div class="stat-label">Total de Curtidas</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">${totalViews}</div>
-                        <div class="stat-label">Total de Visualizações</div>
-                    </div>
-                </div>
-            `;
+                `;
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+                statsContent.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Erro ao carregar estatísticas. Verifique suas permissões.</p></div>';
+            }
         }
 
         onAuthStateChanged(auth, async (user) => {
