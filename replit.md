@@ -90,6 +90,17 @@ The application is configured for deployment on Replit using autoscale:
 8. **publicarnews.html** - Interface to publish news (likely admin only)
 
 ## Recent Changes
+- **2025-10-06**: Bug Fixes and Feature Improvements
+  - **Login Page**: Corrigido loop infinito removendo tag HTML malformada (`</old_str>`)
+  - **Página Home**: 
+    - Implementado preview truncado de publicações (3 linhas) com botão "Ver mais" para abrir modal completo
+    - Corrigido CSS do modal para usar variáveis de tema, resolvendo problema de texto invisível no modo claro
+    - Adicionada animação Lottie de carregamento usando `folhadeinhamissa.json`
+  - **Página Aprenda**:
+    - Corrigida duplicação de quizzes removendo div duplicada `#quiz-grid`
+    - Implementado download de certificado como imagem PNG (Canvas API) ao invés de PDF
+    - Certificado é gerado e baixado automaticamente quando aluno atinge 70% ou mais
+
 - **2025-10-06**: GitHub Import Setup Completed
   - Successfully imported project from GitHub
   - Installed Python 3.11 for HTTP server
