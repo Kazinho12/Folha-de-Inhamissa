@@ -304,14 +304,20 @@
                     </label>
                     <select class="form-control" id="quiz-category" required>
                         <option value="">Selecione uma categoria</option>
-                        <option value="Matemática">Matemática</option>
                         <option value="Português">Português</option>
+                        <option value="Inglês">Inglês</option>
+                        <option value="Matemática">Matemática</option>
+                        <option value="Educação Física">Educação Física</option>
+                        <option value="TIC">TIC</option>
+                        <option value="Introdução à Filosofia">Introdução à Filosofia</option>
                         <option value="História">História</option>
                         <option value="Geografia">Geografia</option>
+                        <option value="Francês">Francês</option>
                         <option value="Biologia">Biologia</option>
-                        <option value="Física">Física</option>
                         <option value="Química">Química</option>
-                        <option value="Inglês">Inglês</option>
+                        <option value="Física">Física</option>
+                        <option value="Educação Visual">Educação Visual</option>
+                        <option value="Geometria Descritiva">Geometria Descritiva</option>
                     </select>
                 </div>
 
@@ -430,6 +436,10 @@
                     <input type="radio" name="correct-${questionCount}" value="3">
                     <input type="text" class="form-control" name="option-${questionCount}-3" placeholder="Opção D" required>
                 </div>
+                <div style="margin-top: 16px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Justificativa (explicação da resposta correta):</label>
+                    <textarea class="form-control" name="explanation-${questionCount}" placeholder="Explique por que esta é a resposta correta..." required style="min-height: 80px;"></textarea>
+                </div>
             `;
             container.appendChild(questionBlock);
         };
@@ -471,11 +481,13 @@
                     options.push(option);
                 }
                 const correctIndex = parseInt(block.querySelector(`input[name^="correct"]:checked`)?.value || 0);
+                const explanation = block.querySelector(`textarea[name^="explanation"]`).value.trim();
 
                 questions.push({
                     question: questionText,
                     options,
-                    correctIndex
+                    correctIndex,
+                    explanation
                 });
             });
 
