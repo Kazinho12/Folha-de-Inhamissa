@@ -535,13 +535,22 @@
     }
 
     .modal-like-btn.liked {
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        background: linear-gradient(135deg, #ff1744, #f50057);
         color: var(--white);
-        box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        box-shadow: 0 4px 12px rgba(255, 23, 68, 0.4);
     }
 
     .modal-like-btn.liked i {
         animation: likeAnimation 0.3s ease;
+        color: var(--white);
+    }
+    
+    .modal-like-btn i {
+        color: #ff1744;
+    }
+    
+    .modal-like-btn.liked i {
+        color: var(--white);
     }
 
     .modal-share-btn {
@@ -893,6 +902,15 @@
 
     <!-- Firebase and LinkPreview API -->
     <script type="module">
+        // Import interactivity functions
+        import { 
+            initInteractivity, 
+            toggleLike, 
+            checkIfLiked 
+        } from './interactivity.js';
+    </script>
+    
+    <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
         import { 
@@ -944,6 +962,8 @@
                 const userDoc = await getDoc(doc(db, 'users', userId));
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
+                    currentUserData = userData; // Armazenar dados do usuário
+                    
                     const initials = userData.name ? 
                         userData.name.split(' ').map(n => n[0]).join('').toUpperCase() : 
                         auth.currentUser.email[0].toUpperCase();
@@ -1147,9 +1167,9 @@
             const interactionButtons = document.createElement('div');
             interactionButtons.className = 'modal-interactions';
             interactionButtons.innerHTML = `
-                <button class="modal-action-btn modal-like-btn" id="modal-like-btn-${newsId}">
-                    <i class="far fa-thumbs-up"></i>
-                    <span>${news.likes || 0}</span>
+                <button class="modal-action-btn modal-like-btn" id="modal-like-btn-${newsId}" data-news-id="${newsId}">
+                    <i class="far fa-heart"></i>
+                    <span>${news.likes || 0} Curtir</span>
                 </button>
                 <button class="modal-action-btn modal-share-btn" id="modal-share-btn-${newsId}">
                     <i class="fas fa-share-alt"></i>
@@ -1163,72 +1183,82 @@
             
             modalText.appendChild(interactionButtons);
             
-            // Configurar botão de curtir
+            // Configurar botão de curtir usando interactivity.js
             const modalLikeBtn = document.getElementById(`modal-like-btn-${newsId}`);
             
-            // Verificar se já curtiu
-            if (currentUser && news.likedBy && news.likedBy.includes(currentUser.uid)) {
-                modalLikeBtn.classList.add('liked');
-                const icon = modalLikeBtn.querySelector('i');
-                icon.className = 'fas fa-thumbs-up';
-            }
-            
-            modalLikeBtn.addEventListener('click', async () => {
-                if (!currentUser) {
-                    alert('Faça login para curtir');
-                    return;
-                }
-
-                if (modalLikeBtn.disabled) return;
-                modalLikeBtn.disabled = true;
-
-                try {
-                    const newsRef = doc(db, 'news', newsId);
-                    const newsDoc = await getDoc(newsRef);
-
-                    if (!newsDoc.exists()) {
-                        throw new Error('Notícia não encontrada');
+            // Importar funções do interactivity.js
+            import('./interactivity.js').then(module => {
+                // Inicializar sistema de interatividade
+                module.initInteractivity(db, auth, currentUserData);
+                
+                // Verificar se usuário já curtiu
+                module.checkIfLiked(newsId, news, modalLikeBtn);
+                
+                // Adicionar evento de clique
+                modalLikeBtn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    
+                    // Adaptar para notícias (usar collection 'news' ao invés de 'posts')
+                    if (!currentUser) {
+                        alert('Faça login para curtir');
+                        return;
                     }
 
-                    const newsData = newsDoc.data();
-                    const likedBy = newsData.likedBy || [];
-                    const hasLiked = likedBy.includes(currentUser.uid);
+                    if (modalLikeBtn.disabled) return;
+                    modalLikeBtn.disabled = true;
 
-                    if (hasLiked) {
-                        // Remover curtida
-                        await updateDoc(newsRef, {
-                            likes: increment(-1),
-                            likedBy: likedBy.filter(id => id !== currentUser.uid)
-                        });
+                    try {
+                        const newsRef = doc(db, 'news', newsId);
+                        const newsDoc = await getDoc(newsRef);
 
-                        modalLikeBtn.classList.remove('liked');
-                        const icon = modalLikeBtn.querySelector('i');
-                        icon.className = 'far fa-thumbs-up';
+                        if (!newsDoc.exists()) {
+                            alert('Notícia não encontrada');
+                            modalLikeBtn.disabled = false;
+                            return;
+                        }
 
-                        const span = modalLikeBtn.querySelector('span');
-                        const currentCount = parseInt(span.textContent) || 0;
-                        span.textContent = Math.max(0, currentCount - 1);
-                    } else {
-                        // Adicionar curtida
-                        await updateDoc(newsRef, {
-                            likes: increment(1),
-                            likedBy: [...likedBy, currentUser.uid]
-                        });
+                        const newsData = newsDoc.data();
+                        const likedBy = newsData.likedBy || [];
+                        const hasLiked = likedBy.includes(currentUser.uid);
 
-                        modalLikeBtn.classList.add('liked');
-                        const icon = modalLikeBtn.querySelector('i');
-                        icon.className = 'fas fa-thumbs-up';
+                        if (hasLiked) {
+                            // Remover curtida
+                            await updateDoc(newsRef, {
+                                likes: increment(-1),
+                                likedBy: likedBy.filter(id => id !== currentUser.uid)
+                            });
 
-                        const span = modalLikeBtn.querySelector('span');
-                        const currentCount = parseInt(span.textContent) || 0;
-                        span.textContent = currentCount + 1;
+                            modalLikeBtn.classList.remove('liked');
+                            const icon = modalLikeBtn.querySelector('i');
+                            icon.className = 'far fa-heart';
+
+                            const span = modalLikeBtn.querySelector('span');
+                            const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
+                            span.textContent = `${Math.max(0, currentCount - 1)} Curtir`;
+                        } else {
+                            // Adicionar curtida
+                            await updateDoc(newsRef, {
+                                likes: increment(1),
+                                likedBy: [...likedBy, currentUser.uid]
+                            });
+
+                            modalLikeBtn.classList.add('liked');
+                            const icon = modalLikeBtn.querySelector('i');
+                            icon.className = 'fas fa-heart';
+
+                            const span = modalLikeBtn.querySelector('span');
+                            const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
+                            span.textContent = `${currentCount + 1} Curtir`;
+                        }
+                    } catch (error) {
+                        console.error('Erro ao curtir:', error);
+                        alert('Erro ao curtir. Verifique sua conexão.');
+                    } finally {
+                        modalLikeBtn.disabled = false;
                     }
-                } catch (error) {
-                    console.error('Erro ao curtir:', error);
-                    alert('Erro ao curtir. Tente novamente.');
-                } finally {
-                    modalLikeBtn.disabled = false;
-                }
+                });
+            }).catch(error => {
+                console.error('Erro ao carregar interactivity.js:', error);
             });
             
             // Configurar botão de compartilhar
