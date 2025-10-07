@@ -1380,7 +1380,7 @@ a:hover {
         loadCommunityQuizzes();
 
         // Carregar avatar do usuário
-        onAuthStateChanged(authAprenda, async (user) => {
+        onAuthStateChanged(getAuth(), async (user) => {
             if (user) {
                 try {
                     const userDoc = await getDoc(doc(db, 'users', user.uid));
