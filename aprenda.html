@@ -1107,14 +1107,14 @@ a:hover {
             
             let questionsHTML = '';
             quiz.questions.forEach((q, index) => {
+                const displayStyle = index === 0 ? '' : 'display:none';
                 questionsHTML += `
-                    <div class="quiz-question" style="${index === 0 ? '' : 'display:none'}">${index + 1}. ${q.question}</div>
-                    <div class="quiz-options" style="${index === 0 ? '' : 'display:none'}">
+                    <div class="quiz-question" style="${displayStyle}">${index + 1}. ${q.question}</div>
+                    <div class="quiz-options" style="${displayStyle}">
                         ${q.options.map((opt, optIndex) => `
-                            <div class="quiz-option" data-correct="${optIndex === q.correctIndex}">${opt}</div>
+                            <div class="quiz-option" data-correct="${optIndex === q.correctIndex ? 'true' : 'false'}">${opt}</div>
                         `).join('')}
                     </div>
-                    <div class="quiz-feedback" style="display:none"></div>
                 `;
             });
             
@@ -1126,10 +1126,10 @@ a:hover {
                     </div>
                     <div class="learning-body">
                         <p style="margin-bottom: 20px;">${quiz.description}</p>
-                        <div class="quiz-container">
+                        <div class="quiz-container" id="quiz-${quizId}">
                             ${questionsHTML}
                             <div class="quiz-actions">
-                                <button class="quiz-btn quiz-next">Próxima</button>
+                                <button class="quiz-btn quiz-next" style="display:none">Próxima</button>
                                 <button class="quiz-btn quiz-finish" style="display:none">Finalizar</button>
                             </div>
                             <div class="quiz-results" style="display:none"></div>
@@ -1150,7 +1150,10 @@ a:hover {
                 }
             });
             
-            initQuizzes();
+            // Inicializar quiz
+            if (window.initQuizzes) {
+                window.initQuizzes();
+            }
         }
 
         loadCommunityQuizzes();
@@ -1194,20 +1197,24 @@ const searchBtn = document.getElementById('search-btn');
 const searchModal = document.getElementById('search-modal');
 const closeSearchBtn = document.getElementById('close-search');
 
-searchBtn.addEventListener('click', () => {
-    searchModal.style.display = 'block';
-});
+if (searchBtn) {
+    searchBtn.addEventListener('click', () => {
+        searchModal.style.display = 'block';
+    });
+}
 
-closeSearchBtn.addEventListener('click', () => {
-    searchModal.style.display = 'none';
-});
+if (closeSearchBtn) {
+    closeSearchBtn.addEventListener('click', () => {
+        searchModal.style.display = 'none';
+    });
+}
 
 window.addEventListener('click', (event) => {
     if (event.target === searchModal) searchModal.style.display = 'none';
 });
 
-// Improved Quiz functionality - DEVE estar antes de openQuizModal
-window.initQuizzes = function initQuizzes() {
+// Improved Quiz functionality
+window.initQuizzes = function() {
     const quizzes = document.querySelectorAll('.quiz-container');
 
     quizzes.forEach(quiz => {
@@ -1218,6 +1225,7 @@ window.initQuizzes = function initQuizzes() {
         let currentQuestion = 0;
         let score = 0;
         let answered = false;
+        let userAnswers = []; // Armazenar respostas do usuário
 
         // Show first question
         showQuestion(currentQuestion);
@@ -1228,25 +1236,27 @@ window.initQuizzes = function initQuizzes() {
                 if (answered) return;
 
                 const isCorrect = this.getAttribute('data-correct') === 'true';
-                const feedback = this.closest('.quiz-options').nextElementSibling;
+                const questionIndex = Array.from(questions).findIndex(q => 
+                    q.nextElementSibling === this.parentElement
+                );
+
+                // Armazenar resposta do usuário
+                userAnswers[questionIndex] = {
+                    selected: this.textContent.trim(),
+                    isCorrect: isCorrect,
+                    correctAnswer: this.parentElement.querySelector('[data-correct="true"]').textContent.trim()
+                };
 
                 if (isCorrect) {
-                    this.classList.add('correct');
-                    feedback.textContent = 'Resposta correta!';
-                    feedback.classList.add('correct');
                     score++;
-                } else {
-                    this.classList.add('incorrect');
-                    feedback.textContent = 'Resposta incorreta.';
-                    feedback.classList.add('incorrect');
-
-                    // Show correct answer
-                    const correctOption = this.parentElement.querySelector('[data-correct="true"]');
-                    correctOption.classList.add('correct');
                 }
 
                 answered = true;
                 nextBtn.style.display = 'inline-block';
+
+                // Marcar opção selecionada
+                this.style.backgroundColor = 'rgba(255, 215, 0, 0.2)';
+                this.style.borderColor = 'var(--primary)';
 
                 // Disable all options after answer
                 const options = this.parentElement.querySelectorAll('.quiz-option');
@@ -1286,6 +1296,26 @@ window.initQuizzes = function initQuizzes() {
                 message = `Você acertou ${score} de ${questions.length} perguntas (${percentage}%). Recomendamos revisar o material.`;
             }
 
+            // Mostrar resumo de respostas
+            let reviewHTML = '<div style="margin-top: 20px; text-align: left;">';
+            reviewHTML += '<h3 style="color: var(--primary); margin-bottom: 15px;">Revisão das Respostas:</h3>';
+            
+            userAnswers.forEach((answer, index) => {
+                const questionText = questions[index].textContent.replace(/^\d+\.\s*/, '');
+                const statusIcon = answer.isCorrect ? '✅' : '❌';
+                const statusColor = answer.isCorrect ? 'var(--success)' : 'var(--error)';
+                
+                reviewHTML += `
+                    <div style="margin-bottom: 15px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 3px solid ${statusColor};">
+                        <div style="font-weight: 600; margin-bottom: 5px;">${statusIcon} ${questionText}</div>
+                        <div style="color: #888; font-size: 0.9rem;">Sua resposta: ${answer.selected}</div>
+                        ${!answer.isCorrect ? `<div style="color: var(--success); font-size: 0.9rem;">Resposta correta: ${answer.correctAnswer}</div>` : ''}
+                    </div>
+                `;
+            });
+            
+            reviewHTML += '</div>';
+
             // Adicionar botão de download de certificado se passou (>= 70%)
             let certificateBtn = '';
             if (percentage >= 70) {
@@ -1293,7 +1323,7 @@ window.initQuizzes = function initQuizzes() {
                 certificateBtn = `<button onclick="downloadCertificate('${quizId}', ${score}, ${questions.length}, ${percentage})" style="margin-top: 15px; padding: 10px 20px; background-color: var(--primary); color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;"><i class="fas fa-download"></i> Baixar Certificado</button>`;
             }
 
-            resultsDiv.innerHTML = `<div class="quiz-final-result">${message}${certificateBtn}</div>`;
+            resultsDiv.innerHTML = `<div class="quiz-final-result">${message}${reviewHTML}${certificateBtn}</div>`;
             resultsDiv.style.display = 'block';
             this.style.display = 'none';
             nextBtn.style.display = 'none';
@@ -1307,7 +1337,9 @@ window.initQuizzes = function initQuizzes() {
             questions.forEach((q, i) => {
                 q.style.display = 'none';
                 q.nextElementSibling.style.display = 'none'; // options
-                q.nextElementSibling.nextElementSibling.style.display = 'none'; // feedback
+                if (q.nextElementSibling.nextElementSibling) {
+                    q.nextElementSibling.nextElementSibling.style.display = 'none'; // feedback
+                }
             });
 
             // Show current question
@@ -1319,12 +1351,9 @@ window.initQuizzes = function initQuizzes() {
             options.forEach(opt => {
                 opt.style.pointerEvents = 'auto';
                 opt.classList.remove('correct', 'incorrect');
+                opt.style.backgroundColor = '';
+                opt.style.borderColor = '';
             });
-
-            // Show feedback for current question
-            questions[index].nextElementSibling.nextElementSibling.style.display = 'block';
-            questions[index].nextElementSibling.nextElementSibling.textContent = '';
-            questions[index].nextElementSibling.nextElementSibling.classList.remove('correct', 'incorrect');
         }
     });
 }
