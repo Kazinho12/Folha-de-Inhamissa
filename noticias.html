@@ -902,15 +902,6 @@
 
     <!-- Firebase and LinkPreview API -->
     <script type="module">
-        // Import interactivity functions
-        import { 
-            initInteractivity, 
-            toggleLike, 
-            checkIfLiked 
-        } from './interactivity.js';
-    </script>
-    
-    <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
         import { 
@@ -929,7 +920,8 @@
             doc,
             getDoc,
             updateDoc,
-            increment
+            increment,
+            serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
         // Firebase configuration
@@ -1119,6 +1111,26 @@
             `;
         }
 
+        // Incrementar visualizações
+        async function incrementViews(newsId) {
+            try {
+                const newsRef = doc(db, 'news', newsId);
+                await updateDoc(newsRef, {
+                    views: increment(1)
+                });
+                
+                // Buscar o valor atualizado
+                const updatedDoc = await getDoc(newsRef);
+                if (updatedDoc.exists()) {
+                    return updatedDoc.data().views || 0;
+                }
+                return 0;
+            } catch (error) {
+                console.error('Erro ao incrementar visualizações:', error);
+                return 0;
+            }
+        }
+
         // Open news in modal
         async function openNewsModal(news, newsId) {
             modalImage.src = news.imageUrl || 'https://via.placeholder.com/800x400?text=Sem+Imagem';
@@ -1147,20 +1159,7 @@
             // Incrementar visualizações e obter valor atualizado
             let updatedViews = news.views || 0;
             if (newsId) {
-                try {
-                    const newsRef = doc(db, 'news', newsId);
-                    await updateDoc(newsRef, {
-                        views: increment(1)
-                    });
-                    
-                    // Buscar o valor atualizado
-                    const updatedDoc = await getDoc(newsRef);
-                    if (updatedDoc.exists()) {
-                        updatedViews = updatedDoc.data().views || 0;
-                    }
-                } catch (error) {
-                    console.error('Erro ao atualizar visualizações:', error);
-                }
+                updatedViews = await incrementViews(newsId);
             }
             
             // Adicionar botões de interação
@@ -1183,82 +1182,89 @@
             
             modalText.appendChild(interactionButtons);
             
-            // Configurar botão de curtir usando interactivity.js
+            // Configurar botão de curtir
             const modalLikeBtn = document.getElementById(`modal-like-btn-${newsId}`);
             
-            // Importar funções do interactivity.js
-            import('./interactivity.js').then(module => {
-                // Inicializar sistema de interatividade
-                module.initInteractivity(db, auth, currentUserData);
+            // Verificar se usuário já curtiu
+            const checkIfLiked = async () => {
+                try {
+                    if (!currentUser) return;
+
+                    const likedBy = news.likedBy || [];
+                    if (likedBy.includes(currentUser.uid)) {
+                        modalLikeBtn.classList.add('liked');
+                        const icon = modalLikeBtn.querySelector('i');
+                        icon.className = 'fas fa-heart';
+                    }
+                } catch (error) {
+                    console.error('Erro ao verificar curtida:', error);
+                }
+            };
+
+            checkIfLiked();
+            
+            // Adicionar evento de clique para curtir
+            modalLikeBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
                 
-                // Verificar se usuário já curtiu
-                module.checkIfLiked(newsId, news, modalLikeBtn);
-                
-                // Adicionar evento de clique
-                modalLikeBtn.addEventListener('click', async (e) => {
-                    e.stopPropagation();
-                    
-                    // Adaptar para notícias (usar collection 'news' ao invés de 'posts')
-                    if (!currentUser) {
-                        alert('Faça login para curtir');
+                if (!currentUser) {
+                    alert('Faça login para curtir');
+                    return;
+                }
+
+                if (modalLikeBtn.disabled) return;
+                modalLikeBtn.disabled = true;
+
+                try {
+                    const newsRef = doc(db, 'news', newsId);
+                    const newsDoc = await getDoc(newsRef);
+
+                    if (!newsDoc.exists()) {
+                        alert('Notícia não encontrada');
                         return;
                     }
 
-                    if (modalLikeBtn.disabled) return;
-                    modalLikeBtn.disabled = true;
+                    const newsData = newsDoc.data();
+                    const likedBy = newsData.likedBy || [];
+                    const hasLiked = likedBy.includes(currentUser.uid);
 
-                    try {
-                        const newsRef = doc(db, 'news', newsId);
-                        const newsDoc = await getDoc(newsRef);
+                    if (hasLiked) {
+                        // Remover curtida
+                        await updateDoc(newsRef, {
+                            likes: increment(-1),
+                            likedBy: likedBy.filter(id => id !== currentUser.uid)
+                        });
 
-                        if (!newsDoc.exists()) {
-                            alert('Notícia não encontrada');
-                            modalLikeBtn.disabled = false;
-                            return;
-                        }
+                        modalLikeBtn.classList.remove('liked');
+                        const icon = modalLikeBtn.querySelector('i');
+                        icon.className = 'far fa-heart';
 
-                        const newsData = newsDoc.data();
-                        const likedBy = newsData.likedBy || [];
-                        const hasLiked = likedBy.includes(currentUser.uid);
+                        const span = modalLikeBtn.querySelector('span');
+                        const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
+                        span.textContent = `${Math.max(0, currentCount - 1)} Curtir`;
+                    } else {
+                        // Adicionar curtida
+                        await updateDoc(newsRef, {
+                            likes: increment(1),
+                            likedBy: [...likedBy, currentUser.uid]
+                        });
 
-                        if (hasLiked) {
-                            // Remover curtida
-                            await updateDoc(newsRef, {
-                                likes: increment(-1),
-                                likedBy: likedBy.filter(id => id !== currentUser.uid)
-                            });
+                        modalLikeBtn.classList.add('liked');
+                        const icon = modalLikeBtn.querySelector('i');
+                        icon.className = 'fas fa-heart';
 
-                            modalLikeBtn.classList.remove('liked');
-                            const icon = modalLikeBtn.querySelector('i');
-                            icon.className = 'far fa-heart';
-
-                            const span = modalLikeBtn.querySelector('span');
-                            const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
-                            span.textContent = `${Math.max(0, currentCount - 1)} Curtir`;
-                        } else {
-                            // Adicionar curtida
-                            await updateDoc(newsRef, {
-                                likes: increment(1),
-                                likedBy: [...likedBy, currentUser.uid]
-                            });
-
-                            modalLikeBtn.classList.add('liked');
-                            const icon = modalLikeBtn.querySelector('i');
-                            icon.className = 'fas fa-heart';
-
-                            const span = modalLikeBtn.querySelector('span');
-                            const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
-                            span.textContent = `${currentCount + 1} Curtir`;
-                        }
-                    } catch (error) {
-                        console.error('Erro ao curtir:', error);
-                        alert('Erro ao curtir. Verifique sua conexão.');
-                    } finally {
-                        modalLikeBtn.disabled = false;
+                        const span = modalLikeBtn.querySelector('span');
+                        const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
+                        span.textContent = `${currentCount + 1} Curtir`;
                     }
-                });
-            }).catch(error => {
-                console.error('Erro ao carregar interactivity.js:', error);
+                } catch (error) {
+                    console.error('Erro ao curtir:', error);
+                    alert('Erro ao curtir. Verifique sua conexão.');
+                } finally {
+                    setTimeout(() => {
+                        modalLikeBtn.disabled = false;
+                    }, 500);
+                }
             });
             
             // Configurar botão de compartilhar
@@ -1447,7 +1453,7 @@
                                 <p class="news-excerpt">${news.excerpt || ''}</p>
                                 <div class="news-meta">
                                     <span>${formatDate(news.createdAt)}</span>
-                                    <span><i class="far fa-eye"></i> ${news.views || 0} visualizações</span>
+                                    <span><i class="far fa-eye"></i> ${news.views || 0}</span>
                                 </div>
                             </div>
                         `;
