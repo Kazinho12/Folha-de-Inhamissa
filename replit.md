@@ -90,6 +90,25 @@ The application is configured for deployment on Replit using autoscale:
 8. **publicarnews.html** - Interface to publish news (likely admin only)
 
 ## Recent Changes
+- **2025-10-07**: UI/UX Modernization - Theme System & Modal Improvements
+  - **Página Home (home.html)**:
+    - Removidos botões de curtida/comentário/compartilhar de fora dos cards de postagem
+    - Card completo agora é clicável para abrir modal (melhor UX)
+    - Botões de interatividade movidos para dentro do modal apenas
+    - Corrigido bug do botão de curtida no modal que travava após primeiro clique
+    - Implementado event listener apropriado para botão de compartilhar no modal (removendo JSON.stringify inline problemático)
+    - Contagem de visualizações funciona corretamente ao abrir modal
+  - **Sistema de Temas Implementado**:
+    - Adicionado alternância tema claro/escuro em **noticias.html**, **horarios.html** e **aprenda.html**
+    - Botão de toggle com ícones sol/lua no app bar de cada página
+    - Persistência do tema usando localStorage (chave 'theme')
+    - Cores consistentes: branco-dourado (claro) e preto-dourado (escuro)
+    - Transições suaves entre temas
+  - **Correções de Bugs**:
+    - Removida referência ao arquivo inexistente `styles.css` em noticias.html (corrigindo erro 404)
+    - Botão de curtida no modal agora reabilita imediatamente após operação (removido setTimeout)
+    - Sistema de likes/unlikes funcionando corretamente sem travamentos
+
 - **2025-10-07**: Quiz Modal Critical Bug Fixes (aprenda.html)
   - **Problema Resolvido**: Modal de quiz não aceitava seleção de opções nem mostrava justificação/certificado
   - **Correções Aplicadas**:
