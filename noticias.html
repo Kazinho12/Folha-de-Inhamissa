@@ -1202,84 +1202,13 @@
             // Configurar botão de curtir no modal
             const modalLikeBtn = document.getElementById(`modal-like-btn-${newsId}`);
 
-            // Verificar se usuário já curtiu
-            const checkLiked = async () => {
-                try {
-                    if (!auth.currentUser) return;
+            // Verificar se usuário já curtiu usando o sistema de interatividade
+            checkIfLiked(newsId, news, modalLikeBtn, 'heart');
 
-                    const likedBy = news.likedBy || [];
-                    if (likedBy.includes(auth.currentUser.uid)) {
-                        modalLikeBtn.classList.add('liked');
-                        const icon = modalLikeBtn.querySelector('i');
-                        if (icon) icon.className = 'fas fa-heart';
-                    }
-                } catch (error) {
-                    console.error('Erro ao verificar curtida:', error);
-                }
-            };
-
-            checkLiked();
-
-            // Adicionar evento de clique para curtir
+            // Adicionar evento de clique para curtir usando o sistema de interatividade
             modalLikeBtn.addEventListener('click', async (e) => {
                 e.stopPropagation();
-                const user = auth.currentUser;
-
-                if (!user) {
-                    alert('Faça login para curtir');
-                    return;
-                }
-
-                if (modalLikeBtn.disabled) return;
-                modalLikeBtn.disabled = true;
-
-                try {
-                    const newsRef = doc(db, 'news', newsId);
-                    const newsDoc = await getDoc(newsRef);
-
-                    if (!newsDoc.exists()) {
-                        throw new Error('Notícia não encontrada');
-                    }
-
-                    const newsData = newsDoc.data();
-                    const likedBy = newsData.likedBy || [];
-                    const hasLiked = likedBy.includes(user.uid);
-
-                    if (hasLiked) {
-                        // Remover curtida
-                        await updateDoc(newsRef, {
-                            likes: increment(-1),
-                            likedBy: likedBy.filter(id => id !== user.uid)
-                        });
-
-                        modalLikeBtn.classList.remove('liked');
-                        const icon = modalLikeBtn.querySelector('i');
-                        if (icon) icon.className = 'far fa-heart';
-
-                        const span = modalLikeBtn.querySelector('span');
-                        const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
-                        span.textContent = `${Math.max(0, currentCount - 1)} Curtir`;
-                    } else {
-                        // Adicionar curtida
-                        await updateDoc(newsRef, {
-                            likes: increment(1),
-                            likedBy: [...likedBy, user.uid]
-                        });
-
-                        modalLikeBtn.classList.add('liked');
-                        const icon = modalLikeBtn.querySelector('i');
-                        if (icon) icon.className = 'fas fa-heart';
-
-                        const span = modalLikeBtn.querySelector('span');
-                        const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
-                        span.textContent = `${currentCount + 1} Curtir`;
-                    }
-                } catch (error) {
-                    console.error('Erro ao curtir:', error);
-                    alert('Erro ao curtir. Tente novamente.');
-                } finally {
-                    modalLikeBtn.disabled = false;
-                }
+                await toggleLike(newsId, modalLikeBtn, 'news');
             });
 
             // Configurar botão de compartilhar
