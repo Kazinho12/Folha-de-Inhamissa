@@ -18,12 +18,21 @@ async function fileToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
-            const base64 = reader.result.split(',')[1];
-            resolve(base64);
+            try {
+                const base64 = reader.result.split(',')[1];
+                if (!base64) {
+                    throw new Error('Falha ao extrair base64 da imagem');
+                }
+                resolve(base64);
+            } catch (error) {
+                console.error('❌ Erro ao processar base64:', error);
+                reject(new Error('Falha ao processar imagem'));
+            }
         };
-        reader.onerror = (error) => {
-            console.error('❌ Erro ao converter para base64:', error);
-            reject(error);
+        reader.onerror = () => {
+            const errorMsg = 'Falha ao ler arquivo de imagem';
+            console.error('❌ Erro FileReader:', errorMsg);
+            reject(new Error(errorMsg));
         };
         reader.readAsDataURL(file);
     });
@@ -98,7 +107,12 @@ async function uploadToImgBB(file, onProgress) {
 
 // Upload usando Firebase Storage com tratamento robusto
 async function uploadToFirebase(file, userId, onProgress) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
+        // Timeout de 60 segundos para upload Firebase
+        const timeoutId = setTimeout(() => {
+            reject(new Error('Timeout no upload Firebase (60s)'));
+        }, 60000);
+
         try {
             console.log('🔥 Iniciando upload via Firebase Storage...', {
                 name: file.name,
@@ -107,6 +121,7 @@ async function uploadToFirebase(file, userId, onProgress) {
             });
             
             if (!storage) {
+                clearTimeout(timeoutId);
                 throw new Error('Firebase Storage não inicializado');
             }
 
@@ -122,24 +137,40 @@ async function uploadToFirebase(file, userId, onProgress) {
             console.log('📁 Referência criada:', fileName);
 
             // Upload com progresso
-            const uploadTask = uploadBytesResumable(storageRef, file);
+            const uploadTask = uploadBytesResumable(storageRef, file, {
+                contentType: file.type
+            });
+
+            let lastProgress = 10;
+            const progressCheckInterval = setInterval(() => {
+                if (lastProgress === uploadTask.snapshot.bytesTransferred / uploadTask.snapshot.totalBytes * 100) {
+                    console.warn('⚠️ Upload pode estar travado, mas continuando...');
+                }
+            }, 5000);
 
             uploadTask.on('state_changed',
                 (snapshot) => {
-                    const progress = 10 + (snapshot.bytesTransferred / snapshot.totalBytes) * 85;
+                    const rawProgress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    const progress = 10 + (rawProgress * 0.85);
+                    lastProgress = rawProgress;
+                    
                     console.log(`📊 Progresso Firebase: ${Math.round(progress)}%`, 
                         `(${snapshot.bytesTransferred}/${snapshot.totalBytes} bytes)`);
                     if (onProgress) onProgress(progress);
                 },
                 (error) => {
+                    clearTimeout(timeoutId);
+                    clearInterval(progressCheckInterval);
                     console.error('❌ Erro durante upload Firebase:', error.code, error.message);
-                    reject(new Error(`Firebase upload falhou: ${error.message}`));
+                    reject(new Error(`Firebase upload falhou: ${error.message || error.code}`));
                 },
                 async () => {
+                    clearInterval(progressCheckInterval);
                     try {
                         if (onProgress) onProgress(95);
                         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                         
+                        clearTimeout(timeoutId);
                         if (onProgress) onProgress(100);
                         console.log('✅ Upload Firebase bem-sucedido:', downloadURL);
                         
@@ -149,6 +180,7 @@ async function uploadToFirebase(file, userId, onProgress) {
                             method: 'firebase'
                         });
                     } catch (error) {
+                        clearTimeout(timeoutId);
                         console.error('❌ Erro ao obter URL do Firebase:', error);
                         reject(new Error(`Falha ao obter URL: ${error.message}`));
                     }
@@ -156,8 +188,9 @@ async function uploadToFirebase(file, userId, onProgress) {
             );
 
         } catch (error) {
-            console.error('❌ Falha ao iniciar upload Firebase:', error.message);
-            reject(error);
+            clearTimeout(timeoutId);
+            console.error('❌ Falha ao iniciar upload Firebase:', error.message || error);
+            reject(new Error(error.message || 'Falha ao iniciar upload'));
         }
     });
 }
