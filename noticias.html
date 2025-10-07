@@ -499,6 +499,56 @@
         box-shadow: var(--card-shadow);
     }
 
+    .modal-interactions {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid var(--light-gray);
+    }
+
+    .modal-action-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background-color: var(--light);
+        color: var(--text);
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .modal-action-btn:hover {
+        background-color: var(--light-gray);
+        transform: translateY(-2px);
+    }
+
+    .modal-action-btn.liked {
+        background-color: var(--primary);
+        color: var(--white);
+    }
+
+    .modal-action-btn i {
+        font-size: 1.1rem;
+    }
+
+    .modal-views {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    .modal-views i {
+        font-size: 1.1rem;
+    }
+
     /* Link Preview */
     .link-preview {
         border: 1px solid var(--light-gray);
@@ -823,7 +873,9 @@
             limit, 
             getDocs,
             doc,
-            getDoc
+            getDoc,
+            updateDoc,
+            increment
         } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
         // Firebase configuration
@@ -1012,7 +1064,7 @@
         }
 
         // Open news in modal
-        async function openNewsModal(news) {
+        async function openNewsModal(news, newsId) {
             modalImage.src = news.imageUrl || 'https://via.placeholder.com/800x400?text=Sem+Imagem';
             modalCategory.textContent = news.category || 'Geral';
             modalTitle.textContent = news.title;
@@ -1035,6 +1087,123 @@
             }
             
             modalText.innerHTML = content;
+            
+            // Adicionar botões de interação
+            const interactionButtons = document.createElement('div');
+            interactionButtons.className = 'modal-interactions';
+            interactionButtons.innerHTML = `
+                <button class="modal-action-btn" id="modal-like-btn-${newsId}">
+                    <i class="far fa-thumbs-up"></i>
+                    <span>${news.likes || 0} Curtir</span>
+                </button>
+                <button class="modal-action-btn" id="modal-share-btn-${newsId}">
+                    <i class="fas fa-share"></i>
+                    <span>Compartilhar</span>
+                </button>
+                <div class="modal-views">
+                    <i class="far fa-eye"></i>
+                    <span>${(news.views || 0) + 1} visualizações</span>
+                </div>
+            `;
+            
+            modalText.appendChild(interactionButtons);
+            
+            // Incrementar visualizações
+            if (newsId) {
+                try {
+                    const newsRef = doc(db, 'news', newsId);
+                    await updateDoc(newsRef, {
+                        views: increment(1)
+                    });
+                } catch (error) {
+                    console.error('Erro ao atualizar visualizações:', error);
+                }
+            }
+            
+            // Configurar botão de curtir
+            const modalLikeBtn = document.getElementById(`modal-like-btn-${newsId}`);
+            
+            // Verificar se já curtiu
+            if (currentUser && news.likedBy && news.likedBy.includes(currentUser.uid)) {
+                modalLikeBtn.classList.add('liked');
+                const icon = modalLikeBtn.querySelector('i');
+                icon.className = 'fas fa-thumbs-up';
+            }
+            
+            modalLikeBtn.addEventListener('click', async () => {
+                if (!currentUser) {
+                    alert('Faça login para curtir');
+                    return;
+                }
+
+                if (modalLikeBtn.disabled) return;
+                modalLikeBtn.disabled = true;
+
+                try {
+                    const newsRef = doc(db, 'news', newsId);
+                    const newsDoc = await getDoc(newsRef);
+
+                    if (!newsDoc.exists()) {
+                        throw new Error('Notícia não encontrada');
+                    }
+
+                    const newsData = newsDoc.data();
+                    const likedBy = newsData.likedBy || [];
+                    const hasLiked = likedBy.includes(currentUser.uid);
+
+                    if (hasLiked) {
+                        // Remover curtida
+                        await updateDoc(newsRef, {
+                            likes: increment(-1),
+                            likedBy: likedBy.filter(id => id !== currentUser.uid)
+                        });
+
+                        modalLikeBtn.classList.remove('liked');
+                        const icon = modalLikeBtn.querySelector('i');
+                        icon.className = 'far fa-thumbs-up';
+
+                        const span = modalLikeBtn.querySelector('span');
+                        const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
+                        span.textContent = `${Math.max(0, currentCount - 1)} Curtir`;
+                    } else {
+                        // Adicionar curtida
+                        await updateDoc(newsRef, {
+                            likes: increment(1),
+                            likedBy: [...likedBy, currentUser.uid]
+                        });
+
+                        modalLikeBtn.classList.add('liked');
+                        const icon = modalLikeBtn.querySelector('i');
+                        icon.className = 'fas fa-thumbs-up';
+
+                        const span = modalLikeBtn.querySelector('span');
+                        const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
+                        span.textContent = `${currentCount + 1} Curtir`;
+                    }
+                } catch (error) {
+                    console.error('Erro ao curtir:', error);
+                    alert('Erro ao curtir. Tente novamente.');
+                } finally {
+                    modalLikeBtn.disabled = false;
+                }
+            });
+            
+            // Configurar botão de compartilhar
+            const modalShareBtn = document.getElementById(`modal-share-btn-${newsId}`);
+            modalShareBtn.addEventListener('click', () => {
+                if (navigator.share) {
+                    navigator.share({
+                        title: news.title,
+                        text: news.excerpt || news.title,
+                        url: window.location.href
+                    }).catch(err => console.log('Erro ao compartilhar:', err));
+                } else {
+                    // Fallback: copiar link
+                    navigator.clipboard.writeText(window.location.href);
+                    alert('Link copiado para a área de transferência!');
+                }
+            });
+            
             newsModal.style.display = 'block';
         }
 
@@ -1209,7 +1378,7 @@
                                 </div>
                             </div>
                         `;
-                        newsCard.addEventListener('click', () => openNewsModal(news, news.id));
+                        newsCard.addEventListener('click', () => openNewsModal(news, doc.id));
                         newsGrid.appendChild(newsCard);
                     });
 
