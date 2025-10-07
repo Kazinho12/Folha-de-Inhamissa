@@ -483,15 +483,48 @@
         const imagePreview = document.getElementById('image-preview');
         const previewImg = document.getElementById('preview-img');
 
-        imageInput.addEventListener('change', (e) => {
+        // Armazenar dados da imagem para evitar perda de permissões
+        let cachedImageData = null;
+        let cachedImageFile = null;
+
+        imageInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    previewImg.src = event.target.result;
-                    imagePreview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
+            if (!file) {
+                cachedImageData = null;
+                cachedImageFile = null;
+                return;
+            }
+
+            console.log('📸 Arquivo selecionado, lendo imediatamente:', {
+                name: file.name,
+                type: file.type,
+                size: file.size
+            });
+
+            try {
+                // Ler arquivo IMEDIATAMENTE para evitar perda de permissões
+                const dataUrl = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => reject(new Error('Falha ao ler arquivo'));
+                    reader.readAsDataURL(file);
+                });
+
+                // Armazenar dados para uso posterior
+                cachedImageData = dataUrl;
+                cachedImageFile = file;
+                
+                // Mostrar preview
+                previewImg.src = dataUrl;
+                imagePreview.style.display = 'block';
+                
+                console.log('✅ Imagem carregada e armazenada em cache');
+
+            } catch (error) {
+                console.error('❌ Erro ao processar imagem:', error);
+                showToast('Erro ao carregar imagem. Tente novamente.', 'error');
+                cachedImageData = null;
+                cachedImageFile = null;
             }
         });
 
@@ -536,7 +569,6 @@
             const htmlContent = quill.root.innerHTML;
             const source = document.getElementById('news-source').value.trim();
             const tags = document.getElementById('news-tags').value.split(',').map(t => t.trim()).filter(t => t);
-            const imageFile = imageInput.files[0];
 
             if (!title || !category || !excerpt || !content) {
                 showToast('Preencha todos os campos obrigatórios', 'error');
@@ -549,6 +581,34 @@
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publicando...';
 
                 let imageUrl = '';
+                
+                // Usar dados em cache da imagem (já validados)
+                let imageFile = null;
+                if (cachedImageData && cachedImageFile) {
+                    console.log('✅ Usando imagem em cache:', {
+                        name: cachedImageFile.name,
+                        size: cachedImageFile.size,
+                        type: cachedImageFile.type
+                    });
+                    
+                    // Criar novo File a partir dos dados em cache
+                    const byteString = atob(cachedImageData.split(',')[1]);
+                    const mimeString = cachedImageData.split(',')[0].split(':')[1].split(';')[0];
+                    const ab = new ArrayBuffer(byteString.length);
+                    const ia = new Uint8Array(ab);
+                    for (let i = 0; i < byteString.length; i++) {
+                        ia[i] = byteString.charCodeAt(i);
+                    }
+                    const blob = new Blob([ab], { type: mimeString });
+                    imageFile = new File([blob], cachedImageFile.name, { type: mimeString });
+                    
+                    console.log('✅ Arquivo reconstruído:', {
+                        name: imageFile.name,
+                        size: imageFile.size,
+                        type: imageFile.type
+                    });
+                }
+
                 if (imageFile) {
                     try {
                         // Usar sistema de upload com progresso
