@@ -37,8 +37,8 @@ function showToast(message, type = 'info') {
     }
 }
 
-// Função para curtir/descurtir publicação
-export async function toggleLike(postId, likeBtn) {
+// Função para curtir/descurtir publicação (funciona com 'posts' e 'news')
+export async function toggleLike(postId, likeBtn, collection = 'posts') {
     const user = auth?.currentUser;
 
     if (!user) {
@@ -56,11 +56,11 @@ export async function toggleLike(postId, likeBtn) {
     likeBtn.disabled = true;
 
     try {
-        const postRef = doc(db, 'posts', postId);
+        const postRef = doc(db, collection, postId);
         const postDoc = await getDoc(postRef);
 
         if (!postDoc.exists()) {
-            showToast('Esta publicação não existe mais', 'error');
+            showToast('Este conteúdo não existe mais', 'error');
             return false;
         }
 
@@ -135,7 +135,7 @@ export async function toggleLike(postId, likeBtn) {
 }
 
 // Função para verificar se usuário curtiu
-export async function checkIfLiked(postId, postData, likeBtn) {
+export async function checkIfLiked(postId, postData, likeBtn, iconType = 'thumbs-up') {
     try {
         if (!auth?.currentUser || !postData || !likeBtn) return;
 
@@ -144,7 +144,7 @@ export async function checkIfLiked(postId, postData, likeBtn) {
             likeBtn.classList.add('liked');
             const icon = likeBtn.querySelector('i');
             if (icon) {
-                icon.className = 'fas fa-thumbs-up';
+                icon.className = `fas fa-${iconType}`;
             }
         }
     } catch (error) {

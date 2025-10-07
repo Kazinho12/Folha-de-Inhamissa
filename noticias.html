@@ -923,6 +923,13 @@
             increment,
             serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+        
+        // Import sistema de interatividade
+        import { 
+            initInteractivity, 
+            toggleLike, 
+            checkIfLiked 
+        } from './interactivity.js';
 
         // Firebase configuration
         const firebaseConfig = {
@@ -955,6 +962,9 @@
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
                     currentUserData = userData; // Armazenar dados do usuário
+                    
+                    // Inicializar sistema de interatividade
+                    initInteractivity(db, auth, userData);
                     
                     const initials = userData.name ? 
                         userData.name.split(' ').map(n => n[0]).join('').toUpperCase() : 
@@ -1115,6 +1125,13 @@
         async function incrementViews(newsId) {
             try {
                 const newsRef = doc(db, 'news', newsId);
+                const newsDoc = await getDoc(newsRef);
+                
+                if (!newsDoc.exists()) {
+                    console.error('Notícia não encontrada');
+                    return 0;
+                }
+                
                 await updateDoc(newsRef, {
                     views: increment(1)
                 });
@@ -1185,86 +1202,15 @@
             // Configurar botão de curtir
             const modalLikeBtn = document.getElementById(`modal-like-btn-${newsId}`);
             
-            // Verificar se usuário já curtiu
-            const checkIfLiked = async () => {
-                try {
-                    if (!currentUser) return;
-
-                    const likedBy = news.likedBy || [];
-                    if (likedBy.includes(currentUser.uid)) {
-                        modalLikeBtn.classList.add('liked');
-                        const icon = modalLikeBtn.querySelector('i');
-                        icon.className = 'fas fa-heart';
-                    }
-                } catch (error) {
-                    console.error('Erro ao verificar curtida:', error);
-                }
-            };
-
-            checkIfLiked();
+            // Verificar se usuário já curtiu usando sistema de interatividade (ícone heart)
+            checkIfLiked(newsId, news, modalLikeBtn, 'heart');
             
-            // Adicionar evento de clique para curtir
+            // Adicionar evento de clique para curtir usando sistema de interatividade
             modalLikeBtn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 
-                if (!currentUser) {
-                    alert('Faça login para curtir');
-                    return;
-                }
-
-                if (modalLikeBtn.disabled) return;
-                modalLikeBtn.disabled = true;
-
-                try {
-                    const newsRef = doc(db, 'news', newsId);
-                    const newsDoc = await getDoc(newsRef);
-
-                    if (!newsDoc.exists()) {
-                        alert('Notícia não encontrada');
-                        return;
-                    }
-
-                    const newsData = newsDoc.data();
-                    const likedBy = newsData.likedBy || [];
-                    const hasLiked = likedBy.includes(currentUser.uid);
-
-                    if (hasLiked) {
-                        // Remover curtida
-                        await updateDoc(newsRef, {
-                            likes: increment(-1),
-                            likedBy: likedBy.filter(id => id !== currentUser.uid)
-                        });
-
-                        modalLikeBtn.classList.remove('liked');
-                        const icon = modalLikeBtn.querySelector('i');
-                        icon.className = 'far fa-heart';
-
-                        const span = modalLikeBtn.querySelector('span');
-                        const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
-                        span.textContent = `${Math.max(0, currentCount - 1)} Curtir`;
-                    } else {
-                        // Adicionar curtida
-                        await updateDoc(newsRef, {
-                            likes: increment(1),
-                            likedBy: [...likedBy, currentUser.uid]
-                        });
-
-                        modalLikeBtn.classList.add('liked');
-                        const icon = modalLikeBtn.querySelector('i');
-                        icon.className = 'fas fa-heart';
-
-                        const span = modalLikeBtn.querySelector('span');
-                        const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
-                        span.textContent = `${currentCount + 1} Curtir`;
-                    }
-                } catch (error) {
-                    console.error('Erro ao curtir:', error);
-                    alert('Erro ao curtir. Verifique sua conexão.');
-                } finally {
-                    setTimeout(() => {
-                        modalLikeBtn.disabled = false;
-                    }, 500);
-                }
+                // Usar sistema de interatividade que funciona (coleção 'news')
+                await toggleLike(newsId, modalLikeBtn, 'news');
             });
             
             // Configurar botão de compartilhar
