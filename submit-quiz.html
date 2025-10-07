@@ -398,15 +398,48 @@
         const imagePreview = document.getElementById('image-preview');
         const previewImg = document.getElementById('preview-img');
 
-        imageInput.addEventListener('change', (e) => {
+        // Armazenar dados da imagem para evitar perda de permissões
+        let cachedImageData = null;
+        let cachedImageFile = null;
+
+        imageInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    previewImg.src = event.target.result;
-                    imagePreview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
+            if (!file) {
+                cachedImageData = null;
+                cachedImageFile = null;
+                return;
+            }
+
+            console.log('📸 Arquivo selecionado, lendo imediatamente:', {
+                name: file.name,
+                type: file.type,
+                size: file.size
+            });
+
+            try {
+                // Ler arquivo IMEDIATAMENTE para evitar perda de permissões
+                const dataUrl = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = () => reject(new Error('Falha ao ler arquivo'));
+                    reader.readAsDataURL(file);
+                });
+
+                // Armazenar dados para uso posterior
+                cachedImageData = dataUrl;
+                cachedImageFile = file;
+                
+                // Mostrar preview
+                previewImg.src = dataUrl;
+                imagePreview.style.display = 'block';
+                
+                console.log('✅ Imagem carregada e armazenada em cache');
+
+            } catch (error) {
+                console.error('❌ Erro ao processar imagem:', error);
+                showToast('Erro ao carregar imagem. Tente novamente.', 'error');
+                cachedImageData = null;
+                cachedImageFile = null;
             }
         });
 
@@ -472,26 +505,32 @@
             const title = document.getElementById('quiz-title').value.trim();
             const description = document.getElementById('quiz-description').value.trim();
             const category = document.getElementById('quiz-category').value;
-            const imageFile = imageInput.files[0];
 
-            // Validar arquivo de imagem
-            if (imageFile) {
-                console.log('📋 Validando arquivo de imagem:', {
-                    name: imageFile.name,
-                    type: imageFile.type,
-                    size: imageFile.size,
-                    lastModified: new Date(imageFile.lastModified).toISOString()
+            // Usar dados em cache da imagem (já validados)
+            let imageFile = null;
+            if (cachedImageData && cachedImageFile) {
+                console.log('✅ Usando imagem em cache:', {
+                    name: cachedImageFile.name,
+                    size: cachedImageFile.size,
+                    type: cachedImageFile.type
                 });
-
-                if (!imageFile.type || !imageFile.type.startsWith('image/')) {
-                    showToast('O arquivo deve ser uma imagem válida', 'error');
-                    return;
+                
+                // Criar novo File a partir dos dados em cache
+                const byteString = atob(cachedImageData.split(',')[1]);
+                const mimeString = cachedImageData.split(',')[0].split(':')[1].split(';')[0];
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+                for (let i = 0; i < byteString.length; i++) {
+                    ia[i] = byteString.charCodeAt(i);
                 }
-
-                if (imageFile.size === 0) {
-                    showToast('O arquivo de imagem está vazio', 'error');
-                    return;
-                }
+                const blob = new Blob([ab], { type: mimeString });
+                imageFile = new File([blob], cachedImageFile.name, { type: mimeString });
+                
+                console.log('✅ Arquivo reconstruído:', {
+                    name: imageFile.name,
+                    size: imageFile.size,
+                    type: imageFile.type
+                });
             }
 
             const questions = [];
