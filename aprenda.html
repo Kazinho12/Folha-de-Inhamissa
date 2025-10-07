@@ -1242,7 +1242,7 @@ a:hover {
             quiz.questions.forEach((q, index) => {
                 const displayStyle = index === 0 ? 'block' : 'none';
                 questionsHTML += `
-                    <div class="quiz-question-group" data-question-index="${index}" style="display:${displayStyle}">
+                    <div class="quiz-question-group" data-question-index="${index}" data-explanation="${q.explanation || ''}" style="display:${displayStyle}">
                         <div class="quiz-question">${index + 1}. ${q.question}</div>
                         <div class="quiz-options">
                             ${q.options.map((opt, optIndex) => `
@@ -1300,6 +1300,7 @@ a:hover {
             let currentQuestion = 0;
             let score = 0;
             let answered = false;
+            let userAnswers = [];
 
             // Event listener para as opções
             const options = quizContainer.querySelectorAll('.quiz-option');
@@ -1309,6 +1310,15 @@ a:hover {
                     if (questionIndex !== currentQuestion || answered) return;
 
                     const isCorrect = this.getAttribute('data-correct') === 'true';
+                    const questionGroup = quizContainer.querySelector(`[data-question-index="${currentQuestion}"]`);
+                    const explanation = questionGroup?.getAttribute('data-explanation') || '';
+
+                    // Armazenar resposta do usuário
+                    userAnswers[currentQuestion] = {
+                        selected: this.textContent.trim(),
+                        isCorrect: isCorrect,
+                        explanation: explanation
+                    };
 
                     if (isCorrect) {
                         score++;
@@ -1317,6 +1327,27 @@ a:hover {
                     } else {
                         this.style.backgroundColor = 'var(--error)';
                         this.style.color = 'white';
+                        
+                        // Destacar resposta correta
+                        const correctOption = quizContainer.querySelector(`.quiz-option[data-question="${currentQuestion}"][data-correct="true"]`);
+                        if (correctOption) {
+                            correctOption.style.backgroundColor = 'var(--success)';
+                            correctOption.style.color = 'white';
+                        }
+                    }
+
+                    // Mostrar justificação
+                    if (explanation) {
+                        const feedbackDiv = document.createElement('div');
+                        feedbackDiv.className = 'quiz-feedback';
+                        feedbackDiv.style.marginTop = '12px';
+                        feedbackDiv.style.padding = '12px';
+                        feedbackDiv.style.borderRadius = '8px';
+                        feedbackDiv.style.backgroundColor = isCorrect ? 'var(--success-light)' : 'var(--error-light)';
+                        feedbackDiv.style.color = 'var(--text)';
+                        feedbackDiv.style.borderLeft = `4px solid ${isCorrect ? 'var(--success)' : 'var(--error)'}`;
+                        feedbackDiv.innerHTML = `<strong>${isCorrect ? '✅ Correto!' : '❌ Incorreto'}</strong><br>${explanation}`;
+                        questionGroup.appendChild(feedbackDiv);
                     }
 
                     answered = true;
@@ -1366,7 +1397,14 @@ a:hover {
                     message = `💪 Você acertou ${score} de ${totalQuestions} perguntas (${percentage}%). Não desista, revise o material!`;
                 }
 
-                resultsDiv.innerHTML = `<div class="quiz-final-result" style="text-align:center; padding:20px;">${message}</div>`;
+                // Botão de certificado se passou (>= 70%)
+                let certificateBtn = '';
+                if (percentage >= 70) {
+                    const quizTitle = quizContainer.closest('.learning-container')?.querySelector('.learning-title')?.textContent || 'Quiz';
+                    certificateBtn = `<button onclick="downloadCertificate('${quizTitle}', ${score}, ${totalQuestions}, ${percentage})" style="margin-top: 15px; padding: 10px 20px; background-color: var(--primary); color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;"><i class="fas fa-download"></i> Baixar Certificado</button>`;
+                }
+
+                resultsDiv.innerHTML = `<div class="quiz-final-result" style="text-align:center; padding:20px;">${message}${certificateBtn}</div>`;
                 resultsDiv.style.display = 'block';
                 finishBtn.style.display = 'none';
 
