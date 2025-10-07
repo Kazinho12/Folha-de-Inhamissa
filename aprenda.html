@@ -22,6 +22,8 @@
     --white: #000000;
     --gray: #333333;
     --dark-gray: #d0d0d0;
+    --bg: #0a0a0a;
+    --card-bg: #1a1a1a;
     --error: #e74c3c;
     --error-light: #fadbd8;
     --success: #2ecc71;
@@ -62,6 +64,56 @@
     --transition: all 0.3s ease;
 }
 
+[data-theme="light"] {
+    --primary: #FFD700;
+    --primary-dark: #FFC107;
+    --primary-light: #FFE55C;
+    --accent: #FFD700;
+    --accent-dark: #FFC107;
+    --text: #1a1a1a;
+    --text-light: #6b7280;
+    --text-lighter: #9ca3af;
+    --light: #f3f4f6;
+    --lighter: #f8f9fa;
+    --white: #FFFFFF;
+    --gray: #e5e7eb;
+    --dark-gray: #374151;
+    --bg: #f8f9fa;
+    --card-bg: #FFFFFF;
+    --error: #e74c3c;
+    --error-light: #fde8e8;
+    --success: #2ecc71;
+    --success-light: #ecfdf5;
+    --warning: #f39c12;
+    --info: #3498db;
+
+    /* Cores das matérias para tema claro */
+    --math-color: #e74c3c;
+    --math-light: #fde8e8;
+    --portuguese-color: #3498db;
+    --portuguese-light: #e3f2fd;
+    --history-color: #2ecc71;
+    --history-light: #ecfdf5;
+    --school-history-color: #9b59b6;
+    --school-history-light: #f3e5f5;
+    --geography-color: #f39c12;
+    --geography-light: #fff3e0;
+    --biology-color: #27ae60;
+    --biology-light: #e8f5e9;
+    --physics-color: #8e44ad;
+    --physics-light: #f3e5f5;
+    --chemistry-color: #16a085;
+    --chemistry-light: #e0f2f1;
+    --civics-color: #c0392b;
+    --civics-light: #fde8e8;
+    --english-color: #2980b9;
+    --english-light: #e3f2fd;
+
+    --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --modal-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -70,7 +122,7 @@
 }
 
 body {
-    background-color: #000000;
+    background: linear-gradient(135deg, var(--bg) 0%, var(--card-bg) 100%);
     color: var(--text);
     display: flex;
     flex-direction: column;
@@ -146,6 +198,26 @@ a:hover {
     display: flex;
     align-items: center;
     gap: 10px;
+}
+
+.theme-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid var(--gray);
+}
+
+.theme-toggle:hover {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: var(--white);
+    transform: rotate(180deg) scale(1.1);
 }
 
 .search-btn {
@@ -981,6 +1053,9 @@ a:hover {
         </a>
         <h1 class="app-bar-title">Aprenda</h1>
         <div class="app-bar-actions">
+            <div class="theme-toggle" id="theme-toggle">
+                <i class="fas fa-sun" id="theme-icon"></i>
+            </div>
             <div class="search-btn" id="search-btn">
                 <i class="fas fa-search"></i>
             </div>
@@ -1284,6 +1359,37 @@ a:hover {
 // DOM Elements
 const searchBtn = document.getElementById('search-btn');
 const searchModal = document.getElementById('search-modal');
+
+// Tema - Aplicar tema salvo no localStorage ou tema do sistema
+const themeToggle = document.getElementById('theme-toggle');
+const themeIcon = document.getElementById('theme-icon');
+
+// Função para aplicar tema
+function applyTheme(theme) {
+    if (theme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        themeIcon.className = 'fas fa-moon';
+    } else {
+        document.documentElement.removeAttribute('data-theme');
+        themeIcon.className = 'fas fa-sun';
+    }
+    localStorage.setItem('theme', theme);
+}
+
+// Carregar tema salvo ou usar tema do sistema
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+    applyTheme(savedTheme);
+} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+    applyTheme('light');
+}
+
+// Toggle de tema
+themeToggle.addEventListener('click', () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    applyTheme(newTheme);
+});
 const closeSearchBtn = document.getElementById('close-search');
 
 if (searchBtn) {

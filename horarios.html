@@ -20,11 +20,32 @@
             --white: #000000;
             --gray: #333333;
             --dark-gray: #d0d0d0;
+            --bg: #0a0a0a;
+            --card-bg: #1a1a1a;
             --error: #e74c3c;
             --success: #2ecc71;
             --warning: #f39c12;
             --info: #3498db;
             --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        [data-theme="light"] {
+            --primary: #FFD700;
+            --primary-dark: #FFC107;
+            --accent: #FFD700;
+            --text: #1a1a1a;
+            --text-light: #6b7280;
+            --light: #f3f4f6;
+            --white: #FFFFFF;
+            --gray: #e5e7eb;
+            --dark-gray: #374151;
+            --bg: #f8f9fa;
+            --card-bg: #FFFFFF;
+            --error: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --info: #3498db;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
         * {
@@ -35,11 +56,12 @@
         }
 
         body {
-            background-color: var(--light);
+            background: linear-gradient(135deg, var(--bg) 0%, var(--card-bg) 100%);
             color: var(--text);
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         /* App Bar */
@@ -109,6 +131,26 @@
 
         .user-avatar:hover {
             background-color: var(--primary-dark);
+        }
+
+        .theme-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--gray);
+        }
+
+        .theme-toggle:hover {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
+            transform: rotate(180deg) scale(1.1);
         }
 
         /* Search Modal */
@@ -797,6 +839,9 @@
         </a>
         <h1 class="app-bar-title">Horários</h1>
         <div class="app-bar-actions">
+            <div class="theme-toggle" id="theme-toggle">
+                <i class="fas fa-sun" id="theme-icon"></i>
+            </div>
             <div class="search-btn" id="search-btn">
                 <i class="fas fa-search"></i>
             </div>
@@ -1367,6 +1412,37 @@
                 if (e.target === taskModal) {
                     closeTaskModalFunc();
                 }
+            });
+
+            // Tema - Aplicar tema salvo no localStorage ou tema do sistema
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            
+            // Função para aplicar tema
+            function applyTheme(theme) {
+                if (theme === 'light') {
+                    document.documentElement.setAttribute('data-theme', 'light');
+                    themeIcon.className = 'fas fa-moon';
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    themeIcon.className = 'fas fa-sun';
+                }
+                localStorage.setItem('theme', theme);
+            }
+
+            // Carregar tema salvo ou usar tema do sistema
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                applyTheme('light');
+            }
+
+            // Toggle de tema
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                applyTheme(newTheme);
             });
         }
 

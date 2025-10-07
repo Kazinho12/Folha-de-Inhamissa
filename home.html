@@ -2755,6 +2755,16 @@
                     <div class="post-text">${processedContent}</div>
                     ${mediaContent}
                 </div>
+                <div class="post-actions">
+                    <div class="post-action like-btn" id="modal-like-btn-${postId}" data-post-id="${postId}">
+                        <i class="far fa-thumbs-up"></i>
+                        <span>${post.likes || 0} Curtir</span>
+                    </div>
+                    <div class="post-action share-btn" id="modal-share-btn-${postId}">
+                        <i class="far fa-share-square"></i>
+                        <span>Compartilhar</span>
+                    </div>
+                </div>
                 <div class="comments-section">
                     <h4>Comentários</h4>
                     <div class="comment-form">
@@ -2768,6 +2778,99 @@
             `;
 
             postModal.style.display = 'block';
+            
+            // Configurar botão de curtida no modal
+            const modalLikeBtn = document.getElementById(`modal-like-btn-${postId}`);
+            
+            // Verificar se usuário já curtiu
+            const checkIfLiked = async () => {
+                try {
+                    if (!auth.currentUser) return;
+
+                    const likedBy = post.likedBy || [];
+                    if (likedBy.includes(auth.currentUser.uid)) {
+                        modalLikeBtn.classList.add('liked');
+                        const icon = modalLikeBtn.querySelector('i');
+                        icon.className = 'fas fa-thumbs-up';
+                    }
+                } catch (error) {
+                    console.error('Erro ao verificar curtida:', error);
+                }
+            };
+
+            checkIfLiked();
+
+            modalLikeBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const user = auth.currentUser;
+
+                if (!user) {
+                    showToast('Faça login para curtir', 'error');
+                    return;
+                }
+
+                if (modalLikeBtn.disabled) return;
+                modalLikeBtn.disabled = true;
+
+                try {
+                    const postRef = doc(db, 'posts', postId);
+                    const postDoc = await getDoc(postRef);
+
+                    if (!postDoc.exists()) {
+                        throw new Error('Publicação não encontrada');
+                    }
+
+                    const postData = postDoc.data();
+                    const likedBy = postData.likedBy || [];
+                    const hasLiked = likedBy.includes(user.uid);
+
+                    if (hasLiked) {
+                        // Remover curtida
+                        await updateDoc(postRef, {
+                            likes: increment(-1),
+                            likedBy: likedBy.filter(id => id !== user.uid)
+                        });
+
+                        modalLikeBtn.classList.remove('liked');
+                        const icon = modalLikeBtn.querySelector('i');
+                        icon.className = 'far fa-thumbs-up';
+
+                        const span = modalLikeBtn.querySelector('span');
+                        const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
+                        span.textContent = `${Math.max(0, currentCount - 1)} Curtir`;
+
+                        showToast('Curtida removida', 'success');
+                    } else {
+                        // Adicionar curtida
+                        await updateDoc(postRef, {
+                            likes: increment(1),
+                            likedBy: [...likedBy, user.uid]
+                        });
+
+                        modalLikeBtn.classList.add('liked');
+                        const icon = modalLikeBtn.querySelector('i');
+                        icon.className = 'fas fa-thumbs-up';
+
+                        const span = modalLikeBtn.querySelector('span');
+                        const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
+                        span.textContent = `${currentCount + 1} Curtir`;
+
+                        showToast('Publicação curtida!', 'success');
+                    }
+                } catch (error) {
+                    console.error('Erro ao curtir:', error);
+                    showToast('Erro ao curtir. Verifique sua conexão.', 'error');
+                } finally {
+                    modalLikeBtn.disabled = false;
+                }
+            });
+
+            // Configurar botão de compartilhar no modal
+            const modalShareBtn = document.getElementById(`modal-share-btn-${postId}`);
+            modalShareBtn.addEventListener('click', () => {
+                sharePost(post, postId);
+            });
+            
             loadComments(postId);
 
             if (post.imageUrls && post.imageUrls.length > 1) {
@@ -2998,33 +3101,7 @@
                                 ${readMoreBtn}
                                 ${mediaPreview}
                             </div>
-                            <div class="post-actions">
-                                <div class="post-action like-btn" data-post-id="${postId}">
-                                    <i class="far fa-thumbs-up"></i>
-                                    <span>${post.likes || 0} Curtir</span>
-                                </div>
-                                <div class="post-action comment-btn">
-                                    <i class="far fa-comment"></i>
-                                    <span>${post.comments || 0} Comentar</span>
-                                </div>
-                                <div class="post-action share-btn">
-                                    <i class="far fa-share-square"></i>
-                                    <span>Compartilhar</span>
-                                </div>
-                            </div>
                         `;
-
-                        const shareBtn = postElement.querySelector('.share-btn');
-                        shareBtn.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            sharePost(post, postId);
-                        });
-
-                        const commentBtn = postElement.querySelector('.comment-btn');
-                        commentBtn.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            openPostModal(post, postId);
-                        });
                         
                         // Adicionar evento no botão "Ver mais"
                         const readMoreButton = postElement.querySelector('.read-more-btn');
@@ -3035,95 +3112,9 @@
                             });
                         }
 
-                        const likeBtn = postElement.querySelector('.like-btn');
-
-                        // Verificar se usuário já curtiu
-                        const checkIfLiked = async () => {
-                            try {
-                                if (!auth.currentUser) return;
-
-                                const likedBy = post.likedBy || [];
-                                if (likedBy.includes(auth.currentUser.uid)) {
-                                    likeBtn.classList.add('liked');
-                                    const icon = likeBtn.querySelector('i');
-                                    icon.className = 'fas fa-thumbs-up';
-                                }
-                            } catch (error) {
-                                console.error('Erro ao verificar curtida:', error);
-                            }
-                        };
-
-                        checkIfLiked();
-
-                        likeBtn.addEventListener('click', async (e) => {
-                            e.stopPropagation();
-                            const user = auth.currentUser;
-
-                            if (!user) {
-                                showToast('Faça login para curtir', 'error');
-                                return;
-                            }
-
-                            if (likeBtn.disabled) return;
-                            likeBtn.disabled = true;
-
-                            try {
-                                const postRef = doc(db, 'posts', postId);
-                                const postDoc = await getDoc(postRef);
-
-                                if (!postDoc.exists()) {
-                                    throw new Error('Publicação não encontrada');
-                                }
-
-                                const postData = postDoc.data();
-                                const likedBy = postData.likedBy || [];
-                                const hasLiked = likedBy.includes(user.uid);
-
-                                if (hasLiked) {
-                                    // Remover curtida
-                                    await updateDoc(postRef, {
-                                        likes: increment(-1),
-                                        likedBy: likedBy.filter(id => id !== user.uid)
-                                    });
-
-                                    likeBtn.classList.remove('liked');
-                                    const icon = likeBtn.querySelector('i');
-                                    icon.className = 'far fa-thumbs-up';
-
-                                    const span = likeBtn.querySelector('span');
-                                    const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
-                                    span.textContent = `${Math.max(0, currentCount - 1)} Curtir`;
-
-                                    showToast('Curtida removida', 'success');
-                                } else {
-                                    // Adicionar curtida
-                                    await updateDoc(postRef, {
-                                        likes: increment(1),
-                                        likedBy: [...likedBy, user.uid]
-                                    });
-
-                                    likeBtn.classList.add('liked');
-                                    const icon = likeBtn.querySelector('i');
-                                    icon.className = 'fas fa-thumbs-up';
-
-                                    const span = likeBtn.querySelector('span');
-                                    const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
-                                    span.textContent = `${currentCount + 1} Curtir`;
-
-                                    showToast('Publicação curtida!', 'success');
-                                }
-                            } catch (error) {
-                                console.error('Erro ao curtir:', error);
-                                showToast('Erro ao curtir. Verifique sua conexão.', 'error');
-                            } finally {
-                                setTimeout(() => {
-                                    likeBtn.disabled = false;
-                                }, 1000);
-                            }
-                        });
-
+                        // Fazer o card inteiro clicável para abrir o modal
                         postElement.addEventListener('click', (e) => {
-                            if (!e.target.closest('.post-action') && !e.target.closest('.post-avatar')) {
+                            if (!e.target.closest('.post-avatar')) {
                                 openPostModal(post, postId);
                             }
                         });

@@ -25,12 +25,40 @@
         --dark-gray: #d0d0d0;
         --white: #000000;
         --black: #000000;
+        --bg: #0a0a0a;
+        --card-bg: #1a1a1a;
         --error: #e74c3c;
         --error-light: #fde8e8;
         --success: #2ecc71;
         --success-light: #ecfdf5;
         --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
         --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="light"] {
+        --primary: #FFD700;
+        --primary-dark: #FFC107;
+        --primary-light: #FFE55C;
+        --accent: #FFD700;
+        --accent-dark: #FFC107;
+        --text: #1a1a1a;
+        --text-light: #6b7280;
+        --text-lighter: #9ca3af;
+        --light: #f3f4f6;
+        --light-gray: #e5e7eb;
+        --medium-gray: #d1d5db;
+        --dark-gray: #374151;
+        --white: #FFFFFF;
+        --black: #000000;
+        --bg: #f8f9fa;
+        --card-bg: #FFFFFF;
+        --error: #e74c3c;
+        --error-light: #fde8e8;
+        --success: #2ecc71;
+        --success-light: #ecfdf5;
+        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --card-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -46,12 +74,13 @@
     }
 
     body {
-        background-color: var(--light);
+        background: linear-gradient(135deg, var(--bg) 0%, var(--card-bg) 100%);
         color: var(--text);
         display: flex;
         flex-direction: column;
         min-height: 100vh;
         line-height: 1.5;
+        transition: background 0.3s ease, color 0.3s ease;
     }
 
     /* App Bar */
@@ -147,6 +176,26 @@
 
     .add-news-btn:hover {
         background-color: var(--accent-dark);
+    }
+
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--light);
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: var(--transition);
+        border: 1px solid var(--light-gray);
+    }
+
+    .theme-toggle:hover {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: var(--white);
+        transform: rotate(180deg) scale(1.1);
     }
 
     /* Main Content */
@@ -663,7 +712,6 @@
         }
     }
 </style>
-    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- App Bar -->
@@ -674,6 +722,9 @@
         </a>
         <h1 class="app-bar-title">Notícias</h1>
         <div class="app-bar-actions">
+            <div class="theme-toggle" id="theme-toggle">
+                <i class="fas fa-sun" id="theme-icon"></i>
+            </div>
             <div class="search-btn" id="search-btn">
                 <i class="fas fa-search"></i>
             </div>
@@ -1070,6 +1121,38 @@
                 newsModal.style.display = 'none';
             }
         });
+
+        // Tema - Aplicar tema salvo no localStorage ou tema do sistema
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        
+        // Função para aplicar tema
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeIcon.className = 'fas fa-moon';
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                themeIcon.className = 'fas fa-sun';
+            }
+            localStorage.setItem('theme', theme);
+        }
+
+        // Carregar tema salvo ou usar tema do sistema
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+            applyTheme('light');
+        }
+
+        // Toggle de tema
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(newTheme);
+        });
+
         // Category Selection
         categories.forEach(category => {
             category.addEventListener('click', async () => {
