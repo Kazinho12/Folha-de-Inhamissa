@@ -1129,8 +1129,8 @@ a:hover {
                         <div class="quiz-container">
                             ${questionsHTML}
                             <div class="quiz-actions">
-                                <button class="quiz-next">Próxima</button>
-                                <button class="quiz-finish" style="display:none">Finalizar</button>
+                                <button class="quiz-btn quiz-next">Próxima</button>
+                                <button class="quiz-btn quiz-finish" style="display:none">Finalizar</button>
                             </div>
                             <div class="quiz-results" style="display:none"></div>
                         </div>
@@ -1193,6 +1193,7 @@ a:hover {
 const searchBtn = document.getElementById('search-btn');
 const searchModal = document.getElementById('search-modal');
 const closeSearchBtn = document.getElementById('close-search');
+
 searchBtn.addEventListener('click', () => {
     searchModal.style.display = 'block';
 });
@@ -1205,7 +1206,144 @@ window.addEventListener('click', (event) => {
     if (event.target === searchModal) searchModal.style.display = 'none';
 });
 
-// Initialize quizzes
+// Improved Quiz functionality - DEVE estar antes de openQuizModal
+window.initQuizzes = function initQuizzes() {
+    const quizzes = document.querySelectorAll('.quiz-container');
+
+    quizzes.forEach(quiz => {
+        const questions = quiz.querySelectorAll('.quiz-question');
+        const nextBtn = quiz.querySelector('.quiz-btn.quiz-next');
+        const finishBtn = quiz.querySelector('.quiz-btn.quiz-finish');
+        const resultsDiv = quiz.querySelector('.quiz-results');
+        let currentQuestion = 0;
+        let score = 0;
+        let answered = false;
+
+        // Show first question
+        showQuestion(currentQuestion);
+
+        // Option click handler
+        quiz.querySelectorAll('.quiz-option').forEach(option => {
+            option.addEventListener('click', function() {
+                if (answered) return;
+
+                const isCorrect = this.getAttribute('data-correct') === 'true';
+                const feedback = this.closest('.quiz-options').nextElementSibling;
+
+                if (isCorrect) {
+                    this.classList.add('correct');
+                    feedback.textContent = 'Resposta correta!';
+                    feedback.classList.add('correct');
+                    score++;
+                } else {
+                    this.classList.add('incorrect');
+                    feedback.textContent = 'Resposta incorreta.';
+                    feedback.classList.add('incorrect');
+
+                    // Show correct answer
+                    const correctOption = this.parentElement.querySelector('[data-correct="true"]');
+                    correctOption.classList.add('correct');
+                }
+
+                answered = true;
+                nextBtn.style.display = 'inline-block';
+
+                // Disable all options after answer
+                const options = this.parentElement.querySelectorAll('.quiz-option');
+                options.forEach(opt => {
+                    opt.style.pointerEvents = 'none';
+                });
+            });
+        });
+
+        // Next question handler
+        nextBtn.addEventListener('click', function() {
+            currentQuestion++;
+            answered = false;
+
+            if (currentQuestion < questions.length) {
+                showQuestion(currentQuestion);
+                this.style.display = 'none';
+
+                if (currentQuestion === questions.length - 1) {
+                    finishBtn.style.display = 'inline-block';
+                }
+            }
+        });
+
+        // Finish quiz handler
+        finishBtn.addEventListener('click', function() {
+            const percentage = Math.round((score / questions.length) * 100);
+            let message = '';
+
+            if (percentage >= 80) {
+                message = `Excelente! Você acertou ${score} de ${questions.length} perguntas (${percentage}%).`;
+            } else if (percentage >= 60) {
+                message = `Bom trabalho! Você acertou ${score} de ${questions.length} perguntas (${percentage}%).`;
+            } else if (percentage >= 40) {
+                message = `Você acertou ${score} de ${questions.length} perguntas (${percentage}%). Estude mais um pouco!`;
+            } else {
+                message = `Você acertou ${score} de ${questions.length} perguntas (${percentage}%). Recomendamos revisar o material.`;
+            }
+
+            // Adicionar botão de download de certificado se passou (>= 70%)
+            let certificateBtn = '';
+            if (percentage >= 70) {
+                const quizId = quiz.id || 'quiz';
+                certificateBtn = `<button onclick="downloadCertificate('${quizId}', ${score}, ${questions.length}, ${percentage})" style="margin-top: 15px; padding: 10px 20px; background-color: var(--primary); color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;"><i class="fas fa-download"></i> Baixar Certificado</button>`;
+            }
+
+            resultsDiv.innerHTML = `<div class="quiz-final-result">${message}${certificateBtn}</div>`;
+            resultsDiv.style.display = 'block';
+            this.style.display = 'none';
+            nextBtn.style.display = 'none';
+
+            // Update progress in local storage
+            updateProgress(quiz.id.replace('-quiz', ''), percentage);
+        });
+
+        function showQuestion(index) {
+            // Hide all questions
+            questions.forEach((q, i) => {
+                q.style.display = 'none';
+                q.nextElementSibling.style.display = 'none'; // options
+                q.nextElementSibling.nextElementSibling.style.display = 'none'; // feedback
+            });
+
+            // Show current question
+            questions[index].style.display = 'block';
+            questions[index].nextElementSibling.style.display = 'block';
+
+            // Enable options for current question
+            const options = questions[index].nextElementSibling.querySelectorAll('.quiz-option');
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'auto';
+                opt.classList.remove('correct', 'incorrect');
+            });
+
+            // Show feedback for current question
+            questions[index].nextElementSibling.nextElementSibling.style.display = 'block';
+            questions[index].nextElementSibling.nextElementSibling.textContent = '';
+            questions[index].nextElementSibling.nextElementSibling.classList.remove('correct', 'incorrect');
+        }
+    });
+}
+
+// Função para atualizar progresso do usuário
+function updateProgress(subject, percentage) {
+    let progress = JSON.parse(localStorage.getItem('learningProgress')) || {};
+    progress[subject] = percentage;
+    localStorage.setItem('learningProgress', JSON.stringify(progress));
+
+    const progressBar = document.getElementById(`${subject}-progress`);
+    if (progressBar) {
+        progressBar.style.width = `${percentage}%`;
+        progressBar.textContent = `${percentage}%`;
+    }
+}
+
+// Conteúdo e quizzes para Matemática
+const matematicaContent = [
     {
         title: "Números e Operações Básicas",
         content: `
@@ -2280,277 +2418,6 @@ const inglesContent = [
     }
 ];
 
-// Event Listeners para os módulos
-historiaModule.addEventListener('click', () => {
-    loadLearningContent(historiaContent, learningBody);
-    learningModal.style.display = 'block';
-});
-
-matematicaModule.addEventListener('click', () => {
-    loadLearningContent(matematicaContent, matematicaBody);
-    matematicaModal.style.display = 'block';
-});
-
-portuguesModule.addEventListener('click', () => {
-    loadLearningContent(portuguesContent, portuguesBody);
-    portuguesModal.style.display = 'block';
-});
-
-historiaMocambiqueModule.addEventListener('click', () => {
-    loadLearningContent(historiaMocambiqueContent, historiaMocambiqueBody);
-    historiaMocambiqueModal.style.display = 'block';
-});
-
-geografiaModule.addEventListener('click', () => {
-    loadLearningContent(geografiaContent, geografiaBody);
-    geografiaModal.style.display = 'block';
-});
-
-biologiaModule.addEventListener('click', () => {
-    loadLearningContent(biologiaContent, biologiaBody);
-    biologiaModal.style.display = 'block';
-});
-
-fisicaModule.addEventListener('click', () => {
-    loadLearningContent(fisicaContent, fisicaBody);
-    fisicaModal.style.display = 'block';
-});
-
-quimicaModule.addEventListener('click', () => {
-    loadLearningContent(quimicaContent, quimicaBody);
-    quimicaModal.style.display = 'block';
-});
-
-educacaoCivicaModule.addEventListener('click', () => {
-    loadLearningContent(civicaContent, educacaoCivicaBody);
-    educacaoCivicaModal.style.display = 'block';
-});
-
-inglesModule.addEventListener('click', () => {
-    loadLearningContent(inglesContent, inglesBody);
-    inglesModal.style.display = 'block';
-});
-
-// Event Listeners para fechar modais
-closeLearningBtn.addEventListener('click', () => {
-    learningModal.style.display = 'none';
-});
-
-closeMatematicaBtn.addEventListener('click', () => {
-    matematicaModal.style.display = 'none';
-});
-
-closePortuguesBtn.addEventListener('click', () => {
-    portuguesModal.style.display = 'none';
-});
-
-closeHistoriaMocambiqueBtn.addEventListener('click', () => {
-    historiaMocambiqueModal.style.display = 'none';
-});
-
-closeGeografiaBtn.addEventListener('click', () => {
-    geografiaModal.style.display = 'none';
-});
-
-closeBiologiaBtn.addEventListener('click', () => {
-    biologiaModal.style.display = 'none';
-});
-
-closeFisicaBtn.addEventListener('click', () => {
-    fisicaModal.style.display = 'none';
-});
-
-closeQuimicaBtn.addEventListener('click', () => {
-    quimicaModal.style.display = 'none';
-});
-
-closeEducacaoCivicaBtn.addEventListener('click', () => {
-    educacaoCivicaModal.style.display = 'none';
-});
-
-closeInglesBtn.addEventListener('click', () => {
-    inglesModal.style.display = 'none';
-});
-
-searchBtn.addEventListener('click', () => {
-    searchModal.style.display = 'block';
-});
-
-closeSearchBtn.addEventListener('click', () => {
-    searchModal.style.display = 'none';
-});
-
-// Fechar modais ao clicar fora do conteúdo
-window.addEventListener('click', (event) => {
-    if (event.target === learningModal) learningModal.style.display = 'none';
-    if (event.target === matematicaModal) matematicaModal.style.display = 'none';
-    if (event.target === portuguesModal) portuguesModal.style.display = 'none';
-    if (event.target === historiaMocambiqueModal) historiaMocambiqueModal.style.display = 'none';
-    if (event.target === geografiaModal) geografiaModal.style.display = 'none';
-    if (event.target === biologiaModal) biologiaModal.style.display = 'none';
-    if (event.target === fisicaModal) fisicaModal.style.display = 'none';
-    if (event.target === quimicaModal) quimicaModal.style.display = 'none';
-    if (event.target === educacaoCivicaModal) educacaoCivicaModal.style.display = 'none';
-    if (event.target === inglesModal) inglesModal.style.display = 'none';
-    if (event.target === searchModal) searchModal.style.display = 'none';
-});
-
-// Function to load content into modal
-function loadLearningContent(content, container) {
-    let html = '';
-    content.forEach(section => {
-        html += `
-            <div class="learning-section">
-                <h3 class="section-title">${section.title}</h3>
-                <div class="section-content">
-                    ${section.content}
-                </div>
-            </div>
-        `;
-    });
-    container.innerHTML = html;
-
-    // Initialize quizzes
-    initQuizzes();
-}
-
-// Improved Quiz functionality
-function initQuizzes() {
-    const quizzes = document.querySelectorAll('.quiz-container');
-
-    quizzes.forEach(quiz => {
-        const questions = quiz.querySelectorAll('.quiz-question');
-        const nextBtn = quiz.querySelector('.quiz-next');
-        const finishBtn = quiz.querySelector('.quiz-finish');
-        const resultsDiv = quiz.querySelector('.quiz-results');
-        let currentQuestion = 0;
-        let score = 0;
-        let answered = false;
-
-        // Show first question
-        showQuestion(currentQuestion);
-
-        // Option click handler
-        quiz.querySelectorAll('.quiz-option').forEach(option => {
-            option.addEventListener('click', function() {
-                if (answered) return;
-
-                const isCorrect = this.getAttribute('data-correct') === 'true';
-                const feedback = this.closest('.quiz-options').nextElementSibling;
-
-                if (isCorrect) {
-                    this.classList.add('correct');
-                    feedback.textContent = 'Resposta correta!';
-                    feedback.classList.add('correct');
-                    score++;
-                } else {
-                    this.classList.add('incorrect');
-                    feedback.textContent = 'Resposta incorreta.';
-                    feedback.classList.add('incorrect');
-
-                    // Show correct answer
-                    const correctOption = this.parentElement.querySelector('[data-correct="true"]');
-                    correctOption.classList.add('correct');
-                }
-
-                answered = true;
-                nextBtn.style.display = 'inline-block';
-
-                // Disable all options after answer
-                const options = this.parentElement.querySelectorAll('.quiz-option');
-                options.forEach(opt => {
-                    opt.style.pointerEvents = 'none';
-                });
-            });
-        });
-
-        // Next question handler
-        nextBtn.addEventListener('click', function() {
-            currentQuestion++;
-            answered = false;
-
-            if (currentQuestion < questions.length) {
-                showQuestion(currentQuestion);
-                this.style.display = 'none';
-
-                if (currentQuestion === questions.length - 1) {
-                    finishBtn.style.display = 'inline-block';
-                }
-            }
-        });
-
-        // Finish quiz handler
-        finishBtn.addEventListener('click', function() {
-            const percentage = Math.round((score / questions.length) * 100);
-            let message = '';
-
-            if (percentage >= 80) {
-                message = `Excelente! Você acertou ${score} de ${questions.length} perguntas (${percentage}%).`;
-            } else if (percentage >= 60) {
-                message = `Bom trabalho! Você acertou ${score} de ${questions.length} perguntas (${percentage}%).`;
-            } else if (percentage >= 40) {
-                message = `Você acertou ${score} de ${questions.length} perguntas (${percentage}%). Estude mais um pouco!`;
-            } else {
-                message = `Você acertou ${score} de ${questions.length} perguntas (${percentage}%). Recomendamos revisar o material.`;
-            }
-
-            // Adicionar botão de download de certificado se passou (>= 70%)
-            let certificateBtn = '';
-            if (percentage >= 70) {
-                const quizId = quiz.id || 'quiz';
-                certificateBtn = `<button onclick="downloadCertificate('${quizId}', ${score}, ${questions.length}, ${percentage})" style="margin-top: 15px; padding: 10px 20px; background-color: var(--primary); color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;"><i class="fas fa-download"></i> Baixar Certificado</button>`;
-            }
-
-            resultsDiv.innerHTML = `<div class="quiz-final-result">${message}${certificateBtn}</div>`;
-            resultsDiv.style.display = 'block';
-            this.style.display = 'none';
-            nextBtn.style.display = 'none';
-
-            // Update progress in local storage
-            updateProgress(quiz.id.replace('-quiz', ''), percentage);
-        });
-
-        function showQuestion(index) {
-            // Hide all questions
-            questions.forEach((q, i) => {
-                q.style.display = 'none';
-                q.nextElementSibling.style.display = 'none'; // options
-                q.nextElementSibling.nextElementSibling.style.display = 'none'; // feedback
-            });
-
-            // Show current question
-            questions[index].style.display = 'block';
-            questions[index].nextElementSibling.style.display = 'block';
-
-            // Enable options for current question
-            const options = questions[index].nextElementSibling.querySelectorAll('.quiz-option');
-            options.forEach(opt => {
-                opt.style.pointerEvents = 'auto';
-                opt.classList.remove('correct', 'incorrect');
-            });
-
-            // Show feedback for current question
-            questions[index].nextElementSibling.nextElementSibling.style.display = 'block';
-            questions[index].nextElementSibling.nextElementSibling.textContent = '';
-            questions[index].nextElementSibling.nextElementSibling.classList.remove('correct', 'incorrect');
-        }
-    });
-}
-
-// Update user progress
-function updateProgress(subject, percentage) {
-    let progress = JSON.parse(localStorage.getItem('learningProgress')) || {};
-    progress[subject] = percentage;
-    localStorage.setItem('learningProgress', JSON.stringify(progress));
-
-    // Update progress bar
-    const progressBar = document.getElementById(`${subject}-progress`);
-    if (progressBar) {
-        progressBar.style.width = `${percentage}%`;
-        progressBar.textContent = `${percentage}%`;
-    }
-}
-
 // Initialize progress bars from local storage
 function initProgressBars() {
     const progress = JSON.parse(localStorage.getItem('learningProgress')) || {};
@@ -2804,7 +2671,7 @@ function loadCustomQuizzes() {
 }
 
 // Função para gerar e baixar certificado como imagem
-function downloadCertificate(quizName, score, total, percentage) {
+window.downloadCertificate = function downloadCertificate(quizName, score, total, percentage) {
     // Criar canvas para o certificado
     const canvas = document.createElement('canvas');
     canvas.width = 1200;

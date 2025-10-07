@@ -90,6 +90,15 @@ The application is configured for deployment on Replit using autoscale:
 8. **publicarnews.html** - Interface to publish news (likely admin only)
 
 ## Recent Changes
+- **2025-10-07**: Quiz Modal Critical Bug Fixes (aprenda.html)
+  - **Problema Resolvido**: Modal de quiz não aceitava seleção de opções nem mostrava justificação/certificado
+  - **Correções Aplicadas**:
+    - Tornei `initQuizzes` função global (`window.initQuizzes`) para ser acessível de dentro do módulo Firebase
+    - Tornei `downloadCertificate` função global (`window.downloadCertificate`) para funcionar via onclick
+    - Corrigi erro de sintaxe JavaScript adicionando declaração `const matematicaContent = [` que estava faltando
+    - Adicionei todas as declarações de variáveis DOM necessárias (historiaModule, matematicaModule, learningModal, etc.)
+  - **Status**: Quizzes agora funcionam perfeitamente - seleção de opções, feedback, e certificado funcionando
+
 - **2025-10-06**: Bug Fixes and Feature Improvements
   - **Login Page**: Corrigido loop infinito removendo tag HTML malformada (`</old_str>`)
   - **Página Home**: 
