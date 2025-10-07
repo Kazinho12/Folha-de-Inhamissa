@@ -395,7 +395,8 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
+        import { getStorage } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
+        import { initUploadUtils, uploadNewsImage } from './upload-utils.js';
 
         const firebaseConfig = {
             apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
@@ -410,6 +411,9 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const storage = getStorage(app);
+
+        // Inicializar sistema de upload
+        initUploadUtils(storage);
 
         const ADMIN_EMAILS = ['killiandesigner@gmail.com', 'jeanabilio72@gmail.com', 'ianomachai@gmail.com'];
 
@@ -546,19 +550,32 @@
 
                 let imageUrl = '';
                 if (imageFile) {
-                    const storageRef = ref(storage, `news/${Date.now()}_${imageFile.name}`);
-                    const uploadTask = uploadBytesResumable(storageRef, imageFile);
-
-                    await new Promise((resolve, reject) => {
-                        uploadTask.on('state_changed', null,
-                            (error) => reject(error),
-                            async () => {
-                                imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-                                resolve();
+                    try {
+                        // Usar sistema de upload com progresso
+                        const uploadResult = await uploadNewsImage(
+                            imageFile,
+                            user.uid,
+                            (progress) => {
+                                submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Enviando imagem... ${Math.round(progress)}%`;
                             }
                         );
-                    });
+
+                        if (uploadResult && uploadResult.url) {
+                            imageUrl = uploadResult.url;
+                            console.log('✅ Imagem enviada:', imageUrl);
+                        } else {
+                            throw new Error('URL da imagem não retornada');
+                        }
+                    } catch (uploadError) {
+                        console.error('❌ Erro no upload da imagem:', uploadError);
+                        showToast(`Erro ao enviar imagem: ${uploadError.message}`, 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Publicar Notícia';
+                        return;
+                    }
                 }
+
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando notícia...';
 
                 await addDoc(collection(db, 'news'), {
                     title,
@@ -580,7 +597,7 @@
 
             } catch (error) {
                 console.error('Erro ao publicar:', error);
-                showToast('Erro ao publicar notícia', 'error');
+                showToast(`Erro ao publicar notícia: ${error.message}`, 'error');
                 const submitBtn = e.target.querySelector('button[type="submit"]');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Publicar Notícia';
