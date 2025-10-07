@@ -103,9 +103,9 @@
     --physics-color: #8e44ad;
     --physics-light: #f3e5f5;
     --chemistry-color: #16a085;
-    --chemistry-light: #e0f2f1;
+    --chemistry-light: #d1f2eb;
     --civics-color: #c0392b;
-    --civics-light: #fde8e8;
+    --civics-light: #fadbd8;
     --english-color: #2980b9;
     --english-light: #e3f2fd;
 
@@ -1092,7 +1092,7 @@ a:hover {
         <div id="community-quizzes" style="margin-bottom: 40px;"></div>
     </main>
 
-    
+
 
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
@@ -1117,7 +1117,8 @@ a:hover {
     <script type="module">
         // Import Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-        import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+        import { getFirestore, collection, query, orderBy, limit, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
@@ -1130,19 +1131,74 @@ a:hover {
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const authAprenda = getAuth(app);
+
+        // Tema - Sistema completo com Firebase
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+
+        // Função para aplicar tema
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeIcon.className = 'fas fa-moon';
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                themeIcon.className = 'fas fa-sun';
+            }
+        }
+
+        // Função para carregar tema do Firebase
+        async function loadThemePreference(userId) {
+            try {
+                const userDocRef = doc(db, 'users', userId);
+                const userDoc = await getDoc(userDocRef);
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    const theme = userData.theme || 'dark';
+                    applyTheme(theme);
+                    return theme;
+                }
+            } catch (error) {
+                console.warn('Erro ao carregar preferência de tema:', error);
+            }
+            applyTheme('dark');
+            return 'dark';
+        }
+
+        // Função para salvar tema no Firebase
+        async function saveThemePreference(userId, theme) {
+            try {
+                const userDocRef = doc(db, 'users', userId);
+                await updateDoc(userDocRef, { theme });
+            } catch (error) {
+                console.warn('Erro ao salvar preferência de tema:', error);
+            }
+        }
+
+        // Toggle de tema
+        themeToggle.addEventListener('click', async () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(newTheme);
+
+            if (authAprenda.currentUser) {
+                await saveThemePreference(authAprenda.currentUser.uid, newTheme);
+            }
+        });
 
         // Carregar quizzes da comunidade
         async function loadCommunityQuizzes() {
             try {
                 const quizzesQuery = query(collection(db, 'quizzes'), orderBy('createdAt', 'desc'), limit(20));
                 const quizzesSnapshot = await getDocs(quizzesQuery);
-                
+
                 const container = document.getElementById('community-quizzes');
-                
+
                 if (!quizzesSnapshot.empty) {
                     container.innerHTML = '<h2 style="margin-bottom: 20px; color: var(--primary);">Quizzes da Comunidade</h2><div class="learning-modules" id="quiz-grid"></div>';
                     const quizGrid = document.getElementById('quiz-grid');
-                    
+
                     quizzesSnapshot.forEach((doc) => {
                         const quiz = doc.data();
                         const quizCard = document.createElement('div');
@@ -1163,11 +1219,11 @@ a:hover {
                                 </div>
                             </div>
                         `;
-                        
+
                         quizCard.addEventListener('click', () => {
                             openQuizModal(quiz, doc.id);
                         });
-                        
+
                         quizGrid.appendChild(quizCard);
                     });
                 }
@@ -1180,7 +1236,7 @@ a:hover {
             const modal = document.createElement('div');
             modal.className = 'learning-modal';
             modal.style.display = 'block';
-            
+
             let questionsHTML = '';
             quiz.questions.forEach((q, index) => {
                 const displayStyle = index === 0 ? 'block' : 'none';
@@ -1195,7 +1251,7 @@ a:hover {
                     </div>
                 `;
             });
-            
+
             modal.innerHTML = `
                 <div class="learning-container">
                     <div class="learning-header" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #000;">
@@ -1215,19 +1271,19 @@ a:hover {
                     </div>
                 </div>
             `;
-            
+
             document.body.appendChild(modal);
-            
+
             modal.querySelector('.close-learning').addEventListener('click', () => {
                 modal.remove();
             });
-            
+
             window.addEventListener('click', (e) => {
                 if (e.target === modal) {
                     modal.remove();
                 }
             });
-            
+
             // Inicializar quiz com lógica melhorada
             initCommunityQuiz(quizId, quiz.questions.length);
         }
@@ -1239,7 +1295,7 @@ a:hover {
             const nextBtn = quizContainer.querySelector('.quiz-next');
             const finishBtn = quizContainer.querySelector('.quiz-finish');
             const resultsDiv = quizContainer.querySelector('.quiz-results');
-            
+
             let currentQuestion = 0;
             let score = 0;
             let answered = false;
@@ -1252,7 +1308,7 @@ a:hover {
                     if (questionIndex !== currentQuestion || answered) return;
 
                     const isCorrect = this.getAttribute('data-correct') === 'true';
-                    
+
                     if (isCorrect) {
                         score++;
                         this.style.backgroundColor = 'var(--success)';
@@ -1263,7 +1319,7 @@ a:hover {
                     }
 
                     answered = true;
-                    
+
                     // Mostrar botão apropriado
                     if (currentQuestion < totalQuestions - 1) {
                         nextBtn.style.display = 'inline-block';
@@ -1312,7 +1368,7 @@ a:hover {
                 resultsDiv.innerHTML = `<div class="quiz-final-result" style="text-align:center; padding:20px;">${message}</div>`;
                 resultsDiv.style.display = 'block';
                 finishBtn.style.display = 'none';
-                
+
                 // Esconder todas as perguntas
                 quizContainer.querySelectorAll('.quiz-question-group').forEach(group => {
                     group.style.display = 'none';
@@ -1321,13 +1377,8 @@ a:hover {
         }
 
         loadCommunityQuizzes();
-        
+
         // Carregar avatar do usuário
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
-        import { getDoc, doc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
-        
-        const authAprenda = getAuth(app);
-        
         onAuthStateChanged(authAprenda, async (user) => {
             if (user) {
                 try {
@@ -1337,10 +1388,10 @@ a:hover {
                         const initials = userData.name ? 
                             userData.name.split(' ').map(n => n[0]).join('').toUpperCase() : 
                             user.email[0].toUpperCase();
-                        
+
                         const userAvatar = document.getElementById('user-avatar');
                         const avatarInitials = document.getElementById('avatar-initials');
-                        
+
                         if (userData.photoURL) {
                             userAvatar.innerHTML = `<img src="${userData.photoURL}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
                         } else {
@@ -1348,9 +1399,21 @@ a:hover {
                                 avatarInitials.textContent = initials;
                             }
                         }
+                        // Carregar preferência de tema após autenticação do usuário
+                        await loadThemePreference(user.uid);
                     }
                 } catch (error) {
                     console.error('Erro ao carregar usuário:', error);
+                }
+            } else {
+                // Se o usuário não estiver logado, aplicar o tema padrão ou do sistema
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme) {
+                    applyTheme(savedTheme);
+                } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                    applyTheme('light');
+                } else {
+                    applyTheme('dark');
                 }
             }
         });
@@ -1360,36 +1423,59 @@ a:hover {
 const searchBtn = document.getElementById('search-btn');
 const searchModal = document.getElementById('search-modal');
 
-// Tema - Aplicar tema salvo no localStorage ou tema do sistema
-const themeToggle = document.getElementById('theme-toggle');
-const themeIcon = document.getElementById('theme-icon');
+// Tema - Sistema completo com Firebase
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
 
-// Função para aplicar tema
-function applyTheme(theme) {
-    if (theme === 'light') {
-        document.documentElement.setAttribute('data-theme', 'light');
-        themeIcon.className = 'fas fa-moon';
-    } else {
-        document.documentElement.removeAttribute('data-theme');
-        themeIcon.className = 'fas fa-sun';
-    }
-    localStorage.setItem('theme', theme);
-}
+        // Função para aplicar tema
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                themeIcon.className = 'fas fa-moon';
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                themeIcon.className = 'fas fa-sun';
+            }
+        }
 
-// Carregar tema salvo ou usar tema do sistema
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme) {
-    applyTheme(savedTheme);
-} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-    applyTheme('light');
-}
+        // Função para carregar tema do Firebase
+        async function loadThemePreference(userId) {
+            try {
+                const userDocRef = doc(db, 'users', userId);
+                const userDoc = await getDoc(userDocRef);
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    const theme = userData.theme || 'dark';
+                    applyTheme(theme);
+                    return theme;
+                }
+            } catch (error) {
+                console.warn('Erro ao carregar preferência de tema:', error);
+            }
+            applyTheme('dark');
+            return 'dark';
+        }
 
-// Toggle de tema
-themeToggle.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    applyTheme(newTheme);
-});
+        // Função para salvar tema no Firebase
+        async function saveThemePreference(userId, theme) {
+            try {
+                const userDocRef = doc(db, 'users', userId);
+                await updateDoc(userDocRef, { theme });
+            } catch (error) {
+                console.warn('Erro ao salvar preferência de tema:', error);
+            }
+        }
+
+        // Toggle de tema
+        themeToggle.addEventListener('click', async () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(newTheme);
+
+            if (authAprenda.currentUser) {
+                await saveThemePreference(authAprenda.currentUser.uid, newTheme);
+            }
+        });
 const closeSearchBtn = document.getElementById('close-search');
 
 if (searchBtn) {
@@ -1494,12 +1580,12 @@ window.initQuizzes = function() {
             // Mostrar resumo de respostas
             let reviewHTML = '<div style="margin-top: 20px; text-align: left;">';
             reviewHTML += '<h3 style="color: var(--primary); margin-bottom: 15px;">Revisão das Respostas:</h3>';
-            
+
             userAnswers.forEach((answer, index) => {
                 const questionText = questions[index].textContent.replace(/^\d+\.\s*/, '');
                 const statusIcon = answer.isCorrect ? '✅' : '❌';
                 const statusColor = answer.isCorrect ? 'var(--success)' : 'var(--error)';
-                
+
                 reviewHTML += `
                     <div style="margin-bottom: 15px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 3px solid ${statusColor};">
                         <div style="font-weight: 600; margin-bottom: 5px;">${statusIcon} ${questionText}</div>
@@ -1508,7 +1594,7 @@ window.initQuizzes = function() {
                     </div>
                 `;
             });
-            
+
             reviewHTML += '</div>';
 
             // Adicionar botão de download de certificado se passou (>= 70%)
@@ -2642,6 +2728,9 @@ const inglesContent = [
     }
 ];
 
+// Initialize array for dynamic quizzes if it doesn't exist
+let dynamicQuizzes = [];
+
 // Initialize progress bars from local storage
 function initProgressBars() {
     const progress = JSON.parse(localStorage.getItem('learningProgress')) || {};
@@ -2668,7 +2757,7 @@ function renderDynamicQuizzes() {
     if (!container) return;
 
     let html = '';
-    
+
     dynamicQuizzes.forEach((quiz, quizIndex) => {
         html += `
             <div class="quiz-container" id="${quiz.id}-quiz" data-quiz-index="${quizIndex}">
@@ -2723,7 +2812,7 @@ function showAddQuizModal() {
                     <label style="display: block; margin-bottom: 8px; font-weight: 600;">Título do Quiz:</label>
                     <input type="text" id="quiz-title-input" style="width: 100%; padding: 12px; border: 1px solid var(--gray); border-radius: 8px; font-size: 1rem;" placeholder="Digite o título do quiz">
                 </div>
-                
+
                 <div style="margin-bottom: 20px;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 600;">Categoria:</label>
                     <select id="quiz-category-input" style="width: 100%; padding: 12px; border: 1px solid var(--gray); border-radius: 8px; font-size: 1rem;">
@@ -2749,7 +2838,7 @@ function showAddQuizModal() {
                     <div class="question-item" data-question-index="0">
                         <label style="display: block; margin-bottom: 8px; font-weight: 600;">Pergunta 1:</label>
                         <input type="text" class="question-text" style="width: 100%; padding: 10px; border: 1px solid var(--gray); border-radius: 8px; margin-bottom: 10px;" placeholder="Digite a pergunta">
-                        
+
                         <label style="display: block; margin-bottom: 8px;">Opções (marque a correta):</label>
                         <div style="margin-bottom: 10px;">
                             <input type="radio" name="correct-0" value="0" checked>
@@ -2782,7 +2871,7 @@ function showAddQuizModal() {
             </div>
         </div>
     `;
-    
+
     document.body.appendChild(modal);
 
     let questionCount = 1;
@@ -2802,7 +2891,7 @@ function showAddQuizModal() {
             <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--gray);">
             <label style="display: block; margin-bottom: 8px; font-weight: 600;">Pergunta ${questionCount + 1}:</label>
             <input type="text" class="question-text" style="width: 100%; padding: 10px; border: 1px solid var(--gray); border-radius: 8px; margin-bottom: 10px;" placeholder="Digite a pergunta">
-            
+
             <label style="display: block; margin-bottom: 8px;">Opções (marque a correta):</label>
             <div style="margin-bottom: 10px;">
                 <input type="radio" name="correct-${questionCount}" value="0" checked>
@@ -2829,7 +2918,7 @@ function showAddQuizModal() {
     document.getElementById('save-quiz-btn').addEventListener('click', () => {
         const title = document.getElementById('quiz-title-input').value.trim();
         const category = document.getElementById('quiz-category-input').value;
-        
+
         if (!title) {
             alert('Por favor, digite o título do quiz.');
             return;
@@ -2868,10 +2957,10 @@ function showAddQuizModal() {
 
         dynamicQuizzes.push(newQuiz);
         localStorage.setItem('customQuizzes', JSON.stringify(dynamicQuizzes));
-        
+
         renderDynamicQuizzes();
         modal.remove();
-        
+
         alert('Quiz adicionado com sucesso!');
     });
 
@@ -2905,58 +2994,58 @@ window.downloadCertificate = function downloadCertificate(quizName, score, total
     canvas.width = 1200;
     canvas.height = 800;
     const ctx = canvas.getContext('2d');
-    
+
     // Fundo gradiente
     const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
     gradient.addColorStop(0, '#000000');
     gradient.addColorStop(1, '#1a1a1a');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
+
     // Borda dourada
     ctx.strokeStyle = '#FFD700';
     ctx.lineWidth = 20;
     ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
-    
+
     // Título "CERTIFICADO"
     ctx.fillStyle = '#FFD700';
     ctx.font = 'bold 72px Inter, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('CERTIFICADO', canvas.width / 2, 150);
-    
+
     // Subtítulo
     ctx.fillStyle = '#FFFFFF';
     ctx.font = '32px Inter, sans-serif';
     ctx.fillText('de Conclusão', canvas.width / 2, 210);
-    
+
     // Nome do aluno (usar nome do localStorage ou "Estudante")
     const userName = localStorage.getItem('userName') || 'Estudante';
     ctx.fillStyle = '#FFD700';
     ctx.font = 'bold 42px Inter, sans-serif';
     ctx.fillText(userName, canvas.width / 2, 320);
-    
+
     // Texto descritivo
     ctx.fillStyle = '#CCCCCC';
     ctx.font = '28px Inter, sans-serif';
     ctx.fillText('Concluiu com sucesso o quiz:', canvas.width / 2, 390);
-    
+
     // Nome do quiz
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 36px Inter, sans-serif';
     const displayQuizName = quizName.replace('-quiz', '').replace(/-/g, ' ').toUpperCase();
     ctx.fillText(displayQuizName, canvas.width / 2, 450);
-    
+
     // Pontuação
     ctx.fillStyle = '#FFD700';
     ctx.font = 'bold 48px Inter, sans-serif';
     ctx.fillText(`${score} de ${total} (${percentage}%)`, canvas.width / 2, 540);
-    
+
     // Data
     const today = new Date().toLocaleDateString('pt-MZ');
     ctx.fillStyle = '#CCCCCC';
     ctx.font = '24px Inter, sans-serif';
     ctx.fillText(`Data: ${today}`, canvas.width / 2, 620);
-    
+
     // Escola
     ctx.fillStyle = '#FFD700';
     ctx.font = 'bold 28px Inter, sans-serif';
@@ -2964,7 +3053,7 @@ window.downloadCertificate = function downloadCertificate(quizName, score, total
     ctx.fillStyle = '#FFFFFF';
     ctx.font = '22px Inter, sans-serif';
     ctx.fillText('Xai-Xai, Gaza, Moçambique', canvas.width / 2, 740);
-    
+
     // Converter canvas para imagem e fazer download
     canvas.toBlob(function(blob) {
         const url = URL.createObjectURL(blob);
@@ -2983,7 +3072,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initProgressBars();
     loadCustomQuizzes();
     renderDynamicQuizzes();
-    
+
     const addQuizBtn = document.getElementById('add-quiz-btn');
     if (addQuizBtn) {
         addQuizBtn.addEventListener('click', showAddQuizModal);

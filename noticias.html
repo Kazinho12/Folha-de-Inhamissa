@@ -544,11 +544,11 @@
         animation: likeAnimation 0.3s ease;
         color: var(--white);
     }
-    
+
     .modal-like-btn i {
         color: #ff1744;
     }
-    
+
     .modal-like-btn.liked i {
         color: var(--white);
     }
@@ -720,13 +720,13 @@
         justify-content: center;
         padding: 60px 20px;
     }
-    
+
     .loading-animation .lottie-container {
         width: 200px;
         height: 200px;
         margin-bottom: 16px;
     }
-    
+
     .loading-animation p {
         color: var(--text-light);
         font-size: 1rem;
@@ -923,7 +923,7 @@
             increment,
             serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
-        
+
         // Import sistema de interatividade
         import { 
             initInteractivity, 
@@ -954,7 +954,7 @@
         // DOM Elements
         const userAvatar = document.getElementById('user-avatar');
         const avatarInitials = document.getElementById('avatar-initials');
-        
+
         // Carregar dados do usuário
         async function loadUserData(userId) {
             try {
@@ -962,17 +962,17 @@
                 if (userDoc.exists()) {
                     const userData = userDoc.data();
                     currentUserData = userData; // Armazenar dados do usuário
-                    
+
                     // Inicializar sistema de interatividade
                     initInteractivity(db, auth, userData);
-                    
+
                     const initials = userData.name ? 
                         userData.name.split(' ').map(n => n[0]).join('').toUpperCase() : 
                         auth.currentUser.email[0].toUpperCase();
-                    
+
                     const userAvatar = document.getElementById('user-avatar');
                     const avatarInitials = document.getElementById('avatar-initials');
-                    
+
                     if (userData.photoURL) {
                         userAvatar.innerHTML = `<img src="${userData.photoURL}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
                     } else {
@@ -1029,19 +1029,19 @@
         function processContent(content) {
             // Convert newlines to paragraphs
             let html = content;
-            
+
             // Process bold text
             html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            
+
             // Process italic text
             html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-            
+
             // Process links (with or without protocol)
             html = html.replace(/\[(.*?)\]\((.*?)\)/g, (match, text, url) => {
                 const fullUrl = url.startsWith('http') ? url : `https://${url}`;
                 return `<a href="${fullUrl}" target="_blank" rel="noopener noreferrer">${text}</a>`;
             });
-            
+
             // Split into paragraphs
             const paragraphs = html.split('\n').filter(p => p.trim() !== '');
             return paragraphs.map(p => `<p>${p}</p>`).join('');
@@ -1067,14 +1067,14 @@
                 if (!isValidUrl(url)) return basicPreview;
 
                 const response = await fetch(`${LINKPREVIEW_ENDPOINT}?key=${LINKPREVIEW_API_KEY}&q=${encodeURIComponent(url)}`);
-                
+
                 if (!response.ok) {
                     console.warn('LinkPreview API limit reached or error occurred, using basic preview');
                     return basicPreview;
                 }
 
                 const data = await response.json();
-                
+
                 // Cache the result
                 linkPreviewCache[url] = {
                     title: data.title || basicPreview.title,
@@ -1103,7 +1103,7 @@
         // Create link preview element
         async function createLinkPreview(url) {
             const preview = await getLinkPreview(url);
-            
+
             return `
                 <div class="link-preview">
                     <a href="${preview.url}" target="_blank" rel="noopener noreferrer">
@@ -1126,16 +1126,16 @@
             try {
                 const newsRef = doc(db, 'news', newsId);
                 const newsDoc = await getDoc(newsRef);
-                
+
                 if (!newsDoc.exists()) {
                     console.error('Notícia não encontrada');
                     return 0;
                 }
-                
+
                 await updateDoc(newsRef, {
                     views: increment(1)
                 });
-                
+
                 // Buscar o valor atualizado
                 const updatedDoc = await getDoc(newsRef);
                 if (updatedDoc.exists()) {
@@ -1155,14 +1155,14 @@
             modalTitle.textContent = news.title;
             modalAuthor.textContent = `Por ${news.author || 'Administrador'}`;
             modalDate.textContent = formatDate(news.createdAt);
-            
+
             // Process content with formatting
             let content = processContent(news.content);
-            
+
             // Extract URLs for previews
             const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/g;
             const urls = news.content.match(urlRegex) || [];
-            
+
             // Process each URL and replace with preview
             for (const url of urls) {
                 if (!url.includes('[') && !url.includes(']')) { // Skip markdown links
@@ -1170,15 +1170,15 @@
                     content = content.replace(url, previewHTML);
                 }
             }
-            
+
             modalText.innerHTML = content;
-            
+
             // Incrementar visualizações e obter valor atualizado
             let updatedViews = news.views || 0;
             if (newsId) {
                 updatedViews = await incrementViews(newsId);
             }
-            
+
             // Adicionar botões de interação
             const interactionButtons = document.createElement('div');
             interactionButtons.className = 'modal-interactions';
@@ -1196,23 +1196,92 @@
                     <span>${updatedViews}</span>
                 </div>
             `;
-            
+
             modalText.appendChild(interactionButtons);
-            
-            // Configurar botão de curtir
+
+            // Configurar botão de curtir no modal
             const modalLikeBtn = document.getElementById(`modal-like-btn-${newsId}`);
-            
-            // Verificar se usuário já curtiu usando sistema de interatividade (ícone heart)
-            checkIfLiked(newsId, news, modalLikeBtn, 'heart');
-            
-            // Adicionar evento de clique para curtir usando sistema de interatividade
+
+            // Verificar se usuário já curtiu
+            const checkLiked = async () => {
+                try {
+                    if (!auth.currentUser) return;
+
+                    const likedBy = news.likedBy || [];
+                    if (likedBy.includes(auth.currentUser.uid)) {
+                        modalLikeBtn.classList.add('liked');
+                        const icon = modalLikeBtn.querySelector('i');
+                        if (icon) icon.className = 'fas fa-heart';
+                    }
+                } catch (error) {
+                    console.error('Erro ao verificar curtida:', error);
+                }
+            };
+
+            checkLiked();
+
+            // Adicionar evento de clique para curtir
             modalLikeBtn.addEventListener('click', async (e) => {
                 e.stopPropagation();
-                
-                // Usar sistema de interatividade que funciona (coleção 'news')
-                await toggleLike(newsId, modalLikeBtn, 'news');
+                const user = auth.currentUser;
+
+                if (!user) {
+                    alert('Faça login para curtir');
+                    return;
+                }
+
+                if (modalLikeBtn.disabled) return;
+                modalLikeBtn.disabled = true;
+
+                try {
+                    const newsRef = doc(db, 'news', newsId);
+                    const newsDoc = await getDoc(newsRef);
+
+                    if (!newsDoc.exists()) {
+                        throw new Error('Notícia não encontrada');
+                    }
+
+                    const newsData = newsDoc.data();
+                    const likedBy = newsData.likedBy || [];
+                    const hasLiked = likedBy.includes(user.uid);
+
+                    if (hasLiked) {
+                        // Remover curtida
+                        await updateDoc(newsRef, {
+                            likes: increment(-1),
+                            likedBy: likedBy.filter(id => id !== user.uid)
+                        });
+
+                        modalLikeBtn.classList.remove('liked');
+                        const icon = modalLikeBtn.querySelector('i');
+                        if (icon) icon.className = 'far fa-heart';
+
+                        const span = modalLikeBtn.querySelector('span');
+                        const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
+                        span.textContent = `${Math.max(0, currentCount - 1)} Curtir`;
+                    } else {
+                        // Adicionar curtida
+                        await updateDoc(newsRef, {
+                            likes: increment(1),
+                            likedBy: [...likedBy, user.uid]
+                        });
+
+                        modalLikeBtn.classList.add('liked');
+                        const icon = modalLikeBtn.querySelector('i');
+                        if (icon) icon.className = 'fas fa-heart';
+
+                        const span = modalLikeBtn.querySelector('span');
+                        const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
+                        span.textContent = `${currentCount + 1} Curtir`;
+                    }
+                } catch (error) {
+                    console.error('Erro ao curtir:', error);
+                    alert('Erro ao curtir. Tente novamente.');
+                } finally {
+                    modalLikeBtn.disabled = false;
+                }
             });
-            
+
             // Configurar botão de compartilhar
             const modalShareBtn = document.getElementById(`modal-share-btn-${newsId}`);
             modalShareBtn.addEventListener('click', () => {
@@ -1228,7 +1297,7 @@
                     alert('Link copiado para a área de transferência!');
                 }
             });
-            
+
             newsModal.style.display = 'block';
         }
 
@@ -1319,7 +1388,7 @@
         // Tema - Aplicar tema salvo no localStorage ou tema do sistema
         const themeToggle = document.getElementById('theme-toggle');
         const themeIcon = document.getElementById('theme-icon');
-        
+
         // Função para aplicar tema
         function applyTheme(theme) {
             if (theme === 'light') {
@@ -1353,9 +1422,9 @@
                 categories.forEach(c => c.classList.remove('active'));
                 category.classList.add('active');
                 currentCategory = category.textContent;
-                
+
                 newsGrid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-                
+
                 try {
                     let newsQuery;
                     if (currentCategory === 'Todas') {
@@ -1379,7 +1448,7 @@
                     querySnapshot.forEach(doc => {
                         newsList.push({ id: doc.id, ...doc.data() });
                     });
-                    
+
                     newsList.sort((a, b) => {
                         if (!a.createdAt || !b.createdAt) return 0;
                         return b.createdAt.toMillis() - a.createdAt.toMillis();
