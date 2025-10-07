@@ -924,13 +924,6 @@
             serverTimestamp
         } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
-        // Import sistema de interatividade
-        import { 
-            initInteractivity, 
-            toggleLike, 
-            checkIfLiked 
-        } from './interactivity.js';
-
         // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
@@ -947,6 +940,13 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        // Import sistema de interatividade APÓS inicializar Firebase
+        import { 
+            initInteractivity, 
+            toggleLike, 
+            checkIfLiked 
+        } from './interactivity.js';
+
         // LinkPreview API Key
         const LINKPREVIEW_API_KEY = 'e47b0269b5a9de4260e10f216d22d55a';
         const LINKPREVIEW_ENDPOINT = 'https://api.linkpreview.net';
@@ -958,10 +958,18 @@
         // Carregar dados do usuário
         async function loadUserData(userId) {
             try {
-                const userDoc = await getDoc(doc(db, 'users', userId));
-                if (userDoc.exists()) {
+                const usersQuery = query(
+                    collection(db, 'users'),
+                    where('uid', '==', userId),
+                    limit(1)
+                );
+
+                const usersSnapshot = await getDocs(usersQuery);
+
+                if (!usersSnapshot.empty) {
+                    const userDoc = usersSnapshot.docs[0];
                     const userData = userDoc.data();
-                    currentUserData = userData; // Armazenar dados do usuário
+                    currentUserData = userData;
 
                     // Inicializar sistema de interatividade
                     initInteractivity(db, auth, userData);
@@ -1213,17 +1221,24 @@
 
             // Configurar botão de compartilhar
             const modalShareBtn = document.getElementById(`modal-share-btn-${newsId}`);
-            modalShareBtn.addEventListener('click', () => {
-                if (navigator.share) {
-                    navigator.share({
-                        title: news.title,
-                        text: news.excerpt || news.title,
-                        url: window.location.href
-                    }).catch(err => console.log('Erro ao compartilhar:', err));
-                } else {
-                    // Fallback: copiar link
-                    navigator.clipboard.writeText(window.location.href);
-                    alert('Link copiado para a área de transferência!');
+            modalShareBtn.addEventListener('click', async () => {
+                try {
+                    if (navigator.share) {
+                        await navigator.share({
+                            title: news.title,
+                            text: news.excerpt || news.title,
+                            url: window.location.href
+                        });
+                    } else {
+                        // Fallback: copiar link
+                        await navigator.clipboard.writeText(window.location.href);
+                        showToast('Link copiado!', 'success');
+                    }
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        console.error('Erro ao compartilhar:', err);
+                        showToast('Erro ao compartilhar', 'error');
+                    }
                 }
             });
 

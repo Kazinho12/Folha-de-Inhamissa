@@ -1182,8 +1182,9 @@ a:hover {
             const newTheme = currentTheme === 'light' ? 'dark' : 'light';
             applyTheme(newTheme);
 
-            if (authAprenda.currentUser) {
-                await saveThemePreference(authAprenda.currentUser.uid, newTheme);
+            const auth = getAuth();
+            if (auth.currentUser) {
+                await saveThemePreference(auth.currentUser.uid, newTheme);
             }
         });
 
@@ -1472,8 +1473,9 @@ const searchModal = document.getElementById('search-modal');
             const newTheme = currentTheme === 'light' ? 'dark' : 'light';
             applyTheme(newTheme);
 
-            if (authAprenda.currentUser) {
-                await saveThemePreference(authAprenda.currentUser.uid, newTheme);
+            const auth = getAuth();
+            if (auth.currentUser) {
+                await saveThemePreference(auth.currentUser.uid, newTheme);
             }
         });
 const closeSearchBtn = document.getElementById('close-search');

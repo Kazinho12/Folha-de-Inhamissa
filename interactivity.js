@@ -80,7 +80,7 @@ export async function toggleLike(postId, likeBtn, collection = 'posts') {
             const icon = likeBtn.querySelector('i');
             const span = likeBtn.querySelector('span');
             
-            if (icon) icon.className = 'far fa-thumbs-up';
+            if (icon) icon.className = 'far fa-heart';
             if (span) {
                 const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
                 span.textContent = `${Math.max(0, currentCount - 1)} Curtir`;
@@ -99,7 +99,7 @@ export async function toggleLike(postId, likeBtn, collection = 'posts') {
             const icon = likeBtn.querySelector('i');
             const span = likeBtn.querySelector('span');
             
-            if (icon) icon.className = 'fas fa-thumbs-up';
+            if (icon) icon.className = 'fas fa-heart';
             if (span) {
                 const currentCount = parseInt(span.textContent.match(/\d+/)?.[0] || '0');
                 span.textContent = `${currentCount + 1} Curtir`;
@@ -135,7 +135,7 @@ export async function toggleLike(postId, likeBtn, collection = 'posts') {
 }
 
 // Função para verificar se usuário curtiu
-export async function checkIfLiked(postId, postData, likeBtn, iconType = 'thumbs-up') {
+export async function checkIfLiked(postId, postData, likeBtn, iconType = 'heart') {
     try {
         if (!auth?.currentUser || !postData || !likeBtn) return;
 
