@@ -13,28 +13,87 @@ export function initUploadUtils(firebaseStorage) {
     console.log('✅ Upload utils inicializado com Firebase Storage');
 }
 
-// Converter arquivo para base64
+// Converter arquivo para base64 com método robusto
 async function fileToBase64(file) {
+    // Validar arquivo primeiro
+    if (!file || !(file instanceof Blob)) {
+        throw new Error('Arquivo inválido');
+    }
+
+    console.log('🔄 Convertendo arquivo para base64...', {
+        name: file.name,
+        type: file.type,
+        size: file.size
+    });
+
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => {
+        
+        let timeoutId = setTimeout(() => {
+            reader.abort();
+            reject(new Error('Timeout na conversão base64'));
+        }, 30000);
+
+        reader.onloadend = () => {
+            clearTimeout(timeoutId);
+            
+            if (reader.error) {
+                console.error('❌ FileReader error:', reader.error);
+                reject(new Error(`Erro ao ler arquivo: ${reader.error.message || 'desconhecido'}`));
+                return;
+            }
+
+            if (!reader.result) {
+                reject(new Error('FileReader não retornou resultado'));
+                return;
+            }
+
             try {
-                const base64 = reader.result.split(',')[1];
-                if (!base64) {
-                    throw new Error('Falha ao extrair base64 da imagem');
+                const result = reader.result;
+                console.log('✅ FileReader completou, processando resultado...');
+                
+                // Extrair base64 da data URL
+                const matches = result.match(/^data:([^;]+);base64,(.+)$/);
+                if (!matches || matches.length !== 3) {
+                    throw new Error('Formato de data URL inválido');
                 }
+
+                const base64 = matches[2];
+                if (!base64 || base64.length < 10) {
+                    throw new Error('Base64 extraído está vazio ou inválido');
+                }
+
+                console.log('✅ Base64 extraído com sucesso', {
+                    length: base64.length,
+                    mimeType: matches[1]
+                });
+                
                 resolve(base64);
             } catch (error) {
-                console.error('❌ Erro ao processar base64:', error);
-                reject(new Error('Falha ao processar imagem'));
+                console.error('❌ Erro ao processar resultado:', error);
+                reject(new Error(`Falha ao processar base64: ${error.message}`));
             }
         };
-        reader.onerror = () => {
-            const errorMsg = 'Falha ao ler arquivo de imagem';
-            console.error('❌ Erro FileReader:', errorMsg);
+
+        reader.onerror = (event) => {
+            clearTimeout(timeoutId);
+            console.error('❌ FileReader onerror disparado:', event);
+            const errorMsg = reader.error ? reader.error.message : 'Erro desconhecido ao ler arquivo';
             reject(new Error(errorMsg));
         };
-        reader.readAsDataURL(file);
+
+        reader.onabort = () => {
+            clearTimeout(timeoutId);
+            reject(new Error('Leitura do arquivo foi abortada'));
+        };
+
+        try {
+            reader.readAsDataURL(file);
+        } catch (error) {
+            clearTimeout(timeoutId);
+            console.error('❌ Erro ao iniciar FileReader:', error);
+            reject(new Error(`Falha ao iniciar leitura: ${error.message}`));
+        }
     });
 }
 
@@ -46,6 +105,11 @@ async function uploadToImgBB(file, onProgress) {
         }, 15000); // 15 segundos de timeout
 
         try {
+            // Validar arquivo antes de processar
+            if (!file || !file.type || !file.type.startsWith('image/')) {
+                throw new Error('Arquivo não é uma imagem válida');
+            }
+
             console.log('🌐 Tentando upload via ImgBB...', {
                 name: file.name,
                 size: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
