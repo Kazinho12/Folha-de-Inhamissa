@@ -1336,17 +1336,54 @@ a:hover {
                         }
                     }
 
+                    // Remover feedback existente antes de adicionar novo
+                    const existingFeedback = questionGroup.querySelector('.quiz-feedback-explanation');
+                    if (existingFeedback) {
+                        existingFeedback.remove();
+                    }
+
                     // Mostrar justificação
-                    if (explanation) {
+                    if (explanation && explanation.trim() !== '') {
                         const feedbackDiv = document.createElement('div');
-                        feedbackDiv.className = 'quiz-feedback';
+                        feedbackDiv.className = 'quiz-feedback-explanation';
                         feedbackDiv.style.marginTop = '12px';
                         feedbackDiv.style.padding = '12px';
                         feedbackDiv.style.borderRadius = '8px';
                         feedbackDiv.style.backgroundColor = isCorrect ? 'var(--success-light)' : 'var(--error-light)';
                         feedbackDiv.style.color = 'var(--text)';
                         feedbackDiv.style.borderLeft = `4px solid ${isCorrect ? 'var(--success)' : 'var(--error)'}`;
+                        feedbackDiv.style.display = 'block';
                         feedbackDiv.innerHTML = `<strong>${isCorrect ? '✅ Correto!' : '❌ Incorreto'}</strong><br>${explanation}`;
+                        
+                        // Adicionar após as opções da pergunta
+                        questionGroup.appendChild(feedbackDiv);
+                    } else if (!isCorrect) {
+                        // Se não tiver explicação mas errou, mostrar mensagem padrão
+                        const feedbackDiv = document.createElement('div');
+                        feedbackDiv.className = 'quiz-feedback-explanation';
+                        feedbackDiv.style.marginTop = '12px';
+                        feedbackDiv.style.padding = '12px';
+                        feedbackDiv.style.borderRadius = '8px';
+                        feedbackDiv.style.backgroundColor = 'var(--error-light)';
+                        feedbackDiv.style.color = 'var(--text)';
+                        feedbackDiv.style.borderLeft = '4px solid var(--error)';
+                        feedbackDiv.style.display = 'block';
+                        feedbackDiv.innerHTML = '<strong>❌ Incorreto</strong><br>A resposta correta está destacada em verde.';
+                        
+                        questionGroup.appendChild(feedbackDiv);
+                    } else if (isCorrect) {
+                        // Mesmo que acerte, mostrar confirmação
+                        const feedbackDiv = document.createElement('div');
+                        feedbackDiv.className = 'quiz-feedback-explanation';
+                        feedbackDiv.style.marginTop = '12px';
+                        feedbackDiv.style.padding = '12px';
+                        feedbackDiv.style.borderRadius = '8px';
+                        feedbackDiv.style.backgroundColor = 'var(--success-light)';
+                        feedbackDiv.style.color = 'var(--text)';
+                        feedbackDiv.style.borderLeft = '4px solid var(--success)';
+                        feedbackDiv.style.display = 'block';
+                        feedbackDiv.innerHTML = '<strong>✅ Correto!</strong><br>Parabéns, você acertou!';
+                        
                         questionGroup.appendChild(feedbackDiv);
                     }
 
@@ -1417,35 +1454,199 @@ a:hover {
 
         loadCommunityQuizzes();
 
-        // Carregar avatar do usuário
+        // Função global para download de certificado
+        window.downloadCertificate = function(quizTitle, score, total, percentage) {
+            const userName = localStorage.getItem('userName') || 'Estudante';
+            const userClass = localStorage.getItem('userClass') || '';
+            const userTurma = localStorage.getItem('userTurma') || '';
+
+            console.log('📄 Gerando certificado com dados:', {
+                userName,
+                userClass,
+                userTurma,
+                quizTitle,
+                score,
+                total,
+                percentage
+            });
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 1200;
+            canvas.height = 800;
+            const ctx = canvas.getContext('2d');
+
+            // Fundo preto
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Borda externa dourada
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 20;
+            ctx.strokeRect(25, 25, canvas.width - 50, canvas.height - 50);
+
+            // Borda interna dourada
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 8;
+            ctx.strokeRect(45, 45, canvas.width - 90, canvas.height - 90);
+
+            // Título "CERTIFICADO"
+            ctx.fillStyle = '#FFD700';
+            ctx.font = 'bold 80px Inter, Arial, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('CERTIFICADO', canvas.width / 2, 150);
+
+            // Subtítulo "de Conclusão"
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '32px Inter, Arial, sans-serif';
+            ctx.fillText('de Conclusão', canvas.width / 2, 200);
+
+            // Nome do usuário em dourado
+            ctx.fillStyle = '#FFD700';
+            ctx.font = 'bold 48px Inter, Arial, sans-serif';
+            ctx.fillText(userName, canvas.width / 2, 280);
+
+            // Classe e Turma (logo abaixo do nome)
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '26px Inter, Arial, sans-serif';
+            
+            let classeInfo = '';
+            if (userClass && userClass.trim() !== '') {
+                classeInfo = `${userClass}ª Classe`;
+            }
+            if (userTurma && userTurma.trim() !== '') {
+                classeInfo += classeInfo ? ` - Turma ${userTurma}` : `Turma ${userTurma}`;
+            }
+            
+            // Só mostrar se houver dados
+            if (classeInfo) {
+                ctx.fillText(classeInfo, canvas.width / 2, 330);
+            }
+
+            // Texto "Concluiu com sucesso o quiz:"
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '26px Inter, Arial, sans-serif';
+            ctx.fillText('Concluiu com sucesso o quiz:', canvas.width / 2, 390);
+
+            // Título do quiz em branco
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 32px Inter, Arial, sans-serif';
+            ctx.fillText(quizTitle.toUpperCase(), canvas.width / 2, 440);
+
+            // Pontuação em dourado
+            ctx.fillStyle = '#FFD700';
+            ctx.font = 'bold 56px Inter, Arial, sans-serif';
+            ctx.fillText(`${score} de ${total} (${percentage}%)`, canvas.width / 2, 520);
+
+            // Data
+            const dataAtual = new Date().toLocaleDateString('pt-MZ', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric' 
+            });
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '22px Inter, Arial, sans-serif';
+            ctx.fillText(`Data: ${dataAtual}`, canvas.width / 2, 590);
+
+            // Escola em dourado
+            ctx.fillStyle = '#FFD700';
+            ctx.font = 'bold 28px Inter, Arial, sans-serif';
+            ctx.fillText('Escola Secundária de Inhamissa', canvas.width / 2, 690);
+            
+            // Localização em branco
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '22px Inter, Arial, sans-serif';
+            ctx.fillText('Xai-Xai, Gaza, Moçambique', canvas.width / 2, 730);
+
+            // Download
+            const link = document.createElement('a');
+            link.download = `certificado-${quizTitle}-${dataAtual.replace(/\//g, '-')}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+            
+            console.log('✅ Certificado gerado e download iniciado');
+        };
+
+        // Carregar avatar e dados do usuário
         onAuthStateChanged(getAuth(), async (user) => {
             if (user) {
                 try {
-                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    console.log('🔍 Carregando dados do usuário em aprenda.html');
+                    
+                    // Buscar documento do usuário
+                    const userDocRef = doc(db, 'users', user.uid);
+                    const userDoc = await getDoc(userDocRef);
+                    
+                    let userData = null;
+
                     if (userDoc.exists()) {
-                        const userData = userDoc.data();
-                        const initials = userData.name ? 
-                            userData.name.split(' ').map(n => n[0]).join('').toUpperCase() : 
-                            user.email[0].toUpperCase();
-
-                        const userAvatar = document.getElementById('user-avatar');
-                        const avatarInitials = document.getElementById('avatar-initials');
-
-                        if (userData.photoURL) {
-                            userAvatar.innerHTML = `<img src="${userData.photoURL}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-                        } else {
-                            if (avatarInitials) {
-                                avatarInitials.textContent = initials;
+                        userData = userDoc.data();
+                        console.log('✅ Dados do usuário encontrados:', userData);
+                    } else {
+                        // Se não existir, buscar por UID
+                        const usersQuery = query(collection(db, 'users'));
+                        const usersSnapshot = await getDocs(usersQuery);
+                        
+                        for (const doc of usersSnapshot.docs) {
+                            const data = doc.data();
+                            if (data.uid === user.uid || data.email === user.email) {
+                                userData = data;
+                                console.log('✅ Dados do usuário encontrados via query:', userData);
+                                break;
                             }
                         }
-                        // Carregar preferência de tema após autenticação do usuário
-                        await loadThemePreference(user.uid);
+                        
+                        if (!userData) {
+                            userData = {
+                                name: user.displayName || 'Usuário',
+                                email: user.email,
+                                photoURL: user.photoURL || null,
+                                class: null,
+                                classe: null,
+                                turma: null
+                            };
+                            console.log('ℹ️ Usando dados do Firebase Auth');
+                        }
                     }
+
+                    // Buscar classe e turma (verificando variações de nome dos campos)
+                    const userClass = userData.class || userData.classe || '';
+                    const userTurma = userData.turma || userData.turno || '';
+                    
+                    // Salvar no localStorage para certificados
+                    localStorage.setItem('userName', userData.name || user.displayName || 'Estudante');
+                    localStorage.setItem('userClass', userClass);
+                    localStorage.setItem('userTurma', userTurma);
+                    
+                    console.log('💾 Dados salvos no localStorage:', {
+                        userName: localStorage.getItem('userName'),
+                        userClass: localStorage.getItem('userClass'),
+                        userTurma: localStorage.getItem('userTurma')
+                    });
+
+                    // Atualizar avatar
+                    const userAvatar = document.getElementById('user-avatar');
+                    const avatarInitials = document.getElementById('avatar-initials');
+
+                    const initials = userData.name ? 
+                        userData.name.split(' ').map(n => n[0]).join('').toUpperCase() : 
+                        user.email[0].toUpperCase();
+
+                    if (userData.photoURL) {
+                        userAvatar.innerHTML = `<img src="${userData.photoURL}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.style.display='none'; this.parentElement.querySelector('span').style.display='flex';">
+                        <span style="display: none;">${initials}</span>`;
+                    } else {
+                        if (avatarInitials) {
+                            avatarInitials.textContent = initials;
+                        }
+                    }
+
+                    // Carregar tema
+                    await loadThemePreference(user.uid);
+
                 } catch (error) {
-                    console.error('Erro ao carregar usuário:', error);
+                    console.error('❌ Erro ao carregar usuário:', error);
                 }
             } else {
-                // Se o usuário não estiver logado, aplicar o tema padrão ou do sistema
                 const savedTheme = localStorage.getItem('theme');
                 if (savedTheme) {
                     applyTheme(savedTheme);
@@ -1560,12 +1761,14 @@ window.initQuizzes = function() {
                 const questionIndex = Array.from(questions).findIndex(q => 
                     q.nextElementSibling === this.parentElement
                 );
+                
+                const correctOption = this.parentElement.querySelector('[data-correct="true"]');
 
                 // Armazenar resposta do usuário
                 userAnswers[questionIndex] = {
                     selected: this.textContent.trim(),
                     isCorrect: isCorrect,
-                    correctAnswer: this.parentElement.querySelector('[data-correct="true"]').textContent.trim()
+                    correctAnswer: correctOption.textContent.trim()
                 };
 
                 if (isCorrect) {
@@ -1575,9 +1778,22 @@ window.initQuizzes = function() {
                 answered = true;
                 nextBtn.style.display = 'inline-block';
 
-                // Marcar opção selecionada
-                this.style.backgroundColor = 'rgba(255, 215, 0, 0.2)';
-                this.style.borderColor = 'var(--primary)';
+                // Marcar opção selecionada e mostrar feedback
+                const feedbackDiv = this.parentElement.nextElementSibling;
+                if (feedbackDiv && feedbackDiv.classList.contains('quiz-feedback')) {
+                    if (isCorrect) {
+                        this.classList.add('correct');
+                        feedbackDiv.className = 'quiz-feedback correct';
+                        feedbackDiv.innerHTML = '<strong>✓ Correto!</strong> Parabéns, você acertou!';
+                        feedbackDiv.style.display = 'block';
+                    } else {
+                        this.classList.add('incorrect');
+                        correctOption.classList.add('correct');
+                        feedbackDiv.className = 'quiz-feedback incorrect';
+                        feedbackDiv.innerHTML = `<strong>✗ Incorreto!</strong> A resposta correta é: <strong>${correctOption.textContent.trim()}</strong>`;
+                        feedbackDiv.style.display = 'block';
+                    }
+                }
 
                 // Disable all options after answer
                 const options = this.parentElement.querySelectorAll('.quiz-option');
@@ -3060,31 +3276,40 @@ window.downloadCertificate = function downloadCertificate(quizName, score, total
 
     // Nome do aluno (usar nome do localStorage ou "Estudante")
     const userName = localStorage.getItem('userName') || 'Estudante';
+    const userTurma = localStorage.getItem('userTurma') || '';
     ctx.fillStyle = '#FFD700';
     ctx.font = 'bold 42px Inter, sans-serif';
     ctx.fillText(userName, canvas.width / 2, 320);
+    
+    // Turma (se disponível)
+    if (userTurma) {
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '26px Inter, sans-serif';
+        ctx.fillText(`Turma: ${userTurma}`, canvas.width / 2, 360);
+    }
 
     // Texto descritivo
     ctx.fillStyle = '#CCCCCC';
     ctx.font = '28px Inter, sans-serif';
-    ctx.fillText('Concluiu com sucesso o quiz:', canvas.width / 2, 390);
+    ctx.fillText('Concluiu com sucesso o quiz:', canvas.width / 2, userTurma ? 420 : 390);
 
     // Nome do quiz
     ctx.fillStyle = '#FFFFFF';
     ctx.font = 'bold 36px Inter, sans-serif';
     const displayQuizName = quizName.replace('-quiz', '').replace(/-/g, ' ').toUpperCase();
-    ctx.fillText(displayQuizName, canvas.width / 2, 450);
+    const yOffset = userTurma ? 30 : 0;
+    ctx.fillText(displayQuizName, canvas.width / 2, 450 + yOffset);
 
     // Pontuação
     ctx.fillStyle = '#FFD700';
     ctx.font = 'bold 48px Inter, sans-serif';
-    ctx.fillText(`${score} de ${total} (${percentage}%)`, canvas.width / 2, 540);
+    ctx.fillText(`${score} de ${total} (${percentage}%)`, canvas.width / 2, 540 + yOffset);
 
     // Data
     const today = new Date().toLocaleDateString('pt-MZ');
     ctx.fillStyle = '#CCCCCC';
     ctx.font = '24px Inter, sans-serif';
-    ctx.fillText(`Data: ${today}`, canvas.width / 2, 620);
+    ctx.fillText(`Data: ${today}`, canvas.width / 2, 620 + yOffset);
 
     // Escola
     ctx.fillStyle = '#FFD700';

@@ -959,31 +959,42 @@
         // Carregar dados do usuário
         async function loadUserData(userId) {
             try {
-                const userDoc = await getDoc(doc(db, 'users', userId));
-                
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    currentUserData = userData;
+                console.log('🔍 Carregando dados em noticias.html');
 
-                    const initials = userData.name ? 
-                        userData.name.split(' ').map(n => n[0]).join('').toUpperCase() : 
-                        auth.currentUser.email[0].toUpperCase();
+                const usersQuery = query(collection(db, 'users'), where('uid', '==', userId));
+                const usersSnapshot = await getDocs(usersQuery);
 
-                    const userAvatar = document.getElementById('user-avatar');
-                    const avatarInitials = document.getElementById('avatar-initials');
+                let userData = null;
 
-                    if (userData.photoURL) {
-                        userAvatar.innerHTML = `<img src="${userData.photoURL}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-                    } else {
-                        if (avatarInitials) {
-                            avatarInitials.textContent = initials;
-                        }
+                if (!usersSnapshot.empty) {
+                    userData = usersSnapshot.docs[0].data();
+                } else {
+                    userData = {
+                        name: auth.currentUser.displayName || 'Usuário',
+                        photoURL: auth.currentUser.photoURL || null
+                    };
+                }
+
+                const userAvatar = document.getElementById('user-avatar');
+                const avatarInitials = document.getElementById('avatar-initials');
+
+                const initials = userData.name ? 
+                    userData.name.split(' ').map(n => n[0]).join('').toUpperCase() : 
+                    auth.currentUser.email[0].toUpperCase();
+
+                if (userData.photoURL) {
+                    userAvatar.innerHTML = `<img src="${userData.photoURL}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.style.display='none'; this.parentElement.querySelector('span').style.display='flex';">
+                    <span style="display: none;">${initials}</span>`;
+                } else {
+                    if (avatarInitials) {
+                        avatarInitials.textContent = initials;
                     }
                 }
             } catch (error) {
-                console.error('Erro ao carregar dados do usuário:', error);
+                console.error('❌ Erro ao carregar dados:', error);
             }
         }
+
         // Inicializar animação Lottie de carregamento
         const loadingLottieContainer = document.getElementById('loading-lottie-news');
         if (loadingLottieContainer) {
@@ -1009,9 +1020,8 @@
         const modalDate = document.getElementById('modal-date');
         const modalText = document.getElementById('modal-text');
 
-        // App State
+        // App State (continuação)
         let currentUser = null;
-        let currentUserData = null;
         let currentCategory = 'Todas';
         let lastVisible = null;
         const pageSize = 6;
@@ -1322,6 +1332,14 @@
                 }
 
                 const querySnapshot = await getDocs(q);
+
+                // Verificar se há notícias
+                if (querySnapshot.empty && clearPrevious) {
+                    newsGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px; font-size: 1.1rem;">📰 Nenhuma notícia disponível no momento</p>';
+                    loadMoreBtn.style.display = 'none';
+                    return;
+                }
+
                 lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1];
 
                 // Process news
@@ -1344,7 +1362,7 @@
                             </div>
                         </div>
                     `;
-                    newsCard.addEventListener('click', () => openNewsModal(news));
+                    newsCard.addEventListener('click', () => openNewsModal(news, doc.id));
                     newsGrid.appendChild(newsCard);
                 });
 
