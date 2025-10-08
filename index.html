@@ -158,28 +158,6 @@
         lottieAnimation.setAttribute('autoplay', 'true');
         
         lottieContainer.appendChild(lottieAnimation);
-
-        // Redirecionar após a animação terminar (3 segundos)
-        setTimeout(() => {
-            checkAuthAndRedirect();
-        }, 3000);
-
-        function checkAuthAndRedirect() {
-            // Verificar se há um usuário logado no localStorage
-            const hasSession = localStorage.getItem('userSession');
-            
-            // Adicionar efeito de fade out
-            document.body.style.transition = 'opacity 0.5s ease-out';
-            document.body.style.opacity = '0';
-            
-            setTimeout(() => {
-                if (hasSession) {
-                    window.location.href = 'index.html';
-                } else {
-                    window.location.href = 'login.html';
-                }
-            }, 500);
-        }
     </script>
 
     <!-- Firebase SDK para verificar autenticação -->
@@ -200,21 +178,32 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // Verificar autenticação e redirecionar
-        setTimeout(() => {
-            onAuthStateChanged(auth, (user) => {
-                document.body.style.transition = 'opacity 0.5s ease-out';
-                document.body.style.opacity = '0';
-                
-                setTimeout(() => {
-                    if (user) {
-                        window.location.href = 'home.html';
-                    } else {
-                        window.location.href = 'login.html';
-                    }
-                }, 500);
+        // Combine splash delay with Firebase auth check
+        const splashDelay = new Promise(resolve => setTimeout(resolve, 3000));
+        const authCheck = new Promise((resolve) => {
+            const unsubscribe = onAuthStateChanged(auth, (user) => {
+                unsubscribe();
+                resolve(user);
+            }, (error) => {
+                console.error('Auth check error:', error);
+                resolve(null);
             });
-        }, 3000);
+        });
+
+        // Wait for both splash delay and auth check to complete
+        Promise.all([splashDelay, authCheck]).then(([_, user]) => {
+            // Adicionar efeito de fade out
+            document.body.style.transition = 'opacity 0.5s ease-out';
+            document.body.style.opacity = '0';
+            
+            setTimeout(() => {
+                if (user) {
+                    window.location.href = 'home.html';
+                } else {
+                    window.location.href = 'login.html';
+                }
+            }, 500);
+        });
     </script>
 </body>
 </html>
