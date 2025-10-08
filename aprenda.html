@@ -1521,10 +1521,6 @@ a:hover {
             ctx.font = 'bold 70px Inter, Arial, sans-serif';
             ctx.fillText('CERTIFICADO', canvas.width / 2, 210);
 
-            // Subtítulo "de Conclusão"
-            ctx.fillStyle = '#FFFFFF';
-            ctx.font = '28px Inter, Arial, sans-serif';
-            ctx.fillText('de Conclusão', canvas.width / 2, 250);
 
             // Certificamos que
             ctx.fillStyle = '#CCCCCC';
@@ -3319,7 +3315,7 @@ window.downloadCertificate = function downloadCertificate(quizName, score, total
     // Subtítulo
     ctx.fillStyle = '#FFFFFF';
     ctx.font = '32px Inter, sans-serif';
-    ctx.fillText('de Conclusão', canvas.width / 2, 210);
+    ctx.fillText('', canvas.width / 2, 210);
 
     // Nome do aluno (usar nome do localStorage ou "Estudante")
     const userName = localStorage.getItem('userName') || 'Estudante';
