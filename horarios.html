@@ -1197,28 +1197,48 @@
         const userAvatar = document.getElementById('user-avatar');
         const avatarInitials = document.getElementById('avatar-initials');
         
-        // Carregar dados do usuário
+        // Carregar dados do usuário e avatar
         async function loadUserAvatar(userId) {
             try {
-                const userDoc = await db.collection('users').doc(userId).get();
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    const initials = userData.name ? 
-                        userData.name.split(' ').map(n => n[0]).join('').toUpperCase() : 
-                        auth.currentUser.email[0].toUpperCase();
+                const usersQuery = db.collection('users').where('uid', '==', userId);
+                const usersSnapshot = await usersQuery.get();
+                
+                if (!usersSnapshot.empty) {
+                    const userData = usersSnapshot.docs[0].data();
                     
+                    // Calcular iniciais
+                    let initials = 'U';
+                    if (userData.name) {
+                        initials = userData.name.split(' ')
+                            .filter(n => n.length > 0)
+                            .map(n => n[0])
+                            .join('')
+                            .toUpperCase()
+                            .substring(0, 2);
+                    } else if (auth.currentUser.email) {
+                        initials = auth.currentUser.email[0].toUpperCase();
+                    }
+                    
+                    // Atualizar avatar no app-bar
                     if (userData.photoURL) {
-                        // Atualizar avatar no app-bar
-                        userAvatar.innerHTML = `<img src="${userData.photoURL}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.style.display='none'; this.parentElement.querySelector('span').style.display='flex';">`;
-                        avatarInitials.style.display = 'none';
+                        userAvatar.innerHTML = `<img src="${userData.photoURL}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <span style="display: none; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: var(--primary); color: white; font-weight: 600;">${initials}</span>`;
                     } else {
                         avatarInitials.textContent = initials;
                         avatarInitials.style.display = 'flex';
                     }
+                    
+                    return userData;
                 }
             } catch (error) {
                 console.error('Erro ao carregar avatar:', error);
+                // Fallback para email
+                if (auth.currentUser && avatarInitials) {
+                    avatarInitials.textContent = auth.currentUser.email[0].toUpperCase();
+                    avatarInitials.style.display = 'flex';
+                }
             }
+            return null;
         }
         const profileModal = document.getElementById('profile-modal');
         const profileInitials = document.getElementById('profile-initials');
@@ -1841,26 +1861,36 @@
             if (!currentUser) return;
             
             try {
-                const userDoc = await db.collection('users').doc(currentUser.uid).get();
+                const usersQuery = db.collection('users').where('uid', '==', currentUser.uid);
+                const usersSnapshot = await usersQuery.get();
                 
-                if (userDoc.exists) {
-                    currentUserData = userDoc.data();
+                if (!usersSnapshot.empty) {
+                    currentUserData = usersSnapshot.docs[0].data();
+                    
+                    // Calcular iniciais corretamente
+                    let initials = 'U';
+                    if (currentUserData.name) {
+                        initials = currentUserData.name.split(' ')
+                            .filter(n => n.length > 0)
+                            .map(n => n[0])
+                            .join('')
+                            .toUpperCase()
+                            .substring(0, 2);
+                    } else if (currentUser.email) {
+                        initials = currentUser.email[0].toUpperCase();
+                    }
                     
                     // Avatar - imagem ou iniciais
                     if (currentUserData.photoURL) {
                         // Avatar no app-bar
-                        userAvatar.innerHTML = `<img src="${currentUserData.photoURL}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.style.display='none'; this.parentElement.querySelector('span').style.display='flex';">`;
-                        avatarInitials.style.display = 'none';
+                        userAvatar.innerHTML = `<img src="${currentUserData.photoURL}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <span style="display: none; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: var(--primary); color: white; font-weight: 600;">${initials}</span>`;
                         
                         // Avatar no modal de perfil
                         document.getElementById('profile-image').src = currentUserData.photoURL;
                         document.getElementById('profile-image').style.display = 'block';
                         document.getElementById('profile-initials').style.display = 'none';
                     } else {
-                        const initials = currentUserData.name ? 
-                            currentUserData.name.split(' ').map(n => n[0]).join('').toUpperCase() : 
-                            currentUser.email[0].toUpperCase();
-                        
                         avatarInitials.textContent = initials;
                         avatarInitials.style.display = 'flex';
                         profileInitials.textContent = initials;
@@ -1890,16 +1920,21 @@
                 }
             } catch (error) {
                 console.error('Error loading user data:', error);
+                // Fallback para iniciais do email
+                if (currentUser && avatarInitials) {
+                    avatarInitials.textContent = currentUser.email[0].toUpperCase();
+                    avatarInitials.style.display = 'flex';
+                }
             }
         }
 
         // Auth state observer
-        auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
-                loadUserAvatar(user.uid);
-                updateProfileData();
-                loadSchedule();
+                await loadUserAvatar(user.uid);
+                await updateProfileData();
+                await loadSchedule();
                 init();
             } else {
                 window.location.href = 'login.html';
