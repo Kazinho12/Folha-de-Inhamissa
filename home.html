@@ -2487,6 +2487,43 @@
             });
         }
 
+        // Carregar palavras proibidas
+        let palavrasProibidas = [];
+        async function loadPalavrasProibidas() {
+            try {
+                const response = await fetch('/palavras-proibidas.json');
+                const data = await response.json();
+                palavrasProibidas = data.palavras_proibidas || [];
+            } catch (error) {
+                console.error('Erro ao carregar palavras proibidas:', error);
+                palavrasProibidas = [];
+            }
+        }
+
+        // Validar conteúdo contra palavras proibidas
+        function validarConteudo(texto) {
+            if (!texto || palavrasProibidas.length === 0) return { valido: true };
+            
+            const textoLower = texto.toLowerCase();
+            const palavrasEncontradas = [];
+
+            for (const palavra of palavrasProibidas) {
+                const regex = new RegExp('\\b' + palavra.toLowerCase() + '\\b', 'gi');
+                if (regex.test(textoLower)) {
+                    palavrasEncontradas.push(palavra);
+                }
+            }
+
+            if (palavrasEncontradas.length > 0) {
+                return {
+                    valido: false,
+                    palavras: palavrasEncontradas
+                };
+            }
+
+            return { valido: true };
+        }
+
         // Função para lidar com a publicação
         async function handlePublish(content, images = [], video = null, modal) {
             if (!content.trim() && images.length === 0 && !video) {
@@ -2497,6 +2534,13 @@
             const user = auth.currentUser;
             if (!user) {
                 showToast('Você precisa estar logado para publicar', 'error');
+                return;
+            }
+
+            // Validar palavras proibidas
+            const validacao = validarConteudo(content);
+            if (!validacao.valido) {
+                showToast(`Publicação contém palavras inadequadas. Por favor, revise o conteúdo.`, 'error');
                 return;
             }
 
@@ -2995,6 +3039,7 @@
 
                     await trackPageVisit();
                     await loadThemePreference(user.uid);
+                    await loadPalavrasProibidas();
                     checkForSharedPost();
                     loadPosts();
                     loadUsers();
