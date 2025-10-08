@@ -1,0 +1,104 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Função auxiliar para verificar se o usuário está autenticado
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    // Função para verificar se é o próprio usuário
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Lista de emails de administradores
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'jeanabilio72@gmail.com' ||
+        request.auth.token.email == 'folhadeinhamissa@outlook.com' ||
+        request.auth.token.email == 'killiandesigner@gmail.com' ||
+        request.auth.token.email == 'ianomachai@gmail.com'
+      );
+    }
+    
+    // Usuários - PERMITIR CRIAÇÃO automática
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (isOwner(userId) || request.auth.uid == resource.data.uid);
+      allow delete: if isAdmin();
+      
+      // Horários dentro de cada usuário
+      match /schedule/{scheduleId} {
+        allow read, write: if isSignedIn() && isOwner(userId);
+      }
+    }
+    
+    // Tarefas - cada usuário pode criar, ler, editar e deletar suas próprias tarefas
+    match /tasks/{taskId} {
+      allow read: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isOwner(request.resource.data.userId);
+      allow update, delete: if isSignedIn() && isOwner(resource.data.userId);
+    }
+    
+    // Publicações no feed - APENAS USUÁRIOS LOGADOS
+    match /posts/{postId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isOwner(request.resource.data.authorId);
+      allow delete: if isSignedIn() && (isOwner(resource.data.authorId) || isAdmin());
+      allow update: if isSignedIn() && (
+        // Permitir curtidas, visualizações e comentários
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'likedBy', 'views', 'comments']) ||
+        // Permitir autor editar próprio post
+        isOwner(resource.data.authorId)
+      );
+    }
+    
+    // Comentários - APENAS USUÁRIOS LOGADOS
+    match /comments/{commentId} {
+      allow read: if isSignedIn(); // MUDANÇA: Precisa estar logado
+      allow create: if isSignedIn() && isOwner(request.resource.data.authorId);
+      allow delete: if isSignedIn() && (isOwner(resource.data.authorId) || isAdmin());
+      allow update: if isSignedIn() && isOwner(resource.data.authorId);
+    }
+    
+    // Notícias - APENAS USUÁRIOS LOGADOS podem ler
+    match /news/{newsId} {
+      allow read: if isSignedIn(); // MUDANÇA: Precisa estar logado
+      allow create: if isAdmin() && isOwner(request.resource.data.authorId);
+      allow update, delete: if isAdmin() && isOwner(resource.data.authorId);
+    }
+    
+    // Quizzes - APENAS USUÁRIOS LOGADOS podem ler
+    match /quizzes/{quizId} {
+      allow read: if isSignedIn(); // MUDANÇA: Precisa estar logado
+      allow create: if isAdmin() && isOwner(request.resource.data.authorId);
+      allow update, delete: if isAdmin() && isOwner(resource.data.authorId);
+    }
+    
+    // Registro de uso/visitas - PERMITIR CRIAÇÃO sem autenticação (analytics)
+    match /uso/{usoId} {
+      allow create: if true;
+      allow read: if isAdmin();
+      allow update, delete: if isAdmin();
+    }
+    
+    // Visitas (analytics) - sem autenticação necessária
+    match /visits/{visitId} {
+      allow create: if true;
+      allow read: if isAdmin();
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+    
+    // Estatísticas de uso
+    match /usage/{docId} {
+      allow read: if isAdmin();
+      allow create, update: if true;
+      allow delete: if isAdmin();
+    }
+  }
+}
