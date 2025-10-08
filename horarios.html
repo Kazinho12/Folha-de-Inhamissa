@@ -1328,14 +1328,37 @@
             });
 
             // Edit schedule mode
-            editScheduleBtn.addEventListener('click', () => {
-                isEditMode = !isEditMode;
-                editScheduleBtn.textContent = isEditMode ? 'Cancelar Edição' : 'Editar Horário';
-                editScheduleBtn.style.backgroundColor = isEditMode ? 'var(--error)' : 'var(--white)';
-                editScheduleBtn.style.color = isEditMode ? 'white' : 'var(--primary)';
-                
-                scheduleItems.forEach(item => {
-                    if (isEditMode) {
+            editScheduleBtn.addEventListener('click', async () => {
+                if (isEditMode) {
+                    // Salvar edições
+                    editScheduleBtn.disabled = true;
+                    editScheduleBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+                    
+                    await saveSchedule();
+                    
+                    // Sair do modo de edição
+                    isEditMode = false;
+                    editScheduleBtn.innerHTML = '<i class="fas fa-edit"></i> Editar Horário';
+                    editScheduleBtn.style.backgroundColor = 'var(--white)';
+                    editScheduleBtn.style.color = 'var(--primary)';
+                    editScheduleBtn.disabled = false;
+                    
+                    scheduleItems.forEach(item => {
+                        item.classList.remove('editable');
+                        if (item.querySelector('.add-class-btn')) {
+                            item.innerHTML = '';
+                        }
+                    });
+                    
+                    alert('Horário salvo com sucesso!');
+                } else {
+                    // Entrar em modo de edição
+                    isEditMode = true;
+                    editScheduleBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Edição';
+                    editScheduleBtn.style.backgroundColor = 'var(--success)';
+                    editScheduleBtn.style.color = 'white';
+                    
+                    scheduleItems.forEach(item => {
                         item.classList.add('editable');
                         if (item.innerHTML === '') {
                             item.innerHTML = `
@@ -1345,13 +1368,8 @@
                                 </div>
                             `;
                         }
-                    } else {
-                        item.classList.remove('editable');
-                        if (item.querySelector('.add-class-btn')) {
-                            item.innerHTML = '';
-                        }
-                    }
-                });
+                    });
+                }
             });
 
             // Schedule item click
@@ -1761,35 +1779,74 @@
             }
         }
 
-        // Load schedule from Firestore
+        // Load schedule from Firestore with localStorage fallback
         async function loadSchedule() {
             if (!currentUser) return;
             
             try {
+                // Tentar carregar do Firestore primeiro
                 const q = db.collection('users').doc(currentUser.uid).collection('schedule');
                 const querySnapshot = await q.get();
                 
-                querySnapshot.forEach(doc => {
-                    const classData = doc.data();
-                    const slotElement = document.getElementById(classData.slotId);
-                    
-                    if (slotElement) {
-                        slotElement.innerHTML = `
-                            <div class="class-card">
-                                <div class="class-subject">${classData.subject}</div>
-                                <div class="class-teacher">${classData.teacher || ''}</div>
-                                <div class="class-room">${classData.room || ''}</div>
-                            </div>
-                        `;
-                    }
-                });
+                if (!querySnapshot.empty) {
+                    // Dados encontrados no Firestore
+                    querySnapshot.forEach(doc => {
+                        const classData = doc.data();
+                        const slotElement = document.getElementById(classData.slotId);
+                        
+                        if (slotElement) {
+                            slotElement.innerHTML = `
+                                <div class="class-card">
+                                    <div class="class-subject">${classData.subject}</div>
+                                    <div class="class-teacher">${classData.teacher || ''}</div>
+                                    <div class="class-room">${classData.room || ''}</div>
+                                </div>
+                            `;
+                        }
+                    });
+                    console.log('✅ Horário carregado do Firestore');
+                } else {
+                    // Fallback: carregar do localStorage
+                    loadScheduleFromLocalStorage();
+                }
                 
             } catch (error) {
-                console.error('Error loading schedule:', error);
+                console.warn('⚠️ Erro ao carregar do Firestore, tentando localStorage:', error);
+                loadScheduleFromLocalStorage();
+            }
+        }
+        
+        // Carregar horário do localStorage
+        function loadScheduleFromLocalStorage() {
+            if (!currentUser) return;
+            
+            try {
+                const savedSchedule = localStorage.getItem(`schedule_${currentUser.uid}`);
+                
+                if (savedSchedule) {
+                    const classes = JSON.parse(savedSchedule);
+                    
+                    classes.forEach(classData => {
+                        const slotElement = document.getElementById(classData.slotId);
+                        
+                        if (slotElement) {
+                            slotElement.innerHTML = `
+                                <div class="class-card">
+                                    <div class="class-subject">${classData.subject}</div>
+                                    <div class="class-teacher">${classData.teacher || ''}</div>
+                                    <div class="class-room">${classData.room || ''}</div>
+                                </div>
+                            `;
+                        }
+                    });
+                    console.log('✅ Horário carregado do localStorage');
+                }
+            } catch (error) {
+                console.error('❌ Erro ao carregar do localStorage:', error);
             }
         }
 
-        // Save class to schedule
+        // Save class to schedule e salvar automaticamente
         async function saveClass() {
             try {
                 const subject = document.getElementById('edit-class-subject').value;
@@ -1812,27 +1869,21 @@
                 `;
                 
                 editClassModal.style.display = 'none';
-                saveSchedule();
+                
+                // NÃO salvar automaticamente - aguardar botão "Salvar Edição"
+                console.log('Aula atualizada (ainda não salvo)');
                 
             } catch (error) {
                 console.error('Error saving class:', error);
             }
         }
 
-        // Save schedule to Firestore
+        // Save schedule to Firestore AND localStorage
         async function saveSchedule() {
             if (!currentUser) return;
             
             try {
-                // First, clear existing schedule
-                const scheduleRef = db.collection('users').doc(currentUser.uid).collection('schedule');
-                const querySnapshot = await scheduleRef.get();
-                
-                querySnapshot.forEach(async (doc) => {
-                    await doc.ref.delete();
-                });
-                
-                // Then save all classes
+                // Coletar todas as aulas
                 const classes = [];
                 scheduleItems.forEach(item => {
                     if (item.querySelector('.class-card')) {
@@ -1846,14 +1897,31 @@
                     }
                 });
                 
-                for (const classData of classes) {
-                    await scheduleRef.add(classData);
+                // 1. Salvar no localStorage (fallback imediato)
+                localStorage.setItem(`schedule_${currentUser.uid}`, JSON.stringify(classes));
+                console.log('✅ Horário salvo no localStorage');
+                
+                // 2. Tentar salvar no Firestore
+                try {
+                    const scheduleRef = db.collection('users').doc(currentUser.uid).collection('schedule');
+                    
+                    // Limpar horário antigo
+                    const querySnapshot = await scheduleRef.get();
+                    const deletePromises = querySnapshot.docs.map(doc => doc.ref.delete());
+                    await Promise.all(deletePromises);
+                    
+                    // Salvar novo horário
+                    const savePromises = classes.map(classData => scheduleRef.add(classData));
+                    await Promise.all(savePromises);
+                    
+                    console.log('✅ Horário salvo no Firestore');
+                } catch (firestoreError) {
+                    console.warn('⚠️ Erro ao salvar no Firestore, mas localStorage foi atualizado:', firestoreError);
                 }
                 
-                console.log('Horário salvo com sucesso!');
-                
             } catch (error) {
-                console.error('Error saving schedule:', error);
+                console.error('❌ Erro ao salvar horário:', error);
+                alert('Erro ao salvar horário. Tente novamente.');
             }
         }
 
