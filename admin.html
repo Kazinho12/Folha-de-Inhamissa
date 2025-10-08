@@ -400,7 +400,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
-        import { getFirestore, collection, getDocs, doc, deleteDoc, updateDoc, query, orderBy, limit, getDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, deleteDoc, updateDoc, query, orderBy, limit, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBJ8CVC2s_cb8nBdbrhPCbVbqqh6Cb9Vco",
@@ -416,6 +416,11 @@
         const db = getFirestore(app);
 
         const ADMIN_EMAILS = ['killiandesigner@gmail.com', 'jeanabilio72@gmail.com', 'ianomachai@gmail.com'];
+
+        // Verificar se usuário é admin
+        function isAdmin(userEmail) {
+            return ADMIN_EMAILS.includes(userEmail);
+        }
 
         window.closeModal = function(modalId) {
             document.getElementById(modalId).style.display = 'none';
@@ -526,6 +531,8 @@
                 console.log('Publicações carregadas:', postsSnap.size);
                 let html = '';
 
+                const currentUserIsAdmin = auth.currentUser && isAdmin(auth.currentUser.email);
+                
                 postsSnap.forEach(docSnap => {
                     const post = docSnap.data();
                     const isEditing = window.editingPost === docSnap.id;
@@ -536,17 +543,19 @@
                                 <div class="item-header">
                                     <div style="flex: 1;">
                                         <div class="item-title">${post.content?.substring(0, 100) || 'Sem conteúdo'}...</div>
-                                        <div class="item-meta">Por: ${post.authorName || 'Desconhecido'}</div>
+                                        <div class="item-meta">Por: ${post.authorName || 'Desconhecido'} (${post.authorId || 'ID desconhecido'})</div>
                                         <div class="item-meta">❤️ ${post.likes || 0} | 💬 ${post.comments?.length || 0} | 👁️ ${post.views || 0}</div>
                                     </div>
-                                    <div class="action-buttons">
-                                        <button class="btn btn-edit" onclick="editPost('${docSnap.id}')">
-                                            <i class="fas fa-edit"></i> Editar
-                                        </button>
-                                        <button class="btn btn-delete" onclick="deletePost('${docSnap.id}')">
-                                            <i class="fas fa-trash"></i> Apagar
-                                        </button>
-                                    </div>
+                                    ${currentUserIsAdmin ? `
+                                        <div class="action-buttons">
+                                            <button class="btn btn-edit" onclick="editPost('${docSnap.id}')">
+                                                <i class="fas fa-edit"></i> Editar
+                                            </button>
+                                            <button class="btn btn-delete" onclick="deletePost('${docSnap.id}')">
+                                                <i class="fas fa-trash"></i> Apagar
+                                            </button>
+                                        </div>
+                                    ` : '<p style="color: var(--error); font-size: 0.9rem;">Sem permissão de edição</p>'}
                                 </div>
                             ` : `
                                 <div class="edit-form">
@@ -587,26 +596,52 @@
 
         window.savePost = async function(postId) {
             const content = document.getElementById(`edit-post-content-${postId}`).value;
+            
+            if (!auth.currentUser) {
+                alert('Você precisa estar logado para editar');
+                return;
+            }
+
+            if (!isAdmin(auth.currentUser.email)) {
+                alert('Apenas administradores podem editar publicações');
+                return;
+            }
+
             try {
-                await updateDoc(doc(db, 'posts', postId), { content });
+                await updateDoc(doc(db, 'posts', postId), { 
+                    content,
+                    updatedAt: serverTimestamp(),
+                    updatedBy: auth.currentUser.email
+                });
                 alert('Publicação atualizada com sucesso!');
                 window.editingPost = null;
                 showPosts();
             } catch (error) {
                 console.error('Erro ao atualizar publicação:', error);
-                alert('Erro ao atualizar publicação');
+                alert('Erro ao atualizar publicação: ' + (error.message || 'Verifique suas permissões no Firestore'));
             }
         };
 
         window.deletePost = async function(postId) {
+            if (!auth.currentUser) {
+                alert('Você precisa estar logado para deletar');
+                return;
+            }
+
+            if (!isAdmin(auth.currentUser.email)) {
+                alert('Apenas administradores podem deletar publicações');
+                return;
+            }
+
             if (!confirm('Tem certeza que deseja apagar esta publicação?')) return;
+            
             try {
                 await deleteDoc(doc(db, 'posts', postId));
                 alert('Publicação apagada com sucesso!');
                 showPosts();
             } catch (error) {
                 console.error('Erro ao apagar publicação:', error);
-                alert('Erro ao apagar publicação');
+                alert('Erro ao apagar publicação: ' + (error.message || 'Verifique suas permissões no Firestore'));
             }
         };
 
