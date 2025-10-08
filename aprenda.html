@@ -1486,7 +1486,7 @@ a:hover {
 
             const canvas = document.createElement('canvas');
             canvas.width = 1200;
-            canvas.height = 800;
+            canvas.height = 900;
             const ctx = canvas.getContext('2d');
 
             // Fundo preto
@@ -1503,25 +1503,42 @@ a:hover {
             ctx.lineWidth = 8;
             ctx.strokeRect(45, 45, canvas.width - 90, canvas.height - 90);
 
+            // 🏅 ÍCONE DE MEDALHA COM ESTRELAS NO TOPO
+            ctx.font = '80px Arial, sans-serif';
+            ctx.textAlign = 'center';
+            
+            // Estrela esquerda
+            ctx.fillText('⭐', canvas.width / 2 - 150, 120);
+            
+            // Medalha central
+            ctx.fillText('🏅', canvas.width / 2, 120);
+            
+            // Estrela direita
+            ctx.fillText('⭐', canvas.width / 2 + 150, 120);
+
             // Título "CERTIFICADO"
             ctx.fillStyle = '#FFD700';
-            ctx.font = 'bold 80px Inter, Arial, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('CERTIFICADO', canvas.width / 2, 150);
+            ctx.font = 'bold 70px Inter, Arial, sans-serif';
+            ctx.fillText('CERTIFICADO', canvas.width / 2, 210);
 
             // Subtítulo "de Conclusão"
             ctx.fillStyle = '#FFFFFF';
-            ctx.font = '32px Inter, Arial, sans-serif';
-            ctx.fillText('de Conclusão', canvas.width / 2, 200);
+            ctx.font = '28px Inter, Arial, sans-serif';
+            ctx.fillText('de Conclusão', canvas.width / 2, 250);
+
+            // Certificamos que
+            ctx.fillStyle = '#CCCCCC';
+            ctx.font = '24px Inter, Arial, sans-serif';
+            ctx.fillText('Certificamos que', canvas.width / 2, 310);
 
             // Nome do usuário em dourado
             ctx.fillStyle = '#FFD700';
-            ctx.font = 'bold 48px Inter, Arial, sans-serif';
-            ctx.fillText(userName, canvas.width / 2, 280);
+            ctx.font = 'bold 44px Inter, Arial, sans-serif';
+            ctx.fillText(userName, canvas.width / 2, 365);
 
             // Classe e Turma (logo abaixo do nome)
             ctx.fillStyle = '#FFFFFF';
-            ctx.font = '26px Inter, Arial, sans-serif';
+            ctx.font = '24px Inter, Arial, sans-serif';
             
             let classeInfo = '';
             if (userClass && userClass.trim() !== '') {
@@ -1531,25 +1548,25 @@ a:hover {
                 classeInfo += classeInfo ? ` - Turma ${userTurma}` : `Turma ${userTurma}`;
             }
             
-            // Só mostrar se houver dados
             if (classeInfo) {
-                ctx.fillText(classeInfo, canvas.width / 2, 330);
+                ctx.fillText(classeInfo, canvas.width / 2, 405);
             }
 
             // Texto "Concluiu com sucesso o quiz:"
             ctx.fillStyle = '#FFFFFF';
-            ctx.font = '26px Inter, Arial, sans-serif';
-            ctx.fillText('Concluiu com sucesso o quiz:', canvas.width / 2, 390);
+            ctx.font = '24px Inter, Arial, sans-serif';
+            const yOffsetQuiz = classeInfo ? 450 : 430;
+            ctx.fillText('Concluiu com sucesso o quiz:', canvas.width / 2, yOffsetQuiz);
 
             // Título do quiz em branco
             ctx.fillStyle = '#FFFFFF';
-            ctx.font = 'bold 32px Inter, Arial, sans-serif';
-            ctx.fillText(quizTitle.toUpperCase(), canvas.width / 2, 440);
+            ctx.font = 'bold 30px Inter, Arial, sans-serif';
+            ctx.fillText(quizTitle.toUpperCase(), canvas.width / 2, yOffsetQuiz + 45);
 
             // Pontuação em dourado
             ctx.fillStyle = '#FFD700';
-            ctx.font = 'bold 56px Inter, Arial, sans-serif';
-            ctx.fillText(`${score} de ${total} (${percentage}%)`, canvas.width / 2, 520);
+            ctx.font = 'bold 48px Inter, Arial, sans-serif';
+            ctx.fillText(`${score} de ${total} (${percentage}%)`, canvas.width / 2, yOffsetQuiz + 115);
 
             // Data
             const dataAtual = new Date().toLocaleDateString('pt-MZ', { 
@@ -1559,17 +1576,30 @@ a:hover {
             });
             ctx.fillStyle = '#FFFFFF';
             ctx.font = '22px Inter, Arial, sans-serif';
-            ctx.fillText(`Data: ${dataAtual}`, canvas.width / 2, 590);
+            ctx.fillText(`Data: ${dataAtual}`, canvas.width / 2, yOffsetQuiz + 170);
 
-            // Escola em dourado
+            // Barra horizontal dourada (acima da assinatura)
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(300, yOffsetQuiz + 230);
+            ctx.lineTo(900, yOffsetQuiz + 230);
+            ctx.stroke();
+
+            // Assinado por "Folha de Inhamissa"
             ctx.fillStyle = '#FFD700';
-            ctx.font = 'bold 28px Inter, Arial, sans-serif';
-            ctx.fillText('Escola Secundária de Inhamissa', canvas.width / 2, 690);
+            ctx.font = 'italic 26px Inter, Arial, sans-serif';
+            ctx.fillText('Folha de Inhamissa', canvas.width / 2, yOffsetQuiz + 270);
+
+            // Nome da escola no fundo
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = 'bold 24px Inter, Arial, sans-serif';
+            ctx.fillText('Escola Secundária de Inhamissa', canvas.width / 2, yOffsetQuiz + 320);
             
             // Localização em branco
-            ctx.fillStyle = '#FFFFFF';
-            ctx.font = '22px Inter, Arial, sans-serif';
-            ctx.fillText('Xai-Xai, Gaza, Moçambique', canvas.width / 2, 730);
+            ctx.fillStyle = '#CCCCCC';
+            ctx.font = '20px Inter, Arial, sans-serif';
+            ctx.fillText('Xai-Xai, Gaza, Moçambique', canvas.width / 2, yOffsetQuiz + 355);
 
             // Download
             const link = document.createElement('a');
