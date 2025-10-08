@@ -1706,12 +1706,10 @@
         }
 
         // Função para carregar tema do Firebase
-        async function loadThemePreference(userId) {
+        async function loadThemePreference() {
             try {
-                const userDoc = await getDoc(doc(db, 'users', userId));
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
-                    const theme = userData.theme || 'dark';
+                if (currentUserData && currentUserData.theme) {
+                    const theme = currentUserData.theme || 'dark';
                     applyTheme(theme);
                     return theme;
                 }
@@ -1723,9 +1721,12 @@
         }
 
         // Função para salvar tema no Firebase
-        async function saveThemePreference(userId, theme) {
+        async function saveThemePreference(theme) {
             try {
-                await setDoc(doc(db, 'users', userId), { theme }, { merge: true });
+                if (currentUserData && currentUserData.id) {
+                    await updateDoc(doc(db, 'users', currentUserData.id), { theme });
+                    currentUserData.theme = theme;
+                }
             } catch (error) {
                 console.warn('Erro ao salvar preferência de tema:', error);
             }
@@ -1737,9 +1738,7 @@
             const newTheme = currentTheme === 'light' ? 'dark' : 'light';
             applyTheme(newTheme);
 
-            if (auth.currentUser) {
-                await saveThemePreference(auth.currentUser.uid, newTheme);
-            }
+            await saveThemePreference(newTheme);
         });
 
         // Função para mostrar toast
@@ -3038,7 +3037,7 @@
                     }
 
                     await trackPageVisit();
-                    await loadThemePreference(user.uid);
+                    await loadThemePreference();
                     await loadPalavrasProibidas();
                     checkForSharedPost();
                     loadPosts();

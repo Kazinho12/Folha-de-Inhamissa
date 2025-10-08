@@ -1117,7 +1117,7 @@ a:hover {
     <script type="module">
         // Import Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-        import { getFirestore, collection, query, orderBy, limit, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+        import { getFirestore, collection, query, where, orderBy, limit, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
 
         const firebaseConfig = {
@@ -1149,12 +1149,17 @@ a:hover {
         }
 
         // Função para carregar tema do Firebase
-        async function loadThemePreference(userId) {
+        async function loadThemePreference(userUid) {
             try {
-                const userDocRef = doc(db, 'users', userId);
-                const userDoc = await getDoc(userDocRef);
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
+                const usersQuery = query(
+                    collection(db, 'users'),
+                    where('uid', '==', userUid),
+                    limit(1)
+                );
+                const usersSnapshot = await getDocs(usersQuery);
+                
+                if (!usersSnapshot.empty) {
+                    const userData = usersSnapshot.docs[0].data();
                     const theme = userData.theme || 'dark';
                     applyTheme(theme);
                     return theme;
@@ -1167,10 +1172,19 @@ a:hover {
         }
 
         // Função para salvar tema no Firebase
-        async function saveThemePreference(userId, theme) {
+        async function saveThemePreference(userUid, theme) {
             try {
-                const userDocRef = doc(db, 'users', userId);
-                await updateDoc(userDocRef, { theme });
+                const usersQuery = query(
+                    collection(db, 'users'),
+                    where('uid', '==', userUid),
+                    limit(1)
+                );
+                const usersSnapshot = await getDocs(usersQuery);
+                
+                if (!usersSnapshot.empty) {
+                    const userDocRef = doc(db, 'users', usersSnapshot.docs[0].id);
+                    await updateDoc(userDocRef, { theme });
+                }
             } catch (error) {
                 console.warn('Erro ao salvar preferência de tema:', error);
             }
@@ -1572,40 +1586,29 @@ a:hover {
                 try {
                     console.log('🔍 Carregando dados do usuário em aprenda.html');
                     
-                    // Buscar documento do usuário
-                    const userDocRef = doc(db, 'users', user.uid);
-                    const userDoc = await getDoc(userDocRef);
+                    // Buscar documento do usuário usando where clause
+                    const usersQuery = query(
+                        collection(db, 'users'),
+                        where('uid', '==', user.uid),
+                        limit(1)
+                    );
                     
+                    const usersSnapshot = await getDocs(usersQuery);
                     let userData = null;
 
-                    if (userDoc.exists()) {
-                        userData = userDoc.data();
+                    if (!usersSnapshot.empty) {
+                        userData = usersSnapshot.docs[0].data();
                         console.log('✅ Dados do usuário encontrados:', userData);
                     } else {
-                        // Se não existir, buscar por UID
-                        const usersQuery = query(collection(db, 'users'));
-                        const usersSnapshot = await getDocs(usersQuery);
-                        
-                        for (const doc of usersSnapshot.docs) {
-                            const data = doc.data();
-                            if (data.uid === user.uid || data.email === user.email) {
-                                userData = data;
-                                console.log('✅ Dados do usuário encontrados via query:', userData);
-                                break;
-                            }
-                        }
-                        
-                        if (!userData) {
-                            userData = {
-                                name: user.displayName || 'Usuário',
-                                email: user.email,
-                                photoURL: user.photoURL || null,
-                                class: null,
-                                classe: null,
-                                turma: null
-                            };
-                            console.log('ℹ️ Usando dados do Firebase Auth');
-                        }
+                        // Fallback: dados do Firebase Auth
+                        userData = {
+                            name: user.displayName || 'Usuário',
+                            email: user.email,
+                            photoURL: user.photoURL || null,
+                            class: '',
+                            turma: ''
+                        };
+                        console.log('ℹ️ Usando dados do Firebase Auth (documento não encontrado no Firestore)');
                     }
 
                     // Buscar classe e turma (verificando variações de nome dos campos)
@@ -1679,12 +1682,17 @@ const searchModal = document.getElementById('search-modal');
         }
 
         // Função para carregar tema do Firebase
-        async function loadThemePreference(userId) {
+        async function loadThemePreference(userUid) {
             try {
-                const userDocRef = doc(db, 'users', userId);
-                const userDoc = await getDoc(userDocRef);
-                if (userDoc.exists()) {
-                    const userData = userDoc.data();
+                const usersQuery = query(
+                    collection(db, 'users'),
+                    where('uid', '==', userUid),
+                    limit(1)
+                );
+                const usersSnapshot = await getDocs(usersQuery);
+                
+                if (!usersSnapshot.empty) {
+                    const userData = usersSnapshot.docs[0].data();
                     const theme = userData.theme || 'dark';
                     applyTheme(theme);
                     return theme;
@@ -1697,10 +1705,19 @@ const searchModal = document.getElementById('search-modal');
         }
 
         // Função para salvar tema no Firebase
-        async function saveThemePreference(userId, theme) {
+        async function saveThemePreference(userUid, theme) {
             try {
-                const userDocRef = doc(db, 'users', userId);
-                await updateDoc(userDocRef, { theme });
+                const usersQuery = query(
+                    collection(db, 'users'),
+                    where('uid', '==', userUid),
+                    limit(1)
+                );
+                const usersSnapshot = await getDocs(usersQuery);
+                
+                if (!usersSnapshot.empty) {
+                    const userDocRef = doc(db, 'users', usersSnapshot.docs[0].id);
+                    await updateDoc(userDocRef, { theme });
+                }
             } catch (error) {
                 console.warn('Erro ao salvar preferência de tema:', error);
             }
