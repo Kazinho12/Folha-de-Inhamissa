@@ -1208,9 +1208,12 @@
                         auth.currentUser.email[0].toUpperCase();
                     
                     if (userData.photoURL) {
-                        userAvatar.innerHTML = `<img src="${userData.photoURL}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                        // Atualizar avatar no app-bar
+                        userAvatar.innerHTML = `<img src="${userData.photoURL}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.style.display='none'; this.parentElement.querySelector('span').style.display='flex';">`;
+                        avatarInitials.style.display = 'none';
                     } else {
                         avatarInitials.textContent = initials;
+                        avatarInitials.style.display = 'flex';
                     }
                 }
             } catch (error) {
@@ -1273,10 +1276,11 @@
                 searchModal.style.display = 'none';
             });
 
-            // Profile modal - desabilitado, redireciona para index
+            // Avatar desativado - não faz nada ao clicar
+            userAvatar.style.cursor = 'default';
             userAvatar.addEventListener('click', (e) => {
                 e.stopPropagation();
-                window.location.href = 'index.html';
+                // Avatar desativado - sem ação
             });
 
             logoutBtn.addEventListener('click', () => {
@@ -1844,6 +1848,11 @@
                     
                     // Avatar - imagem ou iniciais
                     if (currentUserData.photoURL) {
+                        // Avatar no app-bar
+                        userAvatar.innerHTML = `<img src="${currentUserData.photoURL}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.style.display='none'; this.parentElement.querySelector('span').style.display='flex';">`;
+                        avatarInitials.style.display = 'none';
+                        
+                        // Avatar no modal de perfil
                         document.getElementById('profile-image').src = currentUserData.photoURL;
                         document.getElementById('profile-image').style.display = 'block';
                         document.getElementById('profile-initials').style.display = 'none';
@@ -1853,6 +1862,7 @@
                             currentUser.email[0].toUpperCase();
                         
                         avatarInitials.textContent = initials;
+                        avatarInitials.style.display = 'flex';
                         profileInitials.textContent = initials;
                     }
                     
