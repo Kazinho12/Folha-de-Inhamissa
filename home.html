@@ -1617,6 +1617,7 @@
             uploadBytesResumable, 
             getDownloadURL 
         } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
+        import { initUploadUtils, uploadImage } from './upload-utils.js';
 
         // Firebase configuration
         const firebaseConfig = {
@@ -1634,6 +1635,9 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const storage = getStorage(app);
+
+        // Inicializar sistema de upload
+        initUploadUtils(storage);
 
         // Inicializar animação Lottie de carregamento
         const loadingLottieContainer = document.getElementById('loading-lottie');
@@ -2238,54 +2242,53 @@
             const user = auth.currentUser;
             if (!user) return;
 
+            // Validar tipo de arquivo
+            if (!file.type.startsWith('image/')) {
+                showToast('Por favor, selecione uma imagem válida', 'error');
+                return;
+            }
+
+            // Validar tamanho (máx 5MB para foto de perfil)
+            const MAX_SIZE = 5 * 1024 * 1024;
+            if (file.size > MAX_SIZE) {
+                showToast('Imagem muito grande. Máximo 5MB', 'error');
+                return;
+            }
+
             try {
                 progressContainer.style.display = 'flex';
+                progressFill.style.width = '0%';
+                progressText.textContent = '0%';
 
-                const photoRef = ref(storage, `profile-photos/${user.uid}`);
-                const uploadTask = uploadBytesResumable(photoRef, file);
+                // Usar sistema de upload com ImgBB e Firebase como fallback
+                const result = await uploadImage(file, user.uid, (progress) => {
+                    progressFill.style.width = progress + '%';
+                    progressText.textContent = Math.round(progress) + '%';
+                });
 
-                uploadTask.on('state_changed', 
-                    (snapshot) => {
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        progressFill.style.width = progress + '%';
-                        progressText.textContent = Math.round(progress) + '%';
-                    },
-                    (error) => {
-                        console.error('Erro no upload:', error);
-                        progressContainer.style.display = 'none';
-                        showToast('Erro ao fazer upload da foto', 'error');
-                    },
-                    async () => {
-                        try {
-                            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                if (!currentUserData || !currentUserData.id) {
+                    showToast('Erro: Dados do usuário não carregados', 'error');
+                    progressContainer.style.display = 'none';
+                    return;
+                }
 
-                            if (!currentUserData || !currentUserData.id) {
-                                showToast('Erro: Dados do usuário não carregados', 'error');
-                                progressContainer.style.display = 'none';
-                                return;
-                            }
+                // Atualizar Firestore com a nova URL da foto
+                await updateDoc(doc(db, 'users', currentUserData.id), {
+                    photoURL: result.url,
+                    updatedAt: serverTimestamp()
+                });
 
-                            await updateDoc(doc(db, 'users', currentUserData.id), {
-                                photoURL: downloadURL,
-                                updatedAt: serverTimestamp()
-                            });
+                currentUserData.photoURL = result.url;
+                updateAvatarDisplay();
+                progressContainer.style.display = 'none';
+                
+                const uploadMethod = result.method === 'imgbb' ? 'ImgBB' : 'Firebase Storage';
+                showToast(`Foto de perfil atualizada via ${uploadMethod}!`, 'success');
 
-                            currentUserData = currentUserData || {};
-                            currentUserData.photoURL = downloadURL;
-                            updateAvatarDisplay();
-                            progressContainer.style.display = 'none';
-                            showToast('Foto de perfil atualizada!', 'success');
-                        } catch (error) {
-                            console.error('Erro ao salvar URL da foto:', error);
-                            progressContainer.style.display = 'none';
-                            showToast('Erro ao salvar foto', 'error');
-                        }
-                    }
-                );
             } catch (error) {
                 console.error('Erro ao fazer upload da foto:', error);
                 progressContainer.style.display = 'none';
-                showToast('Erro ao fazer upload da foto', 'error');
+                showToast(error.message || 'Erro ao fazer upload da foto', 'error');
             }
         });
 
