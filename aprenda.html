@@ -1489,113 +1489,131 @@ a:hover {
             canvas.height = 900;
             const ctx = canvas.getContext('2d');
 
-            // Fundo preto
-            ctx.fillStyle = '#000000';
+            // Fundo com gradiente elegante
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#0a0a0a');
+            gradient.addColorStop(1, '#1a1a1a');
+            ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Borda externa dourada
+            // Borda externa dourada com efeito
             ctx.strokeStyle = '#FFD700';
-            ctx.lineWidth = 20;
-            ctx.strokeRect(25, 25, canvas.width - 50, canvas.height - 50);
+            ctx.lineWidth = 15;
+            ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
 
-            // Borda interna dourada
-            ctx.strokeStyle = '#FFD700';
-            ctx.lineWidth = 8;
-            ctx.strokeRect(45, 45, canvas.width - 90, canvas.height - 90);
+            // Borda interna com gradiente
+            ctx.strokeStyle = '#FFC107';
+            ctx.lineWidth = 5;
+            ctx.strokeRect(50, 50, canvas.width - 100, canvas.height - 100);
 
-            // 🏅 ÍCONE DE MEDALHA COM ESTRELAS NO TOPO
-            ctx.font = '80px Arial, sans-serif';
+            // ✨ ÍCONES DO TOPO (usando símbolos Unicode similares a Font Awesome)
+            ctx.fillStyle = '#FFD700';
+            ctx.font = '60px Arial, sans-serif';
             ctx.textAlign = 'center';
             
             // Estrela esquerda
-            ctx.fillText('⭐', canvas.width / 2 - 150, 120);
+            ctx.fillText('★', canvas.width / 2 - 180, 110);
             
-            // Medalha central
-            ctx.fillText('🏅', canvas.width / 2, 120);
+            // Troféu/Medalha central (usando emoji visual)
+            ctx.fillText('🏆', canvas.width / 2, 110);
             
             // Estrela direita
-            ctx.fillText('⭐', canvas.width / 2 + 150, 120);
+            ctx.fillText('★', canvas.width / 2 + 180, 110);
 
-            // Título "CERTIFICADO"
+            // TÍTULO DE RECONHECIMENTO
             ctx.fillStyle = '#FFD700';
-            ctx.font = 'bold 70px Inter, Arial, sans-serif';
-            ctx.fillText('CERTIFICADO', canvas.width / 2, 210);
+            ctx.font = 'bold 65px Inter, Arial, sans-serif';
+            ctx.fillText('CERTIFICADO DE EXCELÊNCIA', canvas.width / 2, 200);
 
+            // Linha decorativa sob o título
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(350, 220);
+            ctx.lineTo(850, 220);
+            ctx.stroke();
 
-            // Certificamos que
-            ctx.fillStyle = '#CCCCCC';
-            ctx.font = '24px Inter, Arial, sans-serif';
-            ctx.fillText('Certificamos que', canvas.width / 2, 310);
-
-            // Nome do usuário em dourado
-            ctx.fillStyle = '#FFD700';
-            ctx.font = 'bold 44px Inter, Arial, sans-serif';
-            ctx.fillText(userName, canvas.width / 2, 365);
-
-            // Classe e Turma (logo abaixo do nome)
+            // Texto de reconhecimento
             ctx.fillStyle = '#FFFFFF';
-            ctx.font = '24px Inter, Arial, sans-serif';
+            ctx.font = '28px Inter, Arial, sans-serif';
+            ctx.fillText('Este documento reconhece que', canvas.width / 2, 280);
+
+            // Nome do usuário destacado
+            ctx.fillStyle = '#FFD700';
+            ctx.font = 'bold 50px Inter, Arial, sans-serif';
+            ctx.fillText(userName, canvas.width / 2, 340);
+
+            // Classe e Turma
+            ctx.fillStyle = '#CCCCCC';
+            ctx.font = '26px Inter, Arial, sans-serif';
             
             let classeInfo = '';
             if (userClass && userClass.trim() !== '') {
                 classeInfo = `${userClass}ª Classe`;
             }
             if (userTurma && userTurma.trim() !== '') {
-                classeInfo += classeInfo ? ` - Turma ${userTurma}` : `Turma ${userTurma}`;
+                classeInfo += classeInfo ? ` • Turma ${userTurma}` : `Turma ${userTurma}`;
             }
             
             if (classeInfo) {
-                ctx.fillText(classeInfo, canvas.width / 2, 405);
+                ctx.fillText(classeInfo, canvas.width / 2, 380);
             }
 
-            // Texto "Concluiu com sucesso o quiz:"
+            // Texto de conclusão
             ctx.fillStyle = '#FFFFFF';
-            ctx.font = '24px Inter, Arial, sans-serif';
-            const yOffsetQuiz = classeInfo ? 450 : 430;
-            ctx.fillText('Concluiu com sucesso o quiz:', canvas.width / 2, yOffsetQuiz);
+            ctx.font = '26px Inter, Arial, sans-serif';
+            const yOffsetQuiz = classeInfo ? 430 : 410;
+            ctx.fillText('Demonstrou domínio excepcional no desafio', canvas.width / 2, yOffsetQuiz);
 
-            // Título do quiz em branco
-            ctx.fillStyle = '#FFFFFF';
-            ctx.font = 'bold 30px Inter, Arial, sans-serif';
-            ctx.fillText(quizTitle.toUpperCase(), canvas.width / 2, yOffsetQuiz + 45);
-
-            // Pontuação em dourado
+            // Título do quiz destacado
             ctx.fillStyle = '#FFD700';
-            ctx.font = 'bold 48px Inter, Arial, sans-serif';
-            ctx.fillText(`${score} de ${total} (${percentage}%)`, canvas.width / 2, yOffsetQuiz + 115);
+            ctx.font = 'bold 34px Inter, Arial, sans-serif';
+            ctx.fillText(`"${quizTitle}"`, canvas.width / 2, yOffsetQuiz + 50);
 
-            // Data
+            // Badge de pontuação
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.2)';
+            ctx.fillRect(450, yOffsetQuiz + 70, 300, 80);
+            
+            ctx.fillStyle = '#FFD700';
+            ctx.font = 'bold 52px Inter, Arial, sans-serif';
+            ctx.fillText(`${percentage}%`, canvas.width / 2, yOffsetQuiz + 125);
+            
+            ctx.fillStyle = '#FFFFFF';
+            ctx.font = '20px Inter, Arial, sans-serif';
+            ctx.fillText(`${score} de ${total} questões corretas`, canvas.width / 2, yOffsetQuiz + 150);
+
+            // Data com ícone
             const dataAtual = new Date().toLocaleDateString('pt-MZ', { 
                 day: '2-digit', 
-                month: '2-digit', 
+                month: 'long', 
                 year: 'numeric' 
             });
-            ctx.fillStyle = '#FFFFFF';
+            ctx.fillStyle = '#CCCCCC';
             ctx.font = '22px Inter, Arial, sans-serif';
-            ctx.fillText(`Data: ${dataAtual}`, canvas.width / 2, yOffsetQuiz + 170);
+            ctx.fillText(`📅 ${dataAtual}`, canvas.width / 2, yOffsetQuiz + 200);
 
-            // Barra horizontal dourada (acima da assinatura)
+            // Linha de assinatura
             ctx.strokeStyle = '#FFD700';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(300, yOffsetQuiz + 230);
-            ctx.lineTo(900, yOffsetQuiz + 230);
+            ctx.moveTo(400, yOffsetQuiz + 260);
+            ctx.lineTo(800, yOffsetQuiz + 260);
             ctx.stroke();
 
-            // Assinado por "Folha de Inhamissa"
+            // Assinatura digital
             ctx.fillStyle = '#FFD700';
-            ctx.font = 'italic 26px Inter, Arial, sans-serif';
-            ctx.fillText('Folha de Inhamissa', canvas.width / 2, yOffsetQuiz + 270);
+            ctx.font = 'italic bold 28px Inter, Arial, sans-serif';
+            ctx.fillText('Folha de Inhamissa', canvas.width / 2, yOffsetQuiz + 295);
 
-            // Nome da escola no fundo
+            // Instituição
             ctx.fillStyle = '#FFFFFF';
-            ctx.font = 'bold 24px Inter, Arial, sans-serif';
-            ctx.fillText('Escola Secundária de Inhamissa', canvas.width / 2, yOffsetQuiz + 320);
+            ctx.font = 'bold 22px Inter, Arial, sans-serif';
+            ctx.fillText('🎓 Escola Secundária de Inhamissa', canvas.width / 2, yOffsetQuiz + 340);
             
-            // Localização em branco
+            // Localização
             ctx.fillStyle = '#CCCCCC';
-            ctx.font = '20px Inter, Arial, sans-serif';
-            ctx.fillText('Xai-Xai, Gaza, Moçambique', canvas.width / 2, yOffsetQuiz + 355);
+            ctx.font = '18px Inter, Arial, sans-serif';
+            ctx.fillText('📍 Xai-Xai • Gaza • Moçambique', canvas.width / 2, yOffsetQuiz + 370);
 
             // Download
             const link = document.createElement('a');
