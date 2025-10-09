@@ -399,49 +399,50 @@
         const imagePreview = document.getElementById('image-preview');
         const previewImg = document.getElementById('preview-img');
 
-        // Armazenar dados da imagem para evitar perda de permissões
-        let cachedImageData = null;
-        let cachedImageFile = null;
+        // Armazenar arquivo diretamente
+        let selectedImageFile = null;
 
-        imageInput.addEventListener('change', async (e) => {
+        imageInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) {
-                cachedImageData = null;
-                cachedImageFile = null;
+                selectedImageFile = null;
+                imagePreview.style.display = 'none';
                 return;
             }
 
-            console.log('📸 Arquivo selecionado, lendo imediatamente:', {
+            console.log('📸 Arquivo selecionado:', {
                 name: file.name,
                 type: file.type,
                 size: file.size
             });
 
-            try {
-                // Ler arquivo IMEDIATAMENTE para evitar perda de permissões
-                const dataUrl = await new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = () => reject(new Error('Falha ao ler arquivo'));
-                    reader.readAsDataURL(file);
-                });
-
-                // Armazenar dados para uso posterior
-                cachedImageData = dataUrl;
-                cachedImageFile = file;
-                
-                // Mostrar preview
-                previewImg.src = dataUrl;
-                imagePreview.style.display = 'block';
-                
-                console.log('✅ Imagem carregada e armazenada em cache');
-
-            } catch (error) {
-                console.error('❌ Erro ao processar imagem:', error);
-                showToast('Erro ao carregar imagem. Tente novamente.', 'error');
-                cachedImageData = null;
-                cachedImageFile = null;
+            // Validar tipo
+            if (!file.type.startsWith('image/')) {
+                showToast('Por favor, selecione uma imagem válida', 'error');
+                imageInput.value = '';
+                return;
             }
+
+            // Validar tamanho (máx 10MB)
+            const MAX_SIZE = 10 * 1024 * 1024;
+            if (file.size > MAX_SIZE) {
+                showToast('Imagem muito grande. Máximo 10MB', 'error');
+                imageInput.value = '';
+                return;
+            }
+
+            // Armazenar arquivo
+            selectedImageFile = file;
+            
+            // Mostrar preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                imagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+            
+            console.log('✅ Imagem selecionada e preview gerado');
         });
 
         window.addQuestion = function() {
@@ -507,27 +508,10 @@
             const description = document.getElementById('quiz-description').value.trim();
             const category = document.getElementById('quiz-category').value;
 
-            // Usar dados em cache da imagem (já validados)
-            let imageFile = null;
-            if (cachedImageData && cachedImageFile) {
-                console.log('✅ Usando imagem em cache:', {
-                    name: cachedImageFile.name,
-                    size: cachedImageFile.size,
-                    type: cachedImageFile.type
-                });
-                
-                // Criar novo File a partir dos dados em cache
-                const byteString = atob(cachedImageData.split(',')[1]);
-                const mimeString = cachedImageData.split(',')[0].split(':')[1].split(';')[0];
-                const ab = new ArrayBuffer(byteString.length);
-                const ia = new Uint8Array(ab);
-                for (let i = 0; i < byteString.length; i++) {
-                    ia[i] = byteString.charCodeAt(i);
-                }
-                const blob = new Blob([ab], { type: mimeString });
-                imageFile = new File([blob], cachedImageFile.name, { type: mimeString });
-                
-                console.log('✅ Arquivo reconstruído:', {
+            // Usar arquivo selecionado
+            const imageFile = selectedImageFile;
+            if (imageFile) {
+                console.log('✅ Usando imagem selecionada:', {
                     name: imageFile.name,
                     size: imageFile.size,
                     type: imageFile.type
