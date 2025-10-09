@@ -90,6 +90,21 @@ The application is configured for deployment on Replit using autoscale:
 8. **publicarnews.html** - Interface to publish news (likely admin only)
 
 ## Recent Changes
+- **2025-10-09**: Correções de Upload e Filtro de Conteúdo
+  - **Sistema de Upload Corrigido**:
+    - Modal de publicação em home.html agora usa sistema uploadImage com ImgBB + Firebase fallback
+    - Corrigido problema onde imagens não eram enviadas ao publicar posts
+    - Upload agora tenta ImgBB primeiro (mais rápido) e usa Firebase como backup
+  - **Bug em submit-quiz.html Corrigido**:
+    - Corrigido seletor de opções que causava embaralhamento de perguntas
+    - Mudado de `input[name$="-${i}"]` para `input[name^="option-"][name$="-${i}"]`
+    - Perguntas agora aparecem corretamente nas opções A, B, C, D
+  - **Filtro de Palavras Proibidas Atualizado**:
+    - Removidas línguas não utilizadas (italiano, alemão, russo, polonês, holandês)
+    - Mantidas apenas: Português, Inglês, Francês, Espanhol e línguas moçambicanas (Xangana, Tsonga, Maxope)
+    - Adicionados emojis ofensivos e combinações (🖕, 🍆💦, etc.)
+    - Sistema de filtragem mais robusto e culturalmente apropriado
+
 - **2025-10-09**: Fresh GitHub Import Setup Completed
   - Successfully imported project from GitHub (fresh clone)
   - Python 3.11 already installed and configured
