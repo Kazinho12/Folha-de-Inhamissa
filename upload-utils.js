@@ -1,4 +1,3 @@
-
 // upload-utils.js - Sistema de upload com ImgBB e Firebase fallback
 import { ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-storage.js";
 
@@ -42,7 +41,7 @@ async function fileToBase64(file) {
     return new Promise((resolve, reject) => {
         // Criar um novo FileReader
         const reader = new FileReader();
-        
+
         // Timeout de 15 segundos para conversão
         const timeoutId = setTimeout(() => {
             reader.abort();
@@ -52,10 +51,10 @@ async function fileToBase64(file) {
         // Evento de sucesso
         reader.onload = (event) => {
             clearTimeout(timeoutId);
-            
+
             try {
                 const result = event.target.result;
-                
+
                 if (!result || typeof result !== 'string') {
                     throw new Error('Resultado da leitura inválido');
                 }
@@ -67,7 +66,7 @@ async function fileToBase64(file) {
                 }
 
                 const base64Data = base64Match[2];
-                
+
                 if (!base64Data || base64Data.length < 10) {
                     throw new Error('Base64 extraído está vazio');
                 }
@@ -76,7 +75,7 @@ async function fileToBase64(file) {
                     length: base64Data.length,
                     mimeType: base64Match[1]
                 });
-                
+
                 resolve(base64Data);
             } catch (error) {
                 console.error('❌ Erro ao processar resultado:', error);
@@ -126,19 +125,19 @@ async function uploadToImgBB(file, onProgress) {
                 size: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
                 type: file.type
             });
-            
+
             if (onProgress) onProgress(10);
 
             // Converter para base64
             const base64Image = await fileToBase64(file);
-            
+
             if (onProgress) onProgress(30);
 
             // Criar FormData com base64
             const formData = new FormData();
             formData.append('image', base64Image);
             formData.append('name', file.name.replace(/\s/g, '_'));
-            
+
             // Fazer upload com fetch
             const response = await fetch(`${IMGBB_API_URL}?key=${IMGBB_API_KEY}`, {
                 method: 'POST',
@@ -156,14 +155,14 @@ async function uploadToImgBB(file, onProgress) {
             }
 
             const data = await response.json();
-            
+
             if (!data.success || !data.data || !data.data.url) {
                 console.error('❌ Resposta inválida do ImgBB:', data);
                 throw new Error('Resposta inválida do ImgBB');
             }
 
             if (onProgress) onProgress(100);
-            
+
             clearTimeout(timeoutId);
             console.log('✅ Upload ImgBB bem-sucedido:', data.data.url);
             resolve({
@@ -194,7 +193,7 @@ async function uploadToFirebase(file, userId, onProgress) {
                 size: `${(file.size / 1024 / 1024).toFixed(2)}MB`,
                 type: file.type
             });
-            
+
             if (!storage) {
                 clearTimeout(timeoutId);
                 throw new Error('Firebase Storage não inicializado');
@@ -218,7 +217,7 @@ async function uploadToFirebase(file, userId, onProgress) {
 
             let lastBytesTransferred = 0;
             let stuckCounter = 0;
-            
+
             const progressCheckInterval = setInterval(() => {
                 if (uploadTask.snapshot) {
                     const currentBytes = uploadTask.snapshot.bytesTransferred;
@@ -242,7 +241,7 @@ async function uploadToFirebase(file, userId, onProgress) {
                 (snapshot) => {
                     const rawProgress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                     const progress = 10 + (rawProgress * 0.85);
-                    
+
                     console.log(`📊 Progresso Firebase: ${Math.round(progress)}%`, 
                         `(${snapshot.bytesTransferred}/${snapshot.totalBytes} bytes)`);
                     if (onProgress) onProgress(progress);
@@ -258,11 +257,11 @@ async function uploadToFirebase(file, userId, onProgress) {
                     try {
                         if (onProgress) onProgress(95);
                         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                        
+
                         clearTimeout(timeoutId);
                         if (onProgress) onProgress(100);
                         console.log('✅ Upload Firebase bem-sucedido:', downloadURL);
-                        
+
                         resolve({
                             success: true,
                             url: downloadURL,
@@ -309,7 +308,7 @@ export async function uploadImage(file, userId, onProgress) {
 
     // Para imagens maiores que 500KB, usar Firebase direto
     const imgbbMaxSize = 500 * 1024; // 500KB
-    
+
     if (file.size > imgbbMaxSize) {
         console.log('📦 Imagem grande, usando Firebase Storage diretamente...');
         try {
@@ -329,7 +328,7 @@ export async function uploadImage(file, userId, onProgress) {
         return result;
     } catch (imgbbError) {
         console.warn('⚠️ ImgBB falhou, usando Firebase como fallback...', imgbbError.message);
-        
+
         // Resetar progresso para Firebase
         if (onProgress) onProgress(0);
     }
