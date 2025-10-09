@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-MZ">
 <head>
@@ -400,15 +399,15 @@
         const previewImg = document.getElementById('preview-img');
 
         // Cache ROBUSTO da imagem
-        let cachedImageBlob = null;
-        let cachedImageName = null;
+        let cachedImageData = null; // Armazena a string base64
+        let cachedImageFile = null; // Armazena o objeto File original
         let cachedImageType = null;
 
         imageInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) {
-                cachedImageBlob = null;
-                cachedImageName = null;
+                cachedImageData = null;
+                cachedImageFile = null;
                 cachedImageType = null;
                 imagePreview.style.display = 'none';
                 return;
@@ -430,27 +429,28 @@
             }
 
             try {
-                // Ler arquivo IMEDIATAMENTE como Blob (evita perda de referência)
+                // Ler arquivo IMEDIATAMENTE como ArrayBuffer para reconstruir base64
                 const arrayBuffer = await file.arrayBuffer();
-                cachedImageBlob = new Blob([arrayBuffer], { type: file.type });
-                cachedImageName = file.name;
+                const base64String = `data:${file.type};base64,${btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)))}`;
+
+                cachedImageData = base64String;
+                cachedImageFile = file; // Armazena o objeto File original para obter o nome e tipo
                 cachedImageType = file.type;
-                
+
                 // Mostrar preview
-                const objectURL = URL.createObjectURL(cachedImageBlob);
-                previewImg.src = objectURL;
+                previewImg.src = base64String;
                 imagePreview.style.display = 'block';
-                
+
                 console.log('✅ Imagem armazenada em cache:', {
-                    name: cachedImageName,
-                    type: cachedImageType,
-                    size: cachedImageBlob.size
+                    name: file.name,
+                    type: file.type,
+                    size: file.size
                 });
             } catch (error) {
                 console.error('❌ Erro ao processar imagem:', error);
                 showToast('Erro ao carregar imagem', 'error');
-                cachedImageBlob = null;
-                cachedImageName = null;
+                cachedImageData = null;
+                cachedImageFile = null;
                 cachedImageType = null;
             }
         });
@@ -520,7 +520,7 @@
 
             const questions = [];
             const questionBlocks = document.querySelectorAll('.question-block');
-            
+
             questionBlocks.forEach((block, index) => {
                 const questionText = block.querySelector(`input[name^="question-text"]`).value.trim();
                 const options = [];
@@ -550,13 +550,39 @@
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando...';
 
                 let imageUrl = '';
-                if (selectedImageFile) {
+
+                // Usar dados em cache da imagem (igual submit-news.html)
+                let imageFile = null;
+                if (cachedImageData && cachedImageFile) {
+                    console.log('✅ Usando imagem em cache:', {
+                        name: cachedImageFile.name,
+                        size: cachedImageFile.size,
+                        type: cachedImageFile.type
+                    });
+
+                    // Criar novo File a partir dos dados em cache
+                    const byteString = atob(cachedImageData.split(',')[1]);
+                    const mimeString = cachedImageData.split(',')[0].split(':')[1].split(';')[0];
+                    const ab = new ArrayBuffer(byteString.length);
+                    const ia = new Uint8Array(ab);
+                    for (let i = 0; i < byteString.length; i++) {
+                        ia[i] = byteString.charCodeAt(i);
+                    }
+                    const blob = new Blob([ab], { type: mimeString });
+                    imageFile = new File([blob], cachedImageFile.name, { type: mimeString });
+
+                    console.log('✅ Arquivo reconstruído:', {
+                        name: imageFile.name,
+                        size: imageFile.size,
+                        type: imageFile.type
+                    });
+                }
+
+                if (imageFile) {
                     try {
-                        console.log('📤 Enviando imagem do quiz:', selectedImageFile.name);
-                        
                         // Usar sistema de upload com progresso
                         const uploadResult = await uploadQuizImage(
-                            selectedImageFile,
+                            imageFile,
                             user.uid,
                             (progress) => {
                                 submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Enviando imagem... ${Math.round(progress)}%`;

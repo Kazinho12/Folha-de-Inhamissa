@@ -571,14 +571,14 @@
             line-height: 1.5;
             white-space: pre-wrap;
         }
-        
+
         .post-text.truncated {
             display: -webkit-box;
             -webkit-line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
-        
+
         .read-more-btn {
             color: var(--primary);
             cursor: pointer;
@@ -588,12 +588,12 @@
             display: inline-block;
             transition: color 0.2s;
         }
-        
+
         .read-more-btn:hover {
             color: var(--secondary);
             text-decoration: underline;
         }
-        
+
         /* Animação de carregamento */
         .loading-animation {
             display: flex;
@@ -602,13 +602,13 @@
             justify-content: center;
             padding: 60px 20px;
         }
-        
+
         .loading-animation .lottie-container {
             width: 200px;
             height: 200px;
             margin-bottom: 16px;
         }
-        
+
         .loading-animation p {
             color: var(--gray);
             font-size: 1rem;
@@ -915,7 +915,7 @@
             padding: 16px;
             border-bottom: 1px solid var(--border);
         }
-        
+
         .post-modal-header h3 {
             color: var(--text);
         }
@@ -2276,7 +2276,7 @@
                 currentUserData.photoURL = result.url;
                 updateAvatarDisplay();
                 progressContainer.style.display = 'none';
-                
+
                 const uploadMethod = result.method === 'imgbb' ? 'ImgBB' : 'Firebase Storage';
                 showToast(`Foto de perfil atualizada via ${uploadMethod}!`, 'success');
 
@@ -2425,7 +2425,7 @@
             const videoInput = publishModal.querySelector('#video-input');
             const mediaPreview = publishModal.querySelector('#media-preview');
 
-            mediaInput.addEventListener('change', (e) => {
+            mediaInput.addEventListener('change', async (e) => {
                 const files = Array.from(e.target.files);
 
                 if (files.length > 8) {
@@ -2434,24 +2434,86 @@
                     return;
                 }
 
-                // Limpar seleção anterior
                 selectedImages = [];
                 selectedVideo = null;
 
-                // Armazenar arquivos diretamente
-                selectedImages = files;
-                
-                console.log('✅ Imagens selecionadas:', files.length);
+                // Processar cada arquivo IMEDIATAMENTE (igual submit-news.html)
+                for (const file of files) {
+                    if (!file.type.startsWith('image/')) {
+                        showToast('Apenas imagens são permitidas', 'error');
+                        continue;
+                    }
+
+                    try {
+                        // Ler como DataURL IMEDIATAMENTE
+                        const dataUrl = await new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = () => resolve(reader.result);
+                            reader.onerror = () => reject(new Error('Falha ao ler arquivo'));
+                            reader.readAsDataURL(file);
+                        });
+
+                        // Reconstruir File a partir do dataUrl
+                        const byteString = atob(dataUrl.split(',')[1]);
+                        const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
+                        const ab = new ArrayBuffer(byteString.length);
+                        const ia = new Uint8Array(ab);
+                        for (let i = 0; i < byteString.length; i++) {
+                            ia[i] = byteString.charCodeAt(i);
+                        }
+                        const blob = new Blob([ab], { type: mimeString });
+                        const cachedFile = new File([blob], file.name, { type: mimeString });
+
+                        selectedImages.push(cachedFile);
+
+                        console.log('✅ Imagem processada:', {
+                            name: file.name,
+                            size: cachedFile.size
+                        });
+                    } catch (error) {
+                        console.error('❌ Erro ao processar imagem:', error);
+                        showToast('Erro ao carregar uma das imagens', 'error');
+                    }
+                }
+
+                console.log('✅ Total de imagens prontas:', selectedImages.length);
                 updateMediaPreview();
             });
 
-            videoInput.addEventListener('change', (e) => {
+            videoInput.addEventListener('change', async (e) => {
                 const file = e.target.files[0];
-                if (file) {
-                    selectedVideo = file;
+                if (!file) return;
+
+                try {
+                    // Processar vídeo igual às imagens
+                    const dataUrl = await new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve(reader.result);
+                        reader.onerror = () => reject(new Error('Falha ao ler vídeo'));
+                        reader.readAsDataURL(file);
+                    });
+
+                    const byteString = atob(dataUrl.split(',')[1]);
+                    const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
+                    const ab = new ArrayBuffer(byteString.length);
+                    const ia = new Uint8Array(ab);
+                    for (let i = 0; i < byteString.length; i++) {
+                        ia[i] = byteString.charCodeAt(i);
+                    }
+                    const blob = new Blob([ab], { type: mimeString });
+                    selectedVideo = new File([blob], file.name, { type: mimeString });
+
                     selectedImages = [];
-                    imageFiles = [];
+
+                    console.log('✅ Vídeo processado:', {
+                        name: file.name,
+                        size: selectedVideo.size
+                    });
+
                     updateMediaPreview();
+                } catch (error) {
+                    console.error('❌ Erro ao processar vídeo:', error);
+                    showToast('Erro ao carregar vídeo', 'error');
                 }
             });
 
@@ -2465,21 +2527,21 @@
                     selectedImages.forEach((file, index) => {
                         const item = document.createElement('div');
                         item.className = 'image-preview-item';
-                        
+
                         const objectURL = URL.createObjectURL(file);
-                        
+
                         item.innerHTML = `
                             <img src="${objectURL}" alt="Imagem ${index + 1}">
                             <button type="button" class="remove-image" data-index="${index}">×</button>
                         `;
-                        
+
                         const removeBtn = item.querySelector('.remove-image');
                         removeBtn.addEventListener('click', () => {
                             URL.revokeObjectURL(objectURL);
                             selectedImages.splice(index, 1);
                             updateMediaPreview();
                         });
-                        
+
                         grid.appendChild(item);
                     });
 
@@ -2494,14 +2556,14 @@
                         <video src="${fileURL}" style="max-width: 300px; max-height: 200px; border-radius: 8px;" controls></video>
                         <button type="button" class="remove-video" style="position: absolute; top: -8px; right: -8px; background: red; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;">×</button>
                     `;
-                    
+
                     const removeVideoBtn = videoContainer.querySelector('.remove-video');
                     removeVideoBtn.addEventListener('click', () => {
                         selectedVideo = null;
                         URL.revokeObjectURL(fileURL); // Liberar memória
                         updateMediaPreview();
                     });
-                    
+
                     mediaPreview.appendChild(videoContainer);
                 }
             }
@@ -2528,7 +2590,7 @@
         // Validar conteúdo contra palavras proibidas
         function validarConteudo(texto) {
             if (!texto || palavrasProibidas.length === 0) return { valido: true };
-            
+
             const textoLower = texto.toLowerCase();
             const palavrasEncontradas = [];
 
@@ -2581,7 +2643,7 @@
                 publishBtn.style.opacity = '0.7';
                 publishBtn.style.cursor = 'not-allowed';
                 publishBtn.textContent = 'Preparando... 0%';
-                
+
                 showProgress('Preparando publicação...', 0);
 
                 let mediaUrls = [];
@@ -2593,25 +2655,25 @@
 
                     for (let i = 0; i < images.length; i++) {
                         const image = images[i];
-                        
+
                         console.log(`📤 Iniciando upload da imagem ${i + 1}:`, {
                             name: image.name,
                             type: image.type,
                             size: image.size
                         });
-                        
+
                         try {
                             const progress = 10 + (i / images.length) * 60;
                             showProgress(`Enviando imagem ${i + 1}/${images.length}...`, progress);
                             publishBtn.textContent = `Enviando ${i + 1}/${images.length}... ${Math.round(progress)}%`;
-                            
+
                             // Usar sistema de upload com ImgBB e Firebase fallback
                             const result = await uploadImage(image, user.uid, (uploadProgress) => {
                                 const totalProgress = progress + (uploadProgress / 100) * (60 / images.length);
                                 showProgress(`Enviando imagem ${i + 1}/${images.length}... ${Math.round(uploadProgress)}%`, totalProgress);
                                 publishBtn.textContent = `Enviando ${i + 1}/${images.length}... ${Math.round(totalProgress)}%`;
                             });
-                            
+
                             if (result && result.url) {
                                 mediaUrls.push(result.url);
                                 console.log(`✅ Imagem ${i + 1} enviada via ${result.method}:`, result.url);
@@ -2695,7 +2757,7 @@
             } catch (error) {
                 console.error('Erro ao publicar:', error);
                 hideProgress();
-                
+
                 // Restaurar botão em caso de erro
                 publishBtn.disabled = false;
                 publishBtn.style.opacity = '1';
@@ -2883,10 +2945,10 @@
             `;
 
             postModal.style.display = 'block';
-            
+
             // Configurar botão de curtida no modal
             const modalLikeBtn = document.getElementById(`modal-like-btn-${postId}`);
-            
+
             // Verificar se usuário já curtiu
             const checkIfLiked = async () => {
                 try {
@@ -2975,7 +3037,7 @@
             modalShareBtn.addEventListener('click', () => {
                 sharePost(post, postId);
             });
-            
+
             loadComments(postId);
 
             if (post.imageUrls && post.imageUrls.length > 1) {
@@ -3167,9 +3229,6 @@
                                     <video controls class="post-media" autoplay muted>
                                         <source src="${post.videoUrl}" type="video/mp4">
                                     </video>
-                                    <div class="play-icon">
-                                        <i class="fas fa-play"></i>
-                                    </div>
                                 </div>
                             `;
                         }
@@ -3184,13 +3243,13 @@
 
                         const postElement = document.createElement('div');
                         postElement.className = 'post-card';
-                        
+
                         // Verificar se o texto é longo e precisa ser truncado
                         const contentLength = (post.content || '').length;
                         const shouldTruncate = contentLength > 200;
                         const textClass = shouldTruncate ? 'post-text truncated' : 'post-text';
                         const readMoreBtn = shouldTruncate ? '<div class="read-more-btn">Ver mais...</div>' : '';
-                        
+
                         postElement.innerHTML = `
                             <div class="post-header">
                                 <div class="post-avatar">
@@ -3208,7 +3267,7 @@
                                 ${mediaPreview}
                             </div>
                         `;
-                        
+
                         // Adicionar evento no botão "Ver mais"
                         const readMoreButton = postElement.querySelector('.read-more-btn');
                         if (readMoreButton) {
