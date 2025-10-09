@@ -399,13 +399,17 @@
         const imagePreview = document.getElementById('image-preview');
         const previewImg = document.getElementById('preview-img');
 
-        // Armazenar arquivo diretamente
-        let selectedImageFile = null;
+        // Cache ROBUSTO da imagem
+        let cachedImageBlob = null;
+        let cachedImageName = null;
+        let cachedImageType = null;
 
-        imageInput.addEventListener('change', (e) => {
+        imageInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (!file) {
-                selectedImageFile = null;
+                cachedImageBlob = null;
+                cachedImageName = null;
+                cachedImageType = null;
                 imagePreview.style.display = 'none';
                 return;
             }
@@ -425,15 +429,30 @@
                 return;
             }
 
-            // Armazenar arquivo
-            selectedImageFile = file;
-            
-            // Mostrar preview usando URL.createObjectURL (mais rápido e confiável)
-            const objectURL = URL.createObjectURL(file);
-            previewImg.src = objectURL;
-            imagePreview.style.display = 'block';
-            
-            console.log('✅ Imagem selecionada:', file.name);
+            try {
+                // Ler arquivo IMEDIATAMENTE como Blob (evita perda de referência)
+                const arrayBuffer = await file.arrayBuffer();
+                cachedImageBlob = new Blob([arrayBuffer], { type: file.type });
+                cachedImageName = file.name;
+                cachedImageType = file.type;
+                
+                // Mostrar preview
+                const objectURL = URL.createObjectURL(cachedImageBlob);
+                previewImg.src = objectURL;
+                imagePreview.style.display = 'block';
+                
+                console.log('✅ Imagem armazenada em cache:', {
+                    name: cachedImageName,
+                    type: cachedImageType,
+                    size: cachedImageBlob.size
+                });
+            } catch (error) {
+                console.error('❌ Erro ao processar imagem:', error);
+                showToast('Erro ao carregar imagem', 'error');
+                cachedImageBlob = null;
+                cachedImageName = null;
+                cachedImageType = null;
+            }
         });
 
         window.addQuestion = function() {
