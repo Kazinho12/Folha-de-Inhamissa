@@ -2552,29 +2552,29 @@
 
                     for (let i = 0; i < images.length; i++) {
                         const image = images[i];
-                        const fileExtension = image.name.split('.').pop();
-                        const fileName = `${Date.now()}_${user.uid}_${i}.${fileExtension}`;
-                        const imageRef = ref(storage, `posts/images/${fileName}`);
-
-                        const uploadTask = uploadBytesResumable(imageRef, image);
-
-                        await new Promise((resolve, reject) => {
-                            uploadTask.on('state_changed',
-                                (snapshot) => {
-                                    const progress = 10 + ((i + (snapshot.bytesTransferred / snapshot.totalBytes)) / images.length) * 60;
-                                    showProgress('Enviando imagens...', progress);
-                                },
-                                (error) => {
-                                    console.error('Erro no upload da imagem:', error);
-                                    reject(error);
-                                },
-                                async () => {
-                                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                                    mediaUrls.push(downloadURL);
-                                    resolve();
-                                }
-                            );
-                        });
+                        
+                        try {
+                            const progress = 10 + (i / images.length) * 60;
+                            showProgress(`Enviando imagem ${i + 1}/${images.length}...`, progress);
+                            
+                            // Usar sistema de upload com ImgBB e Firebase fallback
+                            const result = await uploadImage(image, user.uid, (uploadProgress) => {
+                                const totalProgress = progress + (uploadProgress / 100) * (60 / images.length);
+                                showProgress(`Enviando imagem ${i + 1}/${images.length}... ${Math.round(uploadProgress)}%`, totalProgress);
+                            });
+                            
+                            if (result && result.url) {
+                                mediaUrls.push(result.url);
+                                console.log(`✅ Imagem ${i + 1} enviada via ${result.method}:`, result.url);
+                            } else {
+                                throw new Error('URL da imagem não retornada');
+                            }
+                        } catch (uploadError) {
+                            console.error(`❌ Erro no upload da imagem ${i + 1}:`, uploadError);
+                            hideProgress();
+                            showToast(`Erro ao enviar imagem ${i + 1}: ${uploadError.message}`, 'error');
+                            return;
+                        }
                     }
                 }
 

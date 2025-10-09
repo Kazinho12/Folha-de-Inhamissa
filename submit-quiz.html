@@ -541,7 +541,7 @@
                 const questionText = block.querySelector(`input[name^="question-text"]`).value.trim();
                 const options = [];
                 for (let i = 0; i < 4; i++) {
-                    const option = block.querySelector(`input[name$="-${i}"]`).value.trim();
+                    const option = block.querySelector(`input[name^="option-"][name$="-${i}"]`).value.trim();
                     options.push(option);
                 }
                 const correctIndex = parseInt(block.querySelector(`input[name^="correct"]:checked`)?.value || 0);
