@@ -13,11 +13,24 @@ export function initUploadUtils(firebaseStorage) {
     console.log('✅ Upload utils inicializado com Firebase Storage');
 }
 
-// Converter arquivo para base64 com método robusto
+// Converter arquivo para base64 com método robusto e validação completa
 async function fileToBase64(file) {
-    // Validar arquivo primeiro
-    if (!file || !(file instanceof Blob)) {
-        throw new Error('Arquivo inválido');
+    // Validações iniciais
+    if (!file) {
+        throw new Error('Arquivo não fornecido');
+    }
+
+    if (!(file instanceof Blob) && !(file instanceof File)) {
+        throw new Error('Tipo de arquivo inválido');
+    }
+
+    // Verificar se o arquivo é válido e tem conteúdo
+    if (!file.type || !file.type.startsWith('image/')) {
+        throw new Error('O arquivo deve ser uma imagem');
+    }
+
+    if (file.size === 0) {
+        throw new Error('Arquivo vazio');
     }
 
     console.log('🔄 Convertendo arquivo para base64...', {
@@ -27,72 +40,70 @@ async function fileToBase64(file) {
     });
 
     return new Promise((resolve, reject) => {
+        // Criar um novo FileReader
         const reader = new FileReader();
         
-        let timeoutId = setTimeout(() => {
+        // Timeout de 15 segundos para conversão
+        const timeoutId = setTimeout(() => {
             reader.abort();
-            reject(new Error('Timeout na conversão base64'));
-        }, 30000);
+            reject(new Error('Timeout na conversão (15s)'));
+        }, 15000);
 
-        reader.onloadend = () => {
+        // Evento de sucesso
+        reader.onload = (event) => {
             clearTimeout(timeoutId);
             
-            if (reader.error) {
-                console.error('❌ FileReader error:', reader.error);
-                reject(new Error(`Erro ao ler arquivo: ${reader.error.message || 'desconhecido'}`));
-                return;
-            }
-
-            if (!reader.result) {
-                reject(new Error('FileReader não retornou resultado'));
-                return;
-            }
-
             try {
-                const result = reader.result;
-                console.log('✅ FileReader completou, processando resultado...');
+                const result = event.target.result;
                 
+                if (!result || typeof result !== 'string') {
+                    throw new Error('Resultado da leitura inválido');
+                }
+
                 // Extrair base64 da data URL
-                const matches = result.match(/^data:([^;]+);base64,(.+)$/);
-                if (!matches || matches.length !== 3) {
+                const base64Match = result.match(/^data:([^;]+);base64,(.+)$/);
+                if (!base64Match || base64Match.length < 3) {
                     throw new Error('Formato de data URL inválido');
                 }
 
-                const base64 = matches[2];
-                if (!base64 || base64.length < 10) {
-                    throw new Error('Base64 extraído está vazio ou inválido');
+                const base64Data = base64Match[2];
+                
+                if (!base64Data || base64Data.length < 10) {
+                    throw new Error('Base64 extraído está vazio');
                 }
 
                 console.log('✅ Base64 extraído com sucesso', {
-                    length: base64.length,
-                    mimeType: matches[1]
+                    length: base64Data.length,
+                    mimeType: base64Match[1]
                 });
                 
-                resolve(base64);
+                resolve(base64Data);
             } catch (error) {
                 console.error('❌ Erro ao processar resultado:', error);
-                reject(new Error(`Falha ao processar base64: ${error.message}`));
+                reject(error);
             }
         };
 
-        reader.onerror = (event) => {
+        // Evento de erro
+        reader.onerror = () => {
             clearTimeout(timeoutId);
-            console.error('❌ FileReader onerror disparado:', event);
-            const errorMsg = reader.error ? reader.error.message : 'Erro desconhecido ao ler arquivo';
-            reject(new Error(errorMsg));
+            console.error('❌ Erro ao ler arquivo');
+            reject(new Error('Falha ao ler o arquivo. Tente novamente.'));
         };
 
+        // Evento de abortar
         reader.onabort = () => {
             clearTimeout(timeoutId);
-            reject(new Error('Leitura do arquivo foi abortada'));
+            reject(new Error('Leitura do arquivo cancelada'));
         };
 
+        // Iniciar leitura
         try {
             reader.readAsDataURL(file);
         } catch (error) {
             clearTimeout(timeoutId);
-            console.error('❌ Erro ao iniciar FileReader:', error);
-            reject(new Error(`Falha ao iniciar leitura: ${error.message}`));
+            console.error('❌ Erro ao iniciar leitura:', error);
+            reject(new Error('Não foi possível iniciar a leitura do arquivo'));
         }
     });
 }
@@ -172,10 +183,10 @@ async function uploadToImgBB(file, onProgress) {
 // Upload usando Firebase Storage com tratamento robusto
 async function uploadToFirebase(file, userId, onProgress) {
     return new Promise((resolve, reject) => {
-        // Timeout de 60 segundos para upload Firebase
+        // Timeout de 30 segundos para upload Firebase
         const timeoutId = setTimeout(() => {
-            reject(new Error('Timeout no upload Firebase (60s)'));
-        }, 60000);
+            reject(new Error('Timeout no upload Firebase (30s)'));
+        }, 30000);
 
         try {
             console.log('🔥 Iniciando upload via Firebase Storage...', {
@@ -205,18 +216,32 @@ async function uploadToFirebase(file, userId, onProgress) {
                 contentType: file.type
             });
 
-            let lastProgress = 10;
+            let lastBytesTransferred = 0;
+            let stuckCounter = 0;
+            
             const progressCheckInterval = setInterval(() => {
-                if (lastProgress === uploadTask.snapshot.bytesTransferred / uploadTask.snapshot.totalBytes * 100) {
-                    console.warn('⚠️ Upload pode estar travado, mas continuando...');
+                if (uploadTask.snapshot) {
+                    const currentBytes = uploadTask.snapshot.bytesTransferred;
+                    if (currentBytes === lastBytesTransferred && currentBytes < uploadTask.snapshot.totalBytes) {
+                        stuckCounter++;
+                        if (stuckCounter > 3) {
+                            console.error('❌ Upload travado, cancelando...');
+                            clearInterval(progressCheckInterval);
+                            clearTimeout(timeoutId);
+                            uploadTask.cancel();
+                            reject(new Error('Upload travado'));
+                        }
+                    } else {
+                        stuckCounter = 0;
+                        lastBytesTransferred = currentBytes;
+                    }
                 }
-            }, 5000);
+            }, 3000);
 
             uploadTask.on('state_changed',
                 (snapshot) => {
                     const rawProgress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
                     const progress = 10 + (rawProgress * 0.85);
-                    lastProgress = rawProgress;
                     
                     console.log(`📊 Progresso Firebase: ${Math.round(progress)}%`, 
                         `(${snapshot.bytesTransferred}/${snapshot.totalBytes} bytes)`);
@@ -282,7 +307,22 @@ export async function uploadImage(file, userId, onProgress) {
         type: file.type
     });
 
-    // Tentar ImgBB primeiro (mais rápido)
+    // Para imagens maiores que 500KB, usar Firebase direto
+    const imgbbMaxSize = 500 * 1024; // 500KB
+    
+    if (file.size > imgbbMaxSize) {
+        console.log('📦 Imagem grande, usando Firebase Storage diretamente...');
+        try {
+            const result = await uploadToFirebase(file, userId, onProgress);
+            console.log('✅ Upload concluído via Firebase');
+            return result;
+        } catch (firebaseError) {
+            console.error('❌ Firebase falhou:', firebaseError.message);
+            throw new Error(`Upload falhou: ${firebaseError.message}`);
+        }
+    }
+
+    // Tentar ImgBB primeiro para imagens pequenas
     try {
         const result = await uploadToImgBB(file, onProgress);
         console.log('✅ Upload concluído via ImgBB');
