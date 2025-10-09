@@ -410,12 +410,6 @@
                 return;
             }
 
-            console.log('📸 Arquivo selecionado:', {
-                name: file.name,
-                type: file.type,
-                size: file.size
-            });
-
             // Validar tipo
             if (!file.type.startsWith('image/')) {
                 showToast('Por favor, selecione uma imagem válida', 'error');
@@ -434,15 +428,12 @@
             // Armazenar arquivo
             selectedImageFile = file;
             
-            // Mostrar preview
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                previewImg.src = e.target.result;
-                imagePreview.style.display = 'block';
-            };
-            reader.readAsDataURL(file);
+            // Mostrar preview usando URL.createObjectURL (mais rápido e confiável)
+            const objectURL = URL.createObjectURL(file);
+            previewImg.src = objectURL;
+            imagePreview.style.display = 'block';
             
-            console.log('✅ Imagem selecionada e preview gerado');
+            console.log('✅ Imagem selecionada:', file.name);
         });
 
         window.addQuestion = function() {
@@ -508,16 +499,6 @@
             const description = document.getElementById('quiz-description').value.trim();
             const category = document.getElementById('quiz-category').value;
 
-            // Usar arquivo selecionado
-            const imageFile = selectedImageFile;
-            if (imageFile) {
-                console.log('✅ Usando imagem selecionada:', {
-                    name: imageFile.name,
-                    size: imageFile.size,
-                    type: imageFile.type
-                });
-            }
-
             const questions = [];
             const questionBlocks = document.querySelectorAll('.question-block');
             
@@ -550,11 +531,13 @@
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando...';
 
                 let imageUrl = '';
-                if (imageFile) {
+                if (selectedImageFile) {
                     try {
+                        console.log('📤 Enviando imagem do quiz:', selectedImageFile.name);
+                        
                         // Usar sistema de upload com progresso
                         const uploadResult = await uploadQuizImage(
-                            imageFile,
+                            selectedImageFile,
                             user.uid,
                             (progress) => {
                                 submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Enviando imagem... ${Math.round(progress)}%`;
@@ -563,7 +546,7 @@
 
                         if (uploadResult && uploadResult.url) {
                             imageUrl = uploadResult.url;
-                            console.log('✅ Imagem enviada:', imageUrl);
+                            console.log('✅ Imagem enviada com sucesso:', imageUrl);
                         } else {
                             throw new Error('URL da imagem não retornada');
                         }
