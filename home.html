@@ -2388,6 +2388,7 @@
 
             let selectedImages = [];
             let selectedVideo = null;
+            let imageFiles = []; // Manter referência aos arquivos originais
 
             const formatBtns = publishModal.querySelectorAll('.format-btn');
             const contentTextarea = publishModal.querySelector('#post-content');
@@ -2429,9 +2430,12 @@
 
                 if (files.length > 8) {
                     showToast('Máximo de 8 imagens por publicação', 'error');
+                    mediaInput.value = ''; // Limpar input
                     return;
                 }
 
+                // Armazenar os arquivos IMEDIATAMENTE
+                imageFiles = files;
                 selectedImages = files;
                 selectedVideo = null;
                 updateMediaPreview();
@@ -2442,6 +2446,7 @@
                 if (file) {
                     selectedVideo = file;
                     selectedImages = [];
+                    imageFiles = [];
                     updateMediaPreview();
                 }
             });
@@ -2462,10 +2467,12 @@
                             <button type="button" class="remove-image" data-index="${index}">×</button>
                         `;
                         
-                        // Adicionar event listener ao botão de remover
                         const removeBtn = item.querySelector('.remove-image');
                         removeBtn.addEventListener('click', () => {
+                            // Remover da lista de arquivos também
+                            imageFiles.splice(index, 1);
                             selectedImages.splice(index, 1);
+                            URL.revokeObjectURL(fileURL); // Liberar memória
                             updateMediaPreview();
                         });
                         
@@ -2484,10 +2491,10 @@
                         <button type="button" class="remove-video" style="position: absolute; top: -8px; right: -8px; background: red; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;">×</button>
                     `;
                     
-                    // Adicionar event listener ao botão de remover vídeo
                     const removeVideoBtn = videoContainer.querySelector('.remove-video');
                     removeVideoBtn.addEventListener('click', () => {
                         selectedVideo = null;
+                        URL.revokeObjectURL(fileURL); // Liberar memória
                         updateMediaPreview();
                     });
                     
@@ -2497,7 +2504,8 @@
 
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                await handlePublish(contentTextarea.value, selectedImages, selectedVideo, publishModal);
+                // Usar imageFiles que mantém referências aos arquivos originais
+                await handlePublish(contentTextarea.value, imageFiles.length > 0 ? imageFiles : selectedImages, selectedVideo, publishModal);
             });
         }
 
